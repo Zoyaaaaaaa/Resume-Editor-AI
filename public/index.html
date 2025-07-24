@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Editor AI - Professional Resume Builder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-file-alt"></i> Resume Editor AI</h1>
+                <div class="header-actions">
+                    <select id="templateSelector" class="template-selector">
+                        <option value="professional">Professional Template</option>
+                        <option value="modern">Modern Template</option>
+                    </select>
+                    <button id="refreshBtn" class="btn btn-secondary" onclick="console.log('Refresh button clicked directly')">
+                        <i class="fas fa-sync-alt"></i> Refresh Preview
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Form -->
+            <div class="panel form-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-edit"></i> Resume Information</h2>
+                    <div class="panel-actions">
+                        <label for="resumeUpload" class="btn btn-outline">
+                            <i class="fas fa-upload"></i> Upload Resume
+                        </label>
+                        <input type="file" id="resumeUpload" accept=".pdf" style="display: none;">
+                        <button id="aiEnhanceBtn" class="btn btn-primary">
+                            <i class="fas fa-magic"></i> AI Enhance
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-container">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name *</label>
+                                <input type="text" id="fullName" placeholder="Your full name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" placeholder="your.email@example.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" placeholder="City, State">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="linkedin">LinkedIn</label>
+                                <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                            </div>
+                            <div class="form-group">
+                                <label for="website">Website/Portfolio</label>
+                                <input type="url" id="website" placeholder="https://yourwebsite.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Summary -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3>Professional Summary</h3>
+                            <button class="btn btn-small btn-ai" data-section="summary">
+                                <i class="fas fa-robot"></i> AI Enhance
+                            </button>
+                        </div>
+                        <textarea id="professionalSummary" rows="4" 
+                                  placeholder="Write a brief professional summary highlighting your key skills and experience..."></textarea>
+                    </div>
+
+                    <!-- Dynamic Sections Container -->
+                    <div id="dynamicSections">
+                        <!-- Experience Section -->
+                        <div class="form-section" data-section="experience">
+                            <div class="section-header">
+                                <h3>Professional Experience</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-small btn-ai" data-section="experience">
+                                        <i class="fas fa-robot"></i> AI Enhance
+                                    </button>
+                                    <button class="btn btn-small btn-add" data-target="experience" onclick="console.log('Add Experience clicked directly', this.dataset.target)">
+                                        <i class="fas fa-plus"></i> Add Experience
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="experienceContainer" class="dynamic-container">
+                                <!-- Experience items will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Education Section -->
+                        <div class="form-section" data-section="education">
+                            <div class="section-header">
+                                <h3>Education</h3>
+                                <button class="btn btn-small btn-add" data-target="education">
+                                    <i class="fas fa-plus"></i> Add Education
+                                </button>
+                            </div>
+                            <div id="educationContainer" class="dynamic-container">
+                                <!-- Education items will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Projects Section -->
+                        <div class="form-section" data-section="projects">
+                            <div class="section-header">
+                                <h3>Projects</h3>
+                                <button class="btn btn-small btn-add" data-target="projects">
+                                    <i class="fas fa-plus"></i> Add Project
+                                </button>
+                            </div>
+                            <div id="projectsContainer" class="dynamic-container">
+                                <!-- Project items will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Skills Section -->
+                        <div class="form-section" data-section="skills">
+                            <div class="section-header">
+                                <h3>Technical Skills</h3>
+                                <button class="btn btn-small btn-ai" data-section="skills">
+                                    <i class="fas fa-robot"></i> AI Enhance
+                                </button>
+                            </div>
+                            <div class="skills-grid">
+                                <div class="form-group">
+                                    <label for="skillsLanguages">Programming Languages</label>
+                                    <input type="text" id="skillsLanguages" placeholder="Python, JavaScript, Java">
+                                </div>
+                                <div class="form-group">
+                                    <label for="skillsFrameworks">Frameworks & Libraries</label>
+                                    <input type="text" id="skillsFrameworks" placeholder="React, Node.js, Django">
+                                </div>
+                                <div class="form-group">
+                                    <label for="skillsTools">Tools & Technologies</label>
+                                    <input type="text" id="skillsTools" placeholder="Git, Docker, AWS">
+                                </div>
+                                <div class="form-group">
+                                    <label for="skillsConcepts">Concepts</label>
+                                    <input type="text" id="skillsConcepts" placeholder="Machine Learning, Agile, DevOps">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - PDF Preview -->
+            <div class="panel preview-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-eye"></i> PDF Preview</h2>
+                    <div class="panel-actions">
+                        <div class="ats-score" id="atsScore" style="display: none;">
+                            <span class="score-label">ATS Score:</span>
+                            <span class="score-value" id="atsScoreValue">--</span>
+                        </div>
+                        <button id="calculateAtsBtn" class="btn btn-outline">
+                            <i class="fas fa-chart-line"></i> Calculate ATS Score
+                        </button>
+                        <button id="downloadPdfBtn" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <div id="pdfViewer" class="pdf-viewer">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>Fill in your information to generate a preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATS Analysis Modal -->
+        <div id="atsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>ATS Analysis Report</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="atsAnalysisContent">
+                    <!-- ATS analysis content will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p id="loadingText">Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
