@@ -1,18 +1,7 @@
-const { generateProfessionalTemplate } = require('./professional');
-const { generateModernTemplate } = require('./modern');
+const latexTemplateUtils = require('../utils/latexTemplateUtils');
 
-const templates = {
-  professional: {
-    name: 'Professional',
-    description: 'Clean, traditional resume format suitable for corporate environments',
-    generate: generateProfessionalTemplate
-  },
-  modern: {
-    name: 'Modern',
-    description: 'Contemporary design with colors and icons, perfect for creative roles',
-    generate: generateModernTemplate
-  }
-};
+// Dynamically load all available templates
+const templates = latexTemplateUtils.getAllLatexTemplates();
 
 function generateTemplate(templateName, data) {
   const template = templates[templateName];

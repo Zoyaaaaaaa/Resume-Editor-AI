@@ -86,8 +86,19 @@
                                 <i class="fas fa-robot"></i> AI Enhance
                             </button>
                         </div>
-                        <textarea id="professionalSummary" rows="4" 
-                                  placeholder="Write a brief professional summary highlighting your key skills and experience..."></textarea>
+                        <div class="textarea-container">
+                            <div class="textarea-toolbar">
+                                <button type="button" class="btn-format btn-bold" data-target="professionalSummary" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <span class="format-hint">Select text and click <strong>B</strong> to make it bold</span>
+                            </div>
+                            <textarea id="professionalSummary" rows="4" 
+                                      placeholder="Write a brief professional summary highlighting your key skills and experience..."></textarea>
+                            <div class="format-info">
+                                <small><i class="fas fa-info-circle"></i> Use **text** for bold formatting or select text and click B</small>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Dynamic Sections Container -->

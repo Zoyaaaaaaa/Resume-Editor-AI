@@ -485,7 +485,8 @@ class ResumeEditorApp {
                 body: JSON.stringify({
                     sectionData,
                     sectionType,
-                    jobDescription: ''
+                    jobDescription: '',
+                    templateName: this.currentTemplate
                 })
             });
 

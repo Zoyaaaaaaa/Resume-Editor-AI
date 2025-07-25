@@ -1,4 +1,9 @@
+const { processResumeDataMarkdown, estimateLatexSize } = require('../utils/markdownToLatex');
+
 function generateModernTemplate(data) {
+  // Process markdown formatting to LaTeX before template generation
+  const processedData = processResumeDataMarkdown(data);
+  
   const {
     personalInfo = {},
     professionalSummary = '',
@@ -9,7 +14,7 @@ function generateModernTemplate(data) {
     positions = [],
     certifications = [],
     interests = ''
-  } = data;
+  } = processedData;
 
   const template = `\\documentclass[10pt, a4paper]{article}
 \\usepackage[utf8]{inputenc}
@@ -135,6 +140,14 @@ ${positions.map(pos => `    \\item ${pos}`).join('\n')}
 \\end{itemize}
 ` : ''}
 \\end{document}`;
+
+  // Check LaTeX size and log warning if too large
+  const sizeInfo = estimateLatexSize(template);
+  if (sizeInfo.tooLarge) {
+    console.warn(`⚠️  Generated LaTeX is ${sizeInfo.sizeKB}KB (threshold: ${sizeInfo.threshold}). This may cause PDF generation to fail.`);
+  } else {
+    console.log(`✅ Generated LaTeX size: ${sizeInfo.sizeKB}KB (within limits)`);
+  }
 
   return template;
 }

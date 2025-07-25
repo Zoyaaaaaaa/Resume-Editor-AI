@@ -40,7 +40,14 @@ class PDFService {
 
   async compileWithLatexOnline(latexContent, options = {}) {
     try {
-      logger.info('LaTeX content length:', latexContent.length);
+      const contentSizeKB = Math.round(Buffer.byteLength(latexContent, 'utf8') / 1024);
+      logger.info(`LaTeX content size: ${contentSizeKB}KB`);
+      
+      // Check if content is too large for external service
+      if (contentSizeKB > 50) {
+        logger.warn(`⚠️  LaTeX content is ${contentSizeKB}KB, which may be too large for external service. Consider optimizing content.`);
+      }
+      
       logger.info('LaTeX content preview:', latexContent.substring(0, 200) + '...');
       
       // LaTeX-Online requires GET with properly encoded text parameter
@@ -92,6 +99,13 @@ class PDFService {
     } catch (error) {
       if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
         throw new Error('LaTeX compilation service is unavailable. Please try again later.');
+      }
+      
+      if (error.response?.status === 414) {
+        // 414 Request-URI Too Large - this is our main issue
+        const contentSizeKB = Math.round(Buffer.byteLength(latexContent, 'utf8') / 1024);
+        logger.error(`⚠️  PDF generation failed: Content too large (${contentSizeKB}KB). This usually happens with AI-enhanced resumes that have excessive bold formatting.`);
+        throw new Error(`Resume content is too large for PDF generation (${contentSizeKB}KB). Please try reducing the amount of formatting or content, or use a simpler template.`);
       }
       
       if (error.response?.status === 400) {

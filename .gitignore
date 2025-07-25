@@ -172,7 +172,7 @@ cache/
 storage/
 
 # PM2 ecosystem file (contains sensitive data)
-ecosystem.config.js
+#ecosystem.config.js
 
 # Database files
 *.db

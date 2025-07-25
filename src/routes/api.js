@@ -4,6 +4,7 @@ const templateController = require('../controllers/templateController');
 const pdfController = require('../controllers/pdfController');
 const aiController = require('../controllers/aiController');
 const { aiLimiter, pdfLimiter, generalLimiter } = require('../middleware/rateLimiter');
+const { getAvailableTemplates, createTemplateValidator } = require('../utils/templateUtils');
 
 // Import additional route modules
 const queueRoutes = require('./queue');
@@ -29,8 +30,7 @@ router.post('/templates/generate', [
   body('templateName')
     .notEmpty()
     .withMessage('Template name is required')
-    .isIn(['professional', 'modern'])
-    .withMessage('Invalid template name'),
+    .custom(createTemplateValidator()),
   body('data')
     .isObject()
     .withMessage('Resume data must be an object'),
@@ -58,8 +58,7 @@ router.post('/templates/validate', [
  */
 router.get('/templates/:templateName/preview', [
   param('templateName')
-    .isIn(['professional', 'modern'])
-    .withMessage('Invalid template name')
+    .custom(createTemplateValidator())
 ], (req, res) => {
   const { templateName } = req.params;
   const templates = {
@@ -103,8 +102,7 @@ router.post('/pdf/generate', pdfLimiter, [
   body('templateName')
     .notEmpty()
     .withMessage('Template name is required')
-    .isIn(['professional', 'modern'])
-    .withMessage('Invalid template name'),
+    .custom(createTemplateValidator()),
   body('data')
     .isObject()
     .withMessage('Resume data must be an object'),
@@ -191,7 +189,7 @@ router.post('/ai/ats-score', aiLimiter, [
 
 /**
  * POST /api/ai/enhance-section
- * Enhance a specific resume section using AI
+ * Enhance a specific resume section using AI (now template-aware)
  */
 router.post('/ai/enhance-section', aiLimiter, [
   body('sectionData')
@@ -206,7 +204,10 @@ router.post('/ai/enhance-section', aiLimiter, [
     .optional()
     .isString()
     .isLength({ max: 5000 })
-    .withMessage('Job description must be a string with max 5000 characters')
+    .withMessage('Job description must be a string with max 5000 characters'),
+  body('templateName')
+    .optional()
+    .custom(createTemplateValidator())
 ], aiController.enhanceSection);
 
 /**
@@ -243,6 +244,99 @@ router.post('/ai/bulk-enhance', aiLimiter, [
 router.get('/ai/status', aiController.getStatus);
 
 /**
+ * GET /api/ai/enhanced-status
+ * Check enhanced AI service status with template information
+ */
+router.get('/ai/enhanced-status', aiController.getEnhancedStatus);
+
+/**
+ * POST /api/ai/enhance-full-resume
+ * Enhance full resume using template-specific AI prompts
+ */
+router.post('/ai/enhance-full-resume', aiLimiter, [
+  body('templateName')
+    .notEmpty()
+    .withMessage('Template name is required')
+    .custom(createTemplateValidator()),
+  body('resumeData')
+    .isObject()
+    .withMessage('Resume data must be an object'),
+  body('jobDescription')
+    .optional()
+    .isString()
+    .isLength({ max: 5000 })
+    .withMessage('Job description must be a string with max 5000 characters'),
+  body('enhancementType')
+    .optional()
+    .isString()
+    .isIn(['general', 'ats-optimization', 'executive-level', 'creativity-focused', 'tech-innovation', 'user-experience-focused'])
+    .withMessage('Invalid enhancement type')
+], aiController.enhanceFullResume);
+
+/**
+ * POST /api/ai/enhance-section-template
+ * Enhance resume section using template-specific AI prompts
+ */
+router.post('/ai/enhance-section-template', aiLimiter, [
+  body('templateName')
+    .notEmpty()
+    .withMessage('Template name is required')
+    .custom(createTemplateValidator()),
+  body('sectionData')
+    .exists()
+    .withMessage('Section data is required'),
+  body('sectionType')
+    .notEmpty()
+    .withMessage('Section type is required')
+    .isIn(['professionalSummary', 'experience', 'skills', 'education', 'projects'])
+    .withMessage('Invalid section type'),
+  body('jobDescription')
+    .optional()
+    .isString()
+    .isLength({ max: 5000 })
+    .withMessage('Job description must be a string with max 5000 characters')
+], aiController.enhanceSectionWithTemplate);
+
+/**
+ * POST /api/ai/template-recommendation
+ * Get AI recommendation for best resume template based on content and job description
+ */
+router.post('/ai/template-recommendation', aiLimiter, [
+  body('resumeData')
+    .isObject()
+    .withMessage('Resume data must be an object'),
+  body('jobDescription')
+    .optional()
+    .isString()
+    .isLength({ max: 5000 })
+    .withMessage('Job description must be a string with max 5000 characters')
+], aiController.getTemplateRecommendation);
+
+/**
+ * GET /api/ai/templates
+ * Get available AI templates and their information
+ */
+router.get('/ai/templates', aiController.getAvailableTemplates);
+
+/**
+ * GET /api/ai/templates/:templateName/capabilities
+ * Get capabilities and supported features for a specific template
+ */
+router.get('/ai/templates/:templateName/capabilities', [
+  param('templateName')
+    .custom(createTemplateValidator())
+], aiController.getTemplateCapabilities);
+
+/**
+ * GET /api/ai/templates/capabilities
+ * Get capabilities for all available templates
+ */
+router.get('/ai/templates/capabilities', (req, res, next) => {
+  req.params.templateName = null;
+  aiController.getTemplateCapabilities(req, res, next);
+});
+
+/**
  * GET /api/ai/usage
  * Get AI service usage statistics
  */
@@ -256,7 +350,12 @@ router.get('/ai/usage', (req, res) => {
         'parse-resume': 'PDF resume parsing',
         'parse-text': 'Text resume parsing', 
         'ats-score': 'ATS compatibility scoring',
-        'enhance-section': 'Section enhancement'
+        'enhance-section': 'Section enhancement (backward compatible)',
+        'enhance-full-resume': 'Template-aware full resume enhancement',
+        'enhance-section-template': 'Template-aware section enhancement',
+        'template-recommendation': 'AI-powered template recommendation',
+        'templates': 'Available AI templates',
+        'capabilities': 'Template capabilities and features'
       }
     }
   });
@@ -329,7 +428,7 @@ router.get('/features', (req, res) => {
   res.json({
     success: true,
     data: {
-      templates: ['professional', 'modern'],
+      templates: getAvailableTemplates(),
       aiFeatures: [
         'resume-parsing',
         'ats-scoring', 

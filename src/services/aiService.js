@@ -1,4 +1,4 @@
-const axios = require('axios');
+const aiServiceCoordinator = require('./ai');
 const config = require('../config/environment');
 const logger = require('../utils/logger');
 
@@ -6,328 +6,162 @@ class AIService {
   constructor() {
     this.apiKey = config.GEMINI_API_KEY;
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    this.coordinator = aiServiceCoordinator;
+    
+    // Log integration status
+    logger.info('Legacy AI Service initialized with new template-aware architecture');
   }
 
   async parseResume(resumeText) {
     try {
-      logger.info('Starting resume parsing with AI');
+      logger.info('Legacy AI Service: Delegating resume parsing to new architecture');
       
-      const prompt = `Parse the following resume text and extract structured information. Return a JSON object with the following structure:
-{
-  "personalInfo": {
-    "name": "string",
-    "email": "string", 
-    "phone": "string",
-    "linkedin": "string",
-    "website": "string",
-    "address": "string"
-  },
-  "professionalSummary": "string",
-  "experience": [
-    {
-      "position": "string",
-      "company": "string", 
-      "location": "string",
-      "dates": "string",
-      "details": "string (bullet points separated by newlines)"
-    }
-  ],
-  "education": [
-    {
-      "institution": "string",
-      "degree": "string",
-      "dates": "string",
-      "gpa": "string",
-      "details": "string"
-    }
-  ],
-  "projects": [
-    {
-      "name": "string",
-      "type": "string",
-      "location": "string", 
-      "dates": "string",
-      "details": "string"
-    }
-  ],
-  "skills": {
-    "Languages": "string",
-    "Frameworks": "string",
-    "Tools": "string",
-    "Concepts": "string"
-  },
-  "certifications": ["string"],
-  "positions": ["string"],
-  "interests": "string"
-}
-
-Resume text to parse:
-${resumeText}
-
-Return only the JSON object, no additional text.`;
-
-      const response = await this.callGeminiAPI(prompt);
-      
-      // Parse the JSON response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No valid JSON found in AI response');
-      }
-      
-      const parsedData = JSON.parse(jsonMatch[0]);
-      logger.info('Resume parsing completed successfully');
-      
-      return parsedData;
+      // Delegate to the new coordinator's base functionality
+      return await this.coordinator.parseResume(resumeText);
       
     } catch (error) {
-      logger.error('Resume parsing failed:', error);
+      logger.error('Legacy AI Service: Resume parsing failed:', error);
       throw new Error(`Resume parsing failed: ${error.message}`);
+    }
+  }
+
+  async parseResumeFromImages(imageBuffers) {
+    try {
+      logger.info('Legacy AI Service: Delegating image-based resume parsing to new architecture');
+      
+      // Delegate to the new coordinator's image-based functionality
+      return await this.coordinator.parseResumeFromImages(imageBuffers);
+      
+    } catch (error) {
+      logger.error('Legacy AI Service: Image-based resume parsing failed:', error);
+      throw new Error(`Image-based resume parsing failed: ${error.message}`);
     }
   }
 
   async calculateATSScore(resumeData, jobDescription = '') {
     try {
-      logger.info('Calculating ATS score');
+      logger.info('Legacy AI Service: Delegating ATS score calculation to new architecture');
       
-      const resumeText = this.convertResumeDataToText(resumeData);
-      
-      const prompt = `Analyze this resume for ATS (Applicant Tracking System) compatibility and provide a comprehensive score and feedback.
-
-${jobDescription ? `Job Description for comparison:
-${jobDescription}
-
-` : ''}Resume Content:
-${resumeText}
-
-Provide a JSON response with this structure:
-{
-  "score": 85,
-  "maxScore": 100,
-  "feedback": {
-    "strengths": ["List of strengths"],
-    "improvements": ["List of areas to improve"],
-    "keywords": {
-      "found": ["keywords found in resume"],
-      "missing": ["important keywords missing"],
-      "suggestions": ["suggested keywords to add"]
-    },
-    "formatting": {
-      "score": 90,
-      "issues": ["formatting issues if any"]
-    },
-    "content": {
-      "score": 80,
-      "feedback": "Content quality feedback"
-    }
-  },
-  "recommendations": ["Specific actionable recommendations"]
-}
-
-Return only the JSON object.`;
-
-      const response = await this.callGeminiAPI(prompt);
-      
-      // Parse the JSON response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No valid JSON found in ATS score response');
-      }
-      
-      const atsAnalysis = JSON.parse(jsonMatch[0]);
-      logger.info(`ATS score calculated: ${atsAnalysis.score}/${atsAnalysis.maxScore}`);
-      
-      return atsAnalysis;
+      // Delegate to the new coordinator's base functionality
+      return await this.coordinator.calculateATSScore(resumeData, jobDescription);
       
     } catch (error) {
-      logger.error('ATS score calculation failed:', error);
+      logger.error('Legacy AI Service: ATS score calculation failed:', error);
       throw new Error(`ATS score calculation failed: ${error.message}`);
     }
   }
 
   async enhanceSection(sectionData, sectionType, jobDescription = '') {
     try {
-      logger.info(`Enhancing ${sectionType} section`);
+      logger.info(`Legacy AI Service: Delegating ${sectionType} section enhancement to new architecture (using professional template as default)`);
       
-      const prompt = this.generateEnhancementPrompt(sectionData, sectionType, jobDescription);
-      const response = await this.callGeminiAPI(prompt);
+      // Delegate to the new coordinator with backward compatibility (defaults to professional template)
+      const result = await this.coordinator.enhanceSection(sectionData, sectionType, jobDescription);
       
-      logger.info(`${sectionType} section enhancement completed`);
-      return response.trim();
+      // Maintain backward compatibility by returning just the enhanced content (not the full result object)
+      if (result && typeof result === 'object' && result.enhanced) {
+        return result.enhanced;
+      }
+      
+      return result;
       
     } catch (error) {
-      logger.error(`Section enhancement failed for ${sectionType}:`, error);
+      logger.error(`Legacy AI Service: Section enhancement failed for ${sectionType}:`, error);
       throw new Error(`Section enhancement failed: ${error.message}`);
     }
   }
 
-  generateEnhancementPrompt(sectionData, sectionType, jobDescription) {
-    const basePrompt = `Enhance the following ${sectionType} section for a resume to make it more impactful and ATS-friendly.`;
-    
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nTailor the enhancements to align with this job description.` : '';
-    
-    switch (sectionType) {
-      case 'professionalSummary':
-        return `${basePrompt}
-        
-Current summary:
-${sectionData}
-
-Requirements:
-- Make it concise (2-3 sentences)
-- Include relevant keywords
-- Highlight key achievements
-- Make it compelling and professional${jobContext}
-
-Return only the enhanced summary, no additional text.`;
-
-      case 'experience':
-        return `${basePrompt}
-        
-Current experience entry:
-Position: ${sectionData.position}
-Company: ${sectionData.company}
-Details: ${sectionData.details}
-
-Requirements:
-- Use action verbs and quantify achievements
-- Make bullet points more impactful
-- Include relevant keywords
-- Show progression and impact${jobContext}
-
-Return only the enhanced bullet points (one per line), no additional text.`;
-
-      case 'skills':
-        return `${basePrompt}
-        
-Current skills:
-${JSON.stringify(sectionData, null, 2)}
-
-Requirements:
-- Organize skills by relevance
-- Include trending technologies
-- Remove outdated skills
-- Add missing relevant skills${jobContext}
-
-Return only the enhanced skills in the same JSON format, no additional text.`;
-
-      default:
-        return `${basePrompt}
-        
-Current content:
-${typeof sectionData === 'object' ? JSON.stringify(sectionData, null, 2) : sectionData}
-
-Enhance this content to be more professional, impactful, and ATS-friendly.${jobContext}
-
-Return only the enhanced content, no additional text.`;
-    }
-  }
-
-  async callGeminiAPI(prompt) {
-    try {
-      if (!this.apiKey) {
-        throw new Error('Gemini API key not configured');
-      }
-      
-      const response = await axios.post(
-        this.baseUrl,
-        {
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }]
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': this.apiKey
-          },
-          timeout: 30000 // 30 seconds timeout
-        }
-      );
-
-      if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error('Invalid response format from Gemini API');
-      }
-
-      return response.data.candidates[0].content.parts[0].text;
-      
-    } catch (error) {
-      if (error.response?.status === 429) {
-        throw new Error('AI service rate limit exceeded. Please try again later.');
-      } else if (error.response?.status === 401) {
-        throw new Error('AI service authentication failed. Please check API key.');
-      } else if (error.response?.status === 404) {
-        throw new Error('AI service endpoint not found. The Gemini API model may be unavailable.');
-      } else if (error.response?.status === 400) {
-        throw new Error('Invalid request to AI service. Please check the request format.');
-      } else if (error.code === 'ETIMEDOUT') {
-        throw new Error('AI service request timed out. Please try again.');
-      }
-      
-      logger.error('Gemini API call failed:', error);
-      logger.error('Response status:', error.response?.status);
-      logger.error('Response data:', error.response?.data);
-      throw new Error(`AI service error: ${error.message}`);
-    }
-  }
-
-  convertResumeDataToText(resumeData) {
-    let text = '';
-    
-    if (resumeData.personalInfo) {
-      text += `Name: ${resumeData.personalInfo.name || ''}\n`;
-      text += `Email: ${resumeData.personalInfo.email || ''}\n`;
-      text += `Phone: ${resumeData.personalInfo.phone || ''}\n\n`;
-    }
-    
-    if (resumeData.professionalSummary) {
-      text += `Professional Summary:\n${resumeData.professionalSummary}\n\n`;
-    }
-    
-    if (resumeData.experience?.length > 0) {
-      text += 'Experience:\n';
-      resumeData.experience.forEach(exp => {
-        text += `${exp.position} at ${exp.company} (${exp.dates})\n`;
-        text += `${exp.details || ''}\n\n`;
-      });
-    }
-    
-    if (resumeData.education?.length > 0) {
-      text += 'Education:\n';
-      resumeData.education.forEach(edu => {
-        text += `${edu.degree} from ${edu.institution} (${edu.dates})\n`;
-      });
-      text += '\n';
-    }
-    
-    if (resumeData.skills) {
-      text += 'Skills:\n';
-      Object.entries(resumeData.skills).forEach(([category, skills]) => {
-        text += `${category}: ${Array.isArray(skills) ? skills.join(', ') : skills}\n`;
-      });
-      text += '\n';
-    }
-    
-    return text;
-  }
-
   async getServiceStatus() {
     try {
-      const testPrompt = 'Return "OK" if the service is working.';
-      const response = await this.callGeminiAPI(testPrompt);
+      logger.info('Legacy AI Service: Delegating service status check to new architecture');
       
+      // Get enhanced status from the new coordinator but return in legacy format
+      const enhancedStatus = await this.coordinator.getEnhancedServiceStatus();
+      
+      // Return backward-compatible format
       return {
-        available: response.includes('OK'),
-        apiKey: this.apiKey ? 'configured' : 'missing'
+        available: enhancedStatus.available,
+        apiKey: this.apiKey ? 'configured' : 'missing',
+        legacy: true,
+        enhanced: enhancedStatus
       };
+      
     } catch (error) {
+      logger.error('Legacy AI Service: Service status check failed:', error);
       return {
         available: false,
         error: error.message,
-        apiKey: this.apiKey ? 'configured' : 'missing'
+        apiKey: this.apiKey ? 'configured' : 'missing',
+        legacy: true
       };
     }
+  }
+
+  // NEW METHODS - Expose new functionality through legacy interface
+
+  async enhanceFullResumeWithTemplate(templateName, resumeData, jobDescription = '', enhancementType = 'general') {
+    try {
+      logger.info(`Legacy AI Service: Enhancing full resume with template: ${templateName}`);
+      
+      return await this.coordinator.enhanceFullResume(templateName, resumeData, jobDescription, enhancementType);
+      
+    } catch (error) {
+      logger.error(`Legacy AI Service: Template-aware full resume enhancement failed:`, error);
+      throw new Error(`Template-aware enhancement failed: ${error.message}`);
+    }
+  }
+
+  async enhanceSectionWithTemplate(templateName, sectionData, sectionType, jobDescription = '') {
+    try {
+      logger.info(`Legacy AI Service: Enhancing ${sectionType} section with template: ${templateName}`);
+      
+      return await this.coordinator.enhanceSectionWithTemplate(templateName, sectionData, sectionType, jobDescription);
+      
+    } catch (error) {
+      logger.error(`Legacy AI Service: Template-aware section enhancement failed:`, error);
+      throw new Error(`Template-aware section enhancement failed: ${error.message}`);
+    }
+  }
+
+  async getTemplateRecommendation(resumeData, jobDescription = '') {
+    try {
+      logger.info('Legacy AI Service: Getting template recommendation');
+      
+      return await this.coordinator.getTemplateRecommendation(resumeData, jobDescription);
+      
+    } catch (error) {
+      logger.error('Legacy AI Service: Template recommendation failed:', error);
+      throw new Error(`Template recommendation failed: ${error.message}`);
+    }
+  }
+
+  getAvailableTemplates() {
+    return this.coordinator.getAvailableTemplates();
+  }
+
+  isTemplateSupported(templateName) {
+    return this.coordinator.isTemplateSupported(templateName);
+  }
+
+  // DEPRECATED METHODS - These are now handled by the coordinator but kept for compatibility
+  // They will be removed in a future version
+
+  generateEnhancementPrompt(sectionData, sectionType, jobDescription) {
+    logger.warn('DEPRECATED: generateEnhancementPrompt method is deprecated. Use template-specific enhancements instead.');
+    // Legacy method kept for compatibility - should not be used
+    return `Legacy prompt generation - please use template-specific enhancement methods`;
+  }
+
+  async callGeminiAPI(prompt) {
+    logger.warn('DEPRECATED: callGeminiAPI method is deprecated. All AI calls are now handled through the coordinator.');
+    // Delegate to coordinator's base functionality
+    return await this.coordinator.callGeminiAPI(prompt);
+  }
+
+  convertResumeDataToText(resumeData) {
+    logger.warn('DEPRECATED: convertResumeDataToText method is deprecated. This functionality is now handled by the coordinator.');
+    // Delegate to coordinator's base functionality
+    return this.coordinator.convertResumeDataToText(resumeData);
   }
 }
 
