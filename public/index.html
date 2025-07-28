@@ -103,23 +103,7 @@
 
                     <!-- Dynamic Sections Container -->
                     <div id="dynamicSections">
-                        <!-- Experience Section -->
-                        <div class="form-section" data-section="experience">
-                            <div class="section-header">
-                                <h3>Professional Experience</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-small btn-ai" data-section="experience">
-                                        <i class="fas fa-robot"></i> AI Enhance
-                                    </button>
-                                    <button class="btn btn-small btn-add" data-target="experience" onclick="console.log('Add Experience clicked directly', this.dataset.target)">
-                                        <i class="fas fa-plus"></i> Add Experience
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="experienceContainer" class="dynamic-container">
-                                <!-- Experience items will be added here -->
-                            </div>
-                        </div>
+                       
 
                         <!-- Education Section -->
                         <div class="form-section" data-section="education">
@@ -133,14 +117,36 @@
                                 <!-- Education items will be added here -->
                             </div>
                         </div>
+                         <!-- Experience Section -->
+                        <div class="form-section" data-section="experience">
+                           <div class="section-header">
+                                <h3>Professional Experience</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-small btn-ai" data-section="experience" data-enhance-type="section">
+                                        <i class="fas fa-robot"></i> AI Enhance
+                                    </button>
+                                    <button class="btn btn-small btn-add" data-target="experience">
+                                        <i class="fas fa-plus"></i> Add Experience
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="experienceContainer" class="dynamic-container">
+                                <!-- Experience items will be added here -->
+                            </div>
+                        </div>
 
                         <!-- Projects Section -->
                         <div class="form-section" data-section="projects">
                             <div class="section-header">
                                 <h3>Projects</h3>
-                                <button class="btn btn-small btn-add" data-target="projects">
-                                    <i class="fas fa-plus"></i> Add Project
-                                </button>
+                                <div class="section-actions">
+                                    <button class="btn btn-small btn-ai" data-section="projects" data-enhance-type="section">
+                                        <i class="fas fa-robot"></i> AI Enhance
+                                    </button>
+                                    <button class="btn btn-small btn-add" data-target="projects">
+                                        <i class="fas fa-plus"></i> Add Project
+                                    </button>
+                                </div>
                             </div>
                             <div id="projectsContainer" class="dynamic-container">
                                 <!-- Project items will be added here -->

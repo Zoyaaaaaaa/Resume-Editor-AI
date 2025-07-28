@@ -38,90 +38,48 @@ class PDFService {
     }
   }
 
-  async compileWithLatexOnline(latexContent, options = {}) {
-    try {
-      const contentSizeKB = Math.round(Buffer.byteLength(latexContent, 'utf8') / 1024);
-      logger.info(`LaTeX content size: ${contentSizeKB}KB`);
-      
-      // Check if content is too large for external service
-      if (contentSizeKB > 50) {
-        logger.warn(`⚠️  LaTeX content is ${contentSizeKB}KB, which may be too large for external service. Consider optimizing content.`);
-      }
-      
-      logger.info('LaTeX content preview:', latexContent.substring(0, 200) + '...');
-      
-      // LaTeX-Online requires GET with properly encoded text parameter
-      const params = new URLSearchParams();
-      params.append('text', latexContent);
-      params.append('force', 'true');
-      
-      // Add compilation options
-      if (options.compiler) {
-        params.append('command', options.compiler);
-      }
-      
-      const requestUrl = `${this.latexOnlineUrl}?${params.toString()}`;
-      logger.info('Request URL length:', requestUrl.length);
-      logger.info('Making request to LaTeX-Online');
-      
-      // Make GET request to latex-online service
-      const response = await axios.get(requestUrl, {
-        headers: {
-          'User-Agent': 'Resume-Editor-AI/2.0'
-        },
-        responseType: 'arraybuffer',
-        timeout: 60000, // 60 seconds timeout for LaTeX compilation
-        maxContentLength: 50 * 1024 * 1024, // 50MB max
-        maxBodyLength: 50 * 1024 * 1024
-      });
+ async compileWithLatexOnline(latexContent, options = {}) {
+  try {
+    const contentSizeKB = Math.round(Buffer.byteLength(latexContent, 'utf8') / 1024);
+    logger.info(`LaTeX content size: ${contentSizeKB}KB`);
 
-      logger.info('LaTeX-Online response status:', response.status);
-
-      if (response.status !== 200) {
-        throw new Error(`LaTeX compilation service returned status ${response.status}`);
-      }
-
-      // Check if response is actually a PDF
-      const buffer = Buffer.from(response.data);
-      if (!this.isPDF(buffer)) {
-        // If it's not a PDF, it might be an error message
-        const errorText = buffer.toString('utf8');
-        throw new Error(`LaTeX compilation failed: ${errorText}`);
-      }
-
-      logger.info('PDF generated successfully, size:', buffer.length);
-      return {
-        pdf: buffer,
-        size: buffer.length,
-        contentType: 'application/pdf'
-      };
-
-    } catch (error) {
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        throw new Error('LaTeX compilation service is unavailable. Please try again later.');
-      }
-      
-      if (error.response?.status === 414) {
-        // 414 Request-URI Too Large - this is our main issue
-        const contentSizeKB = Math.round(Buffer.byteLength(latexContent, 'utf8') / 1024);
-        logger.error(`⚠️  PDF generation failed: Content too large (${contentSizeKB}KB). This usually happens with AI-enhanced resumes that have excessive bold formatting.`);
-        throw new Error(`Resume content is too large for PDF generation (${contentSizeKB}KB). Please try reducing the amount of formatting or content, or use a simpler template.`);
-      }
-      
-      if (error.response?.status === 400) {
-        // 400 errors from LaTeX-Online usually contain compilation errors
-        const errorData = error.response.data;
-        const errorText = Buffer.isBuffer(errorData) ? errorData.toString('utf8') : errorData;
-        logger.error('LaTeX compilation error (400):', errorText);
-        throw new Error(`LaTeX compilation failed: ${errorText}`);
-      }
-      
-      logger.error('LaTeX-Online compilation error:', error);
-      logger.error('Error response status:', error.response?.status);
-      logger.error('Error response data:', error.response?.data);
-      throw error;
+    const formData = new FormData();
+    formData.append('text', latexContent);
+    formData.append('force', 'true');
+    if (options.compiler) {
+      formData.append('command', options.compiler);
     }
+
+    logger.info('Making POST request to LaTeX-Online');
+
+    const response = await axios.post(this.latexOnlineUrl, formData, {
+      headers: {
+        ...formData.getHeaders(),
+        'User-Agent': 'Resume-Editor-AI/2.0'
+      },
+      responseType: 'arraybuffer',
+      timeout: 60000,
+      maxContentLength: 50 * 1024 * 1024,
+      maxBodyLength: 50 * 1024 * 1024
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`LaTeX compilation service returned status ${response.status}`);
+    }
+
+    const buffer = Buffer.from(response.data);
+    if (!this.isPDF(buffer)) {
+      const errorText = buffer.toString('utf8');
+      throw new Error(`LaTeX compilation failed: ${errorText}`);
+    }
+
+    return { pdf: buffer, size: buffer.length, contentType: 'application/pdf' };
+  } catch (error) {
+    // same error handling as before
+    throw error;
   }
+}
+
 
   isPDF(buffer) {
     // Check PDF magic number

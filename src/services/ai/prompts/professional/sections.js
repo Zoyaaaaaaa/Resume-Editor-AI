@@ -1,128 +1,250 @@
+// const sectionPrompts = {
+//   professionalSummary: (sectionData, jobDescription = '') => {
+//     const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nAlign the summary with this software development role.` : '';
+    
+//     return `Transform this professional summary for software development and IT positions. Create technical authority with results-driven language:
+
+// Current Summary:
+// ${sectionData}
+
+// SOFTWARE DEVELOPMENT ENHANCEMENT FOCUS:
+// - Technical expertise with confident, professional tone
+// - Quantified technical achievements and system impact
+// - Programming languages, frameworks, and technology stack
+// - Years of development experience and project scope
+// - Technical leadership and architectural contributions
+// - **Bold** formatting for key technologies and major technical wins
+
+// REQUIREMENTS:
+// - 2-3 powerful sentences maximum
+// - Lead with **years of experience** and **technical specializations**
+// - Include **quantified system impact** (users served, performance gains, scale)
+// - Use technical action verbs: "developed," "architected," "optimized," "implemented"
+// - Emphasize **platform growth**, **system architecture**, and **performance optimization**
+// - Highlight relevant **programming languages**, **frameworks**, and **certifications**
+
+// **Bold formatting examples**: **5+ years full-stack development**, **React/Node.js expert**, **served 100K+ users**, **AWS Certified**${jobContext}
+
+// Return only the enhanced technical summary with strategic but LIMITED **bold** formatting (max 2-3 bold items). Focus on technical authority, proven impact, and measurable system improvements.`;
+//   },
+
+//   experience: (sectionData, jobDescription = '') => {
+//     const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nTailor the experience to match these software development requirements.` : '';
+    
+//     return `Enhance this software development work experience entry for maximum technical impact.
+
+// Current Experience Entry:
+// Position: ${sectionData.position}
+// Company: ${sectionData.company}
+// Details: ${sectionData.details}
+
+// Enhancement Focus for Software Development:
+// - Use technical action verbs (developed, implemented, architected, optimized, debugged, deployed)
+// - Quantify all technical achievements with specific metrics (users, performance %, load time, uptime)
+// - Emphasize programming languages, frameworks, and tools used
+// - Highlight system architecture, database design, and platform scalability
+// - Show technical problem-solving and debugging capabilities
+// - Include relevant technologies: **JavaScript, Python, React, Node.js, SQL, AWS, GitHub**
+// - Focus on user impact, system performance, code quality, and feature development
+// - Maintain technical, results-oriented tone following **[Action Verb] + [What] + [How] + [Impact/Result]**
+// - **SELECTIVE**: Use **bold** markdown for only the most impactful metrics and technologies (limit 1-2 bold items per bullet point)
+// - Bold examples: **React and Node.js**, **reduced load time by 40%**, **serving 50K+ users**, **99.9% uptime**, **improved performance by 35%**${jobContext}
+
+// Return only the enhanced bullet points (one per line, max 16 words each) with LIMITED **bold** formatting for top technical achievements, no additional text.`;
+//   },
+
+//   skills: (sectionData, jobDescription = '') => {
+//     const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nPrioritize skills that match these software development requirements.` : '';
+    
+//     return `Enhance and optimize this skills section for software development/IT environments.
+
+// Current Skills:
+// ${JSON.stringify(sectionData, null, 2)}
+
+// Software Development Skills Enhancement:
+// - Prioritize modern programming languages and frameworks
+// - Include relevant certifications and technical credentials
+// - Organize by categories: Programming Languages, Frameworks, Tools, Databases, Specializations
+// - Use exact technology names and industry-standard terminology
+// - Emphasize full-stack development capabilities
+// - Include DevOps, CI/CD, and system architecture skills
+// - Add version control, testing, and debugging tools
+// - Focus on skills valued in software development roles
+// - **IMPORTANT**: Use **bold** markdown formatting for key technologies, certifications, and high-demand skills
+// - Bold examples: **JavaScript**, **React**, **Python**, **AWS Certified**, **Docker**, **Node.js**, **SQL**, **Git/GitHub**, **CI/CD**, **Agile**
+
+// TECHNICAL SKILLS CATEGORIES:
+// - **Languages**: JavaScript, Python, Java, TypeScript, Swift, HTML, CSS, SQL
+// - **Frameworks**: React, Angular, Node.js, Django, ASP.NET, Bootstrap
+// - **Tools**: Git/GitHub, Docker, Jenkins, Linux, AWS, Visual Studio Code
+// - **Databases**: MySQL, PostgreSQL, MongoDB, Redis
+// - **Specializations**: Full-stack development, Mobile development, Cloud architecture, DevOps${jobContext}
+
+// Return only the enhanced skills in the same JSON format with **bold** formatting for important technologies, no additional text.`;
+//   },
+
+//   projects: (sectionData, jobDescription = '') => {
+//     const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nAlign project descriptions with these software development objectives.` : '';
+    
+//     return `Enhance this project description for software development audiences, emphasizing technical implementation and system impact.
+
+// Current Project:
+// Name: ${sectionData.name}
+// Type: ${sectionData.type}
+// Details: ${sectionData.details}
+
+// Software Development Project Enhancement:
+// - Emphasize technical architecture and implementation approach
+// - Quantify project scope: users served, data processed, performance metrics
+// - Highlight programming languages, frameworks, and tools used
+// - Show measurable technical outcomes: load time, uptime, user engagement
+// - Use software development terminology and best practices
+// - Emphasize problem-solving and technical decision-making
+// - Include system scalability and performance optimization
+// - Focus on user experience improvements and feature development
+// - **IMPORTANT**: Use **bold** markdown formatting for key technologies, performance metrics, and technical achievements
+// - Bold examples: **built with React/Node.js**, **serves 25K+ daily users**, **reduced load time by 60%**, **99.8% uptime**, **real-time data processing**, **full-stack implementation**
+
+// TECHNICAL PROJECT FRAMEWORK:
+// - **Technologies Used**: Specific languages, frameworks, databases, tools
+// - **System Architecture**: Design patterns, scalability solutions, performance optimization
+// - **User Impact**: Number of users, engagement metrics, performance improvements
+// - **Technical Challenges**: Problems solved, debugging approaches, optimization strategies${jobContext}
+
+// Return only the enhanced project details with **bold** formatting for key technical achievements, no additional text.`;
+//   },
+
+//   education: (sectionData, jobDescription = '') => {
+//     const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nHighlight educational background relevant to this software development role.` : '';
+    
+//     return `Enhance this education entry for software development/IT presentation.
+
+// Current Education:
+// Institution: ${sectionData.institution}
+// Degree: ${sectionData.degree}
+// Details: ${sectionData.details || 'No additional details'}
+
+// Software Development Education Enhancement:
+// - Highlight relevant coursework: Data Structures, Algorithms, Software Engineering, Database Systems
+// - Include technical projects with programming languages and frameworks used
+// - Emphasize computer science fundamentals and system design knowledge
+// - Add hackathons, coding competitions, and technical achievements
+// - Include relevant certifications and online learning (AWS, Google Cloud, etc.)
+// - Highlight technical leadership in student organizations or projects
+// - Focus on academic achievements demonstrating technical excellence
+// - **IMPORTANT**: Use **bold** markdown formatting for technical honors, GPA, relevant coursework, and coding achievements
+// - Bold examples: **Computer Science**, **GPA: 3.8/4.0**, **Dean's List**, **Data Structures & Algorithms**, **Software Engineering**, **Hackathon Winner**, **Coding Bootcamp Graduate**
+
+// TECHNICAL EDUCATION FOCUS:
+// - **Core Coursework**: Data Structures, Algorithms, Object-Oriented Programming, Database Systems
+// - **Technical Projects**: Web applications, mobile apps, system design projects
+// - **Certifications**: AWS, Google Cloud, Microsoft Azure, programming certifications
+// - **Achievements**: Academic honors, coding competition wins, technical leadership roles${jobContext}
+
+// Return only the enhanced education details with **bold** formatting for technical achievements, no additional text.`;
+//   }
+// };
+
+// module.exports = sectionPrompts;
+
 const sectionPrompts = {
   professionalSummary: (sectionData, jobDescription = '') => {
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nAlign the summary with this professional role.` : '';
+    const jobContext = jobDescription ? `Job context: ${jobDescription.substring(0, 200)}...` : '';
     
-    return `Transform this professional summary for corporate executives and senior business leaders. Create authoritative, results-driven language that commands respect:
+    return `Enhance this professional summary with technical language and quantified achievements. Keep the same length and core message, just make it more technical and impactful:
 
-Current Summary:
-${sectionData}
+Original: ${sectionData}
 
-PROFESSIONAL ENHANCEMENT FOCUS:
-- Executive presence with commanding, confident tone
-- Quantified business achievements as proof of capability
-- Strategic leadership scope and P&L responsibility
-- Industry authority and years of proven track record
-- Conservative language suitable for board-level review
-- **Bold** formatting for executive credentials and major wins
+${jobContext}
 
-REQUIREMENTS:
-- 2-3 powerful sentences maximum
-- Lead with **years of experience** and **leadership scope**
-- Include **quantified business impact** (revenue, savings, scale)
-- Use executive action verbs: "led," "delivered," "transformed," "optimized"
-- Emphasize **strategic initiatives** and **organizational impact**
-- Highlight relevant **certifications** or **advanced degrees**
+Focus:
+- Use technical terms and programming languages
+- Add specific numbers and metrics where possible
+- Keep the same structure and length
+- Use **bold** for 2-3 key technical skills or achievements only
 
-**Bold formatting examples**: **20+ years executive leadership**, **$50M P&L responsibility**, **MBA**${jobContext}
-
-Return only the enhanced executive summary with strategic but LIMITED **bold** formatting (max 2-3 bold items). Focus on authority, credibility, and top measurable business impact.`;
+Return only the enhanced summary, nothing else.`;
   },
 
   experience: (sectionData, jobDescription = '') => {
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nTailor the experience to match these corporate requirements.` : '';
+    const jobContext = jobDescription ? `Match these requirements: ${jobDescription.substring(0, 200)}...` : '';
     
-    return `Enhance this work experience entry for maximum impact in corporate/professional settings.
+    return `Enhance these work experience bullet points with technical language and quantified results. Keep the same number of points and similar structure:
 
-Current Experience Entry:
 Position: ${sectionData.position}
 Company: ${sectionData.company}
-Details: ${sectionData.details}
+Current bullets: ${sectionData.details}
 
-Enhancement Focus for Professional Template:
-- Use strong action verbs (led, managed, implemented, delivered, optimized)
-- Quantify all achievements with specific metrics (%, $, numbers)
-- Emphasize leadership, team management, and stakeholder engagement
-- Highlight process improvements and efficiency gains
-- Show progression and increasing responsibility
-- Include relevant industry keywords and technical competencies
-- Focus on business impact, cost savings, revenue generation
-- Maintain professional, results-oriented tone
-- **SELECTIVE**: Use **bold** markdown for only the most impactful metrics and achievements (limit 1-2 bold items per bullet point)
-- Bold examples: **led team of 15**, **increased revenue by 25%**, **managed $5M budget**${jobContext}
+${jobContext}
 
-Return only the enhanced bullet points (one per line) with LIMITED **bold** formatting for top achievements, no additional text.`;
+Enhancement rules:
+- Start with technical action verbs (developed, implemented, built, optimized)
+- Add specific technologies and programming languages
+- Include metrics and numbers where logical
+- Use **bold** for 1-2 key technologies or metrics per bullet
+- Keep bullets concise (under 20 words each)
+
+Return only the enhanced bullet points, one per line.`;
   },
 
   skills: (sectionData, jobDescription = '') => {
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nPrioritize skills that match these professional requirements.` : '';
+    const jobContext = jobDescription ? `Prioritize skills matching: ${jobDescription.substring(0, 200)}...` : '';
     
-    return `Enhance and optimize this skills section for corporate/professional environments.
+    return `Enhance this skills section by making it more technical and software development focused. Keep the same structure:
 
-Current Skills:
-${JSON.stringify(sectionData, null, 2)}
+Current skills: ${JSON.stringify(sectionData, null, 2)}
 
-Professional Template Skills Enhancement:
-- Prioritize industry-standard and enterprise-level technologies
-- Include relevant certifications and professional credentials
-- Organize by relevance to corporate roles (Leadership, Technical, Business)
-- Use exact terminology from job postings and industry standards
-- Emphasize management and leadership capabilities
-- Include business analysis and strategic planning skills
-- Add project management and team coordination abilities
-- Focus on skills valued in corporate hierarchies
-- **IMPORTANT**: Use **bold** markdown formatting for key skills, certifications, and high-value competencies
-- Bold examples: **PMP Certified**, **Enterprise Architecture**, **Six Sigma**, **Agile Leadership**, **Cloud Solutions**${jobContext}
+${jobContext}
 
-Return only the enhanced skills in the same JSON format with **bold** formatting for important skills, no additional text.`;
+Rules:
+- Replace generic terms with specific technical terms
+- Add relevant programming languages and frameworks
+- Use **bold** for high-demand technical skills
+- Keep the same JSON structure
+- Don't add completely new categories, just enhance existing ones
+
+Return only the enhanced skills in the same JSON format.`;
   },
 
   projects: (sectionData, jobDescription = '') => {
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nAlign project descriptions with these corporate objectives.` : '';
+    const jobContext = jobDescription ? `Align with: ${jobDescription.substring(0, 200)}...` : '';
     
-    return `Enhance this project description for corporate/professional audiences, emphasizing business value and stakeholder impact.
+    return `Enhance this project description with technical details and measurable impact. Keep the core project the same:
 
-Current Project:
-Name: ${sectionData.name}
+Project: ${sectionData.name}
 Type: ${sectionData.type}
-Details: ${sectionData.details}
+Current details: ${sectionData.details}
 
-Professional Template Project Enhancement:
-- Emphasize business objectives and strategic alignment
-- Quantify project scope, budget, timeline, and team size
-- Highlight stakeholder management and cross-functional collaboration
-- Show measurable business outcomes and ROI
-- Use professional project management terminology
-- Emphasize leadership roles and decision-making authority
-- Include process improvements and efficiency gains
-- Focus on corporate impact and organizational benefits
-- **IMPORTANT**: Use **bold** markdown formatting for key project metrics, business impact, and leadership achievements
-- Bold examples: **managed $2M budget**, **delivered 6 months ahead of schedule**, **led cross-functional team of 20**, **achieved 30% cost reduction**, **enterprise-wide implementation**${jobContext}
+${jobContext}
 
-Return only the enhanced project details with **bold** formatting for key achievements, no additional text.`;
+Enhancement:
+- Add specific technologies used
+- Include quantified results (users, performance, etc.)
+- Use technical language
+- Use **bold** for key technologies and metrics
+- Keep the same project, just make it sound more technical
+
+Return only the enhanced project details.`;
   },
 
   education: (sectionData, jobDescription = '') => {
-    const jobContext = jobDescription ? `\n\nJob Description Context:\n${jobDescription}\n\nHighlight educational background relevant to this professional role.` : '';
+    const jobContext = jobDescription ? `Relevant to: ${jobDescription.substring(0, 200)}...` : '';
     
-    return `Enhance this education entry for professional/corporate presentation.
+    return `Enhance this education entry to highlight technical relevance. Don't change the basic facts:
 
-Current Education:
 Institution: ${sectionData.institution}
 Degree: ${sectionData.degree}
 Details: ${sectionData.details || 'No additional details'}
 
-Professional Template Education Enhancement:
-- Highlight relevant coursework for business/corporate roles
-- Include academic honors, scholarships, and achievements
-- Emphasize leadership roles in academic organizations
-- Add relevant projects with business applications
-- Include professional development and continuing education
-- Highlight networking and alumni connections
-- Focus on academic achievements that demonstrate excellence
-- **IMPORTANT**: Use **bold** markdown formatting for academic honors, GPA, leadership roles, and notable achievements
-- Bold examples: **Magna Cum Laude**, **GPA: 3.8/4.0**, **President of Business Club**, **Dean's List**, **Phi Beta Kappa**, **Full Academic Scholarship**${jobContext}
+${jobContext}
 
-Return only the enhanced education details with **bold** formatting for achievements, no additional text.`;
+Enhancement:
+- Emphasize technical coursework if mentioned
+- Add relevant technical achievements if logical
+- Use **bold** for technical honors, GPA, or relevant coursework
+- Don't invent facts, just enhance what's there
+
+Return only the enhanced education details.`;
   }
 };
 

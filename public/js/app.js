@@ -456,101 +456,206 @@ class ResumeEditorApp {
         this.resumeData.projects.forEach(proj => this.addProjectSection(proj));
     }
 
+    // async enhanceSection(sectionType) {
+    //     this.showLoading('Enhancing section with AI...');
+
+    //     try {
+    //         let sectionData;
+            
+    //         switch (sectionType) {
+    //             case 'summary':
+    //                 sectionData = this.resumeData.professionalSummary;
+    //                 sectionType = 'professionalSummary'; // Map to backend format
+    //                 break;
+    //             case 'skills':
+    //                 sectionData = this.resumeData.skills;
+    //                 break;
+    //             case 'experience':
+    //                 sectionData = this.resumeData.experience[0] || {}; // Enhance first experience
+    //                 break;
+    //             case 'projects':
+    //                 sectionData=this.resumeData.projects[0] || {};
+    //             default:
+    //                 throw new Error('Unknown section type');
+    //         }
+
+    //         const response = await fetch('/api/ai/enhance-section', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({
+    //                 sectionData,
+    //                 sectionType,
+    //                 jobDescription: '',
+    //                 templateName: this.currentTemplate
+    //             })
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const result = await response.json();
+            
+    //         if (result.success) {
+    //             // Apply enhanced content
+    //             this.applyEnhancedContent(sectionType, result.data.enhanced);
+    //             this.showToast('Section enhanced successfully!', 'success');
+    //         } else {
+    //             throw new Error(result.error || 'Failed to enhance section');
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Section enhancement failed:', error);
+    //         this.showToast('Failed to enhance section: ' + error.message, 'error');
+    //     } finally {
+    //         this.hideLoading();
+    //     }
+    // }
+
+    // applyEnhancedContent(sectionType, enhancedContent) {
+    //     switch (sectionType) {
+    //         case 'summary':
+    //         case 'professionalSummary':
+    //             document.getElementById('professionalSummary').value = enhancedContent;
+    //             this.resumeData.professionalSummary = enhancedContent;
+    //             break;
+    //         case 'skills':
+    //             // Handle enhanced skills object
+    //             if (typeof enhancedContent === 'object') {
+    //                 Object.entries(enhancedContent).forEach(([key, value]) => {
+    //                     const fieldMap = {
+    //                         'Languages': 'skillsLanguages',
+    //                         'Frameworks': 'skillsFrameworks', 
+    //                         'Tools': 'skillsTools',
+    //                         'Concepts': 'skillsConcepts'
+    //                     };
+    //                     const fieldId = fieldMap[key];
+    //                     if (fieldId) {
+    //                         const element = document.getElementById(fieldId);
+    //                         if (element) {
+    //                             element.value = Array.isArray(value) ? value.join(', ') : value;
+    //                         }
+    //                     }
+    //                 });
+    //                 this.resumeData.skills = enhancedContent;
+    //             } else {
+    //                 // If it's a string, try to parse it or just display it
+    //                 console.log('Enhanced skills content:', enhancedContent);
+    //             }
+    //             break;
+    //         case 'experience':
+    //             // For experience, we'd need to update the specific experience item
+    //             console.log('Enhanced experience content:', enhancedContent);
+    //             break;
+    //     }
+        
+    //     this.generatePreview();
+    // }
+
     async enhanceSection(sectionType) {
-        this.showLoading('Enhancing section with AI...');
+    this.showLoading(`Enhancing ${sectionType} with AI...`);
 
-        try {
-            let sectionData;
-            
-            switch (sectionType) {
-                case 'summary':
-                    sectionData = this.resumeData.professionalSummary;
-                    sectionType = 'professionalSummary'; // Map to backend format
-                    break;
-                case 'skills':
-                    sectionData = this.resumeData.skills;
-                    break;
-                case 'experience':
-                    sectionData = this.resumeData.experience[0] || {}; // Enhance first experience
-                    break;
-                default:
-                    throw new Error('Unknown section type');
-            }
+    try {
+        let sectionData;
+        let mappedType = sectionType;
 
-            const response = await fetch('/api/ai/enhance-section', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sectionData,
-                    sectionType,
-                    jobDescription: '',
-                    templateName: this.currentTemplate
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            
-            if (result.success) {
-                // Apply enhanced content
-                this.applyEnhancedContent(sectionType, result.data.enhanced);
-                this.showToast('Section enhanced successfully!', 'success');
-            } else {
-                throw new Error(result.error || 'Failed to enhance section');
-            }
-
-        } catch (error) {
-            console.error('Section enhancement failed:', error);
-            this.showToast('Failed to enhance section: ' + error.message, 'error');
-        } finally {
-            this.hideLoading();
-        }
-    }
-
-    applyEnhancedContent(sectionType, enhancedContent) {
+        // Use original working mapping logic
         switch (sectionType) {
             case 'summary':
-            case 'professionalSummary':
-                document.getElementById('professionalSummary').value = enhancedContent;
-                this.resumeData.professionalSummary = enhancedContent;
+                sectionData = this.resumeData.professionalSummary;
+                mappedType = 'professionalSummary';
                 break;
             case 'skills':
-                // Handle enhanced skills object
-                if (typeof enhancedContent === 'object') {
-                    Object.entries(enhancedContent).forEach(([key, value]) => {
-                        const fieldMap = {
-                            'Languages': 'skillsLanguages',
-                            'Frameworks': 'skillsFrameworks', 
-                            'Tools': 'skillsTools',
-                            'Concepts': 'skillsConcepts'
-                        };
-                        const fieldId = fieldMap[key];
-                        if (fieldId) {
-                            const element = document.getElementById(fieldId);
-                            if (element) {
-                                element.value = Array.isArray(value) ? value.join(', ') : value;
-                            }
-                        }
-                    });
-                    this.resumeData.skills = enhancedContent;
-                } else {
-                    // If it's a string, try to parse it or just display it
-                    console.log('Enhanced skills content:', enhancedContent);
-                }
+                sectionData = this.resumeData.skills;
                 break;
             case 'experience':
-                // For experience, we'd need to update the specific experience item
-                console.log('Enhanced experience content:', enhancedContent);
+                sectionData = this.resumeData.experience[0] || {}; // First experience
                 break;
+            case 'projects':
+                sectionData = this.resumeData.projects[0] || {}; // First project
+                break;
+            default:
+                throw new Error(`Unknown section type: ${sectionType}`);
         }
-        
-        this.generatePreview();
+
+        const response = await fetch('/api/ai/enhance-section', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sectionData,
+                sectionType: mappedType,
+                jobDescription: '',
+                templateName: this.currentTemplate
+            })
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+
+        if (result.success) {
+            this.applyEnhancedContent(mappedType, result.data.enhanced);
+            this.showToast(`${sectionType} enhanced successfully!`, 'success');
+        } else {
+            throw new Error(result.error || 'Failed to enhance section');
+        }
+
+    } catch (error) {
+        console.error(`Section enhancement failed for ${sectionType}:`, error);
+        this.showToast(`Failed to enhance ${sectionType}: ${error.message}`, 'error');
+    } finally {
+        this.hideLoading();
     }
+}
+
+applyEnhancedContent(sectionType, enhancedContent) {
+    switch (sectionType) {
+        case 'summary':
+        case 'professionalSummary':
+            document.getElementById('professionalSummary').value = enhancedContent;
+            this.resumeData.professionalSummary = enhancedContent;
+            break;
+        case 'skills':
+            if (typeof enhancedContent === 'object') {
+                Object.entries(enhancedContent).forEach(([key, value]) => {
+                    const fieldMap = {
+                        'Languages': 'skillsLanguages',
+                        'Frameworks': 'skillsFrameworks',
+                        'Tools': 'skillsTools',
+                        'Concepts': 'skillsConcepts'
+                    };
+                    const fieldId = fieldMap[key];
+                    if (fieldId) {
+                        const element = document.getElementById(fieldId);
+                        if (element) {
+                            element.value = Array.isArray(value) ? value.join(', ') : value;
+                        }
+                    }
+                });
+                this.resumeData.skills = enhancedContent;
+            } else {
+                console.log('Enhanced skills content:', enhancedContent);
+            }
+            break;
+        case 'experience':
+            console.log('Enhanced experience content:', enhancedContent);
+            if (Array.isArray(enhancedContent)) {
+                this.resumeData.experience = enhancedContent;
+            }
+            break;
+        case 'projects':
+            console.log('Enhanced projects content:', enhancedContent);
+            if (Array.isArray(enhancedContent)) {
+                this.resumeData.projects = enhancedContent;
+            }
+            break;
+    }
+
+    this.generatePreview();
+}
+
 
     async calculateATSScore() {
         this.showLoading('Calculating ATS score...');
