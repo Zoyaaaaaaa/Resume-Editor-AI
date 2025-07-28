@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Editor AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Resume Editor AI</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Upload Resume
+                </button>
+                <button class="btn btn-primary" id="downloadBtn">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel - Editor -->
+            <div class="editor-panel">
+                <div class="scroll-container">
+                    <!-- Personal Information Section -->
+                    <section class="form-section">
+                        <h2>Personal Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Enter your email">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" name="location" placeholder="City, State">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Areas of Interest Section -->
+                    <section class="form-section">
+                        <h2>Areas of Interest</h2>
+                        <div class="form-group">
+                            <label for="areasOfInterest">Areas of Interest</label>
+                            <textarea id="areasOfInterest" name="areasOfInterest" rows="2" placeholder="List your areas of interest separated by | (pipe)"></textarea>
+                        </div>
+                    </section>
+
+                    <!-- Professional Experience Section -->
+                    <section class="form-section">
+                        <div class="section-header">
+                            <h2>Professional Experience</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-enhance" data-section="experience">
+                                    <i class="fas fa-magic"></i> AI Enhance
+                                </button>
+                                <button class="btn btn-add" id="addExperience">
+                                    <i class="fas fa-plus"></i> Add Experience
+                                </button>
+                            </div>
+                        </div>
+                        <div id="experienceContainer">
+                            <!-- Experience entries will be added here -->
+                        </div>
+                    </section>
+
+                    <!-- Key Projects Section -->
+                    <section class="form-section">
+                        <div class="section-header">
+                            <h2>Key Projects</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-enhance" data-section="projects">
+                                    <i class="fas fa-magic"></i> AI Enhance
+                                </button>
+                                <button class="btn btn-add" id="addProject">
+                                    <i class="fas fa-plus"></i> Add Project
+                                </button>
+                            </div>
+                        </div>
+                        <div id="projectsContainer">
+                            <!-- Project entries will be added here -->
+                        </div>
+                    </section>
+
+                    <!-- Education Section -->
+                    <section class="form-section">
+                        <div class="section-header">
+                            <h2>Education</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-enhance" data-section="education">
+                                    <i class="fas fa-magic"></i> AI Enhance
+                                </button>
+                                <button class="btn btn-add" id="addEducation">
+                                    <i class="fas fa-plus"></i> Add Education
+                                </button>
+                            </div>
+                        </div>
+                        <div id="educationContainer">
+                            <!-- Education entries will be added here -->
+                        </div>
+                    </section>
+
+                    <!-- Extra-Curricular Section -->
+                    <section class="form-section">
+                        <div class="section-header">
+                            <h2>Extra-Curricular</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-enhance" data-section="extracurricular">
+                                    <i class="fas fa-magic"></i> AI Enhance
+                                </button>
+                                <button class="btn btn-add" id="addExtracurricular">
+                                    <i class="fas fa-plus"></i> Add Activity
+                                </button>
+                            </div>
+                        </div>
+                        <div id="extracurricularContainer">
+                            <!-- Extra-curricular entries will be added here -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Right Panel - PDF Preview -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>Preview</h3>
+                    <div class="zoom-controls">
+                        <button class="btn btn-icon" id="refreshPreview" title="Refresh Preview">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <button class="btn btn-icon" id="zoomOut">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span id="zoomLevel">100%</span>
+                        <button class="btn btn-icon" id="zoomIn">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div id="pdfPreview" class="pdf-preview">
+                        <!-- PDF preview will be rendered here -->
+                        <div class="preview-placeholder">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>Resume preview will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden file input for resume upload -->
+    <input type="file" id="fileInput" accept=".pdf,.doc,.docx" style="display: none;">
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/formHandler.js"></script>
+    <script src="js/pdfPreview.js"></script>
+</body>
+</html>

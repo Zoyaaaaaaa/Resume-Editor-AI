@@ -3,8 +3,31 @@
  */
 
 /**
+ * Escape special LaTeX characters
+ * @param {string} text - Text to escape
+ * @returns {string} Text with LaTeX special characters escaped
+ */
+function escapeLatexChars(text) {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+  
+  return text.toString()
+    .replace(/\\/g, '\\textbackslash{}')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}')
+    .replace(/\$/g, '\\$')
+    .replace(/&/g, '\\&')
+    .replace(/%/g, '\\%')
+    .replace(/#/g, '\\#')
+    .replace(/\^/g, '\\textasciicircum{}')
+    .replace(/_/g, '\\_')
+    .replace(/~/g, '\\textasciitilde{}');
+}
+
+/**
  * Convert markdown bold formatting to LaTeX
- * @param {string} text - Text with markdown formatting
+ * @param {string} text - Text with markdown formatting (already escaped)
  * @returns {string} Text with LaTeX formatting
  */
 function convertBoldToLatex(text) {
@@ -32,9 +55,9 @@ function convertItalicToLatex(text) {
 }
 
 /**
- * Convert all markdown formatting to LaTeX
+ * Convert all markdown formatting to LaTeX with proper escaping
  * @param {string} text - Text with markdown formatting
- * @returns {string} Text with LaTeX formatting
+ * @returns {string} Text with LaTeX formatting and escaped characters
  */
 function convertMarkdownToLatex(text) {
   if (!text || typeof text !== 'string') {
@@ -43,13 +66,67 @@ function convertMarkdownToLatex(text) {
 
   let converted = text;
   
-  // Convert bold first (to avoid conflicts with italic)
+  // STEP 1: Convert markdown to LaTeX commands first (before escaping)
   converted = convertBoldToLatex(converted);
-  
-  // Convert italic
   converted = convertItalicToLatex(converted);
   
+  // STEP 2: Escape special characters, but preserve LaTeX commands we just created
+  converted = escapeLatexPreservingCommands(converted);
+  
   return converted;
+}
+
+/**
+ * Escape LaTeX special characters while preserving intentional LaTeX commands
+ * @param {string} text - Text with LaTeX commands
+ * @returns {string} Text with special characters escaped but LaTeX commands preserved
+ */
+function escapeLatexPreservingCommands(text) {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+  
+  // Use a simpler approach: escape characters except within LaTeX commands
+  let result = '';
+  let i = 0;
+  
+  while (i < text.length) {
+    // Check if we're at the start of a \textbf{...} or \textit{...} command
+    if (text.substr(i, 8) === '\\textbf{' || text.substr(i, 8) === '\\textit{') {
+      // Find the end of the command
+      const commandStart = i;
+      const commandType = text.substr(i, 8) === '\\textbf{' ? '\\textbf{' : '\\textit{';
+      i += commandType.length; // Move past the command start
+      
+      let braceCount = 1;
+      let commandContent = '';
+      
+      // Find the matching closing brace
+      while (i < text.length && braceCount > 0) {
+        const char = text[i];
+        if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+        }
+        
+        if (braceCount > 0) {
+          commandContent += char;
+        }
+        i++;
+      }
+      
+      // Add the complete command with escaped content
+      result += commandType + escapeLatexChars(commandContent) + '}';
+    } else {
+      // Regular character - escape if necessary
+      const char = text[i];
+      result += escapeLatexChars(char);
+      i++;
+    }
+  }
+  
+  return result;
 }
 
 /**
@@ -168,5 +245,7 @@ module.exports = {
   convertItalicToLatex,
   convertMarkdownToLatex,
   processResumeDataMarkdown,
-  estimateLatexSize
+  estimateLatexSize,
+  escapeLatexChars,
+  escapeLatexPreservingCommands
 };

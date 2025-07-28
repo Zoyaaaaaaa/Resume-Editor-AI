@@ -147,28 +147,28 @@
 // \\ressection{Technical Skills}
 // \\begin{itemize}[leftmargin=*]
 //     \\setlength\\itemsep{\\itemlistsep}
-// ${Object.entries(skills).map(([category, skillList]) => `    \\item \\textbf{${escapeLatex(category)}:} ${escapeLatex(Array.isArray(skillList) ? skillList.join(', ') : skillList)}`).join('\n')}
+// ${Object.entries(skills).map(([category, skillList]) => `    \\item \\textbf{${category}:} ${Array.isArray(skillList) ? skillList.join(', ') : skillList}`).join('\n')}
 // \\end{itemize}
 
 // ` : ''}${positions.length > 0 ? `%-------------------- POSITIONS OF RESPONSIBILITY --------------------
 // \\ressection{Positions of Responsibility}
 // \\begin{itemize}[leftmargin=*]
 //     \\setlength\\itemsep{\\itemlistsep}
-// ${positions.map(pos => `    \\item ${escapeLatex(pos)}`).join('\n')}
+// ${positions.map(pos => `    \\item ${pos}`).join('\n')}
 // \\end{itemize}
 
 // ` : ''}${certifications.length > 0 ? `%-------------------- CERTIFICATIONS --------------------
 // \\ressection{Certifications}
 // \\begin{itemize}[leftmargin=*]
 //     \\setlength\\itemsep{\\itemlistsep}
-// ${certifications.map(cert => `    \\item \\textbf{${escapeLatex(cert)}}`).join('\n')}
+// ${certifications.map(cert => `    \\item \\textbf{${cert}}`).join('\n')}
 // \\end{itemize}
 
 // ` : ''}${interests ? `%-------------------- INTERESTS --------------------
 // \\ressection{Interests}
 // \\begin{itemize}[leftmargin=*]
 //     \\setlength\\itemsep{\\itemlistsep}
-//     \\item ${escapeLatex(interests)}
+//     \\item ${interests}
 // \\end{itemize}
 
 // ` : ''}\\end{document}`;
@@ -199,21 +199,8 @@ function generateProfessionalTemplate(data) {
     interests = ''
   } = processedData;
   
-  // Function to escape special LaTeX characters
-  function escapeLatex(text) {
-    if (!text) return '';
-    return text.toString()
-      .replace(/\\/g, '\\textbackslash{}')
-      .replace(/\{/g, '\\{')
-      .replace(/\}/g, '\\}')
-      .replace(/\$/g, '\\$')
-      .replace(/&/g, '\\&')
-      .replace(/%/g, '\\%')
-      .replace(/#/g, '\\#')
-      .replace(/\^/g, '\\textasciicircum{}')
-      .replace(/_/g, '\\_')
-      .replace(/~/g, '\\textasciitilde{}');
-  }
+  // Note: LaTeX escaping is now handled by markdownToLatex utility
+  // No need for separate escapeLatex function
   
   // Helper function to format details (handles both string and array)
   function formatDetails(details) {
@@ -232,7 +219,7 @@ function generateProfessionalTemplate(data) {
     return `\\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-${detailsArray.map(line => `    \\item ${escapeLatex(line.trim())}`).join('\n')}
+${detailsArray.map(line => `    \\item ${line.trim()}`).join('\n')}
 \\end{itemize}`;
   }
   
@@ -304,10 +291,10 @@ ${detailsArray.map(line => `    \\item ${escapeLatex(line.trim())}`).join('\n')}
 
 %-------------------- HEADING --------------------
 \\begin{center}
-    \\highlight{\\LARGE ${escapeLatex(personalInfo.name || 'Your Name')}} \\\\ \\vspace{2pt}
-    ${escapeLatex(personalInfo.phone || '+1 (555) 123-4567')} \\textbullet\\ \\href{mailto:${personalInfo.email || 'email@example.com'}}{${escapeLatex(personalInfo.email || 'email@example.com')}} \\\\
-    ${personalInfo.linkedin ? `\\href{${personalInfo.linkedin}}{LinkedIn: ${escapeLatex(personalInfo.linkedin.replace('https://', '').replace('http://', ''))}} \\\\` : ''}
-    ${personalInfo.website ? `\\href{${personalInfo.website}}{${escapeLatex(personalInfo.website.replace('https://', '').replace('http://', ''))}}` : ''}
+    \\highlight{\\LARGE ${personalInfo.name || 'Your Name'}} \\\\ \\vspace{2pt}
+    ${personalInfo.phone || '+1 (555) 123-4567'} \\textbullet\\ \\href{mailto:${personalInfo.email || 'email@example.com'}}{${personalInfo.email || 'email@example.com'}} \\\\
+    ${personalInfo.linkedin ? `\\href{${personalInfo.linkedin}}{LinkedIn: ${personalInfo.linkedin.replace('https://', '').replace('http://', '')}} \\\\` : ''}
+    ${personalInfo.website ? `\\href{${personalInfo.website}}{${personalInfo.website.replace('https://', '').replace('http://', '')}}` : ''}
 \\end{center}
 
 ${professionalSummary ? `%-------------------- PROFESSIONAL SUMMARY --------------------
@@ -315,37 +302,37 @@ ${professionalSummary ? `%-------------------- PROFESSIONAL SUMMARY ------------
 \\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-${(typeof professionalSummary === 'string' ? professionalSummary.split('\n') : [professionalSummary]).filter(line => line.trim()).map(line => `    \\item ${escapeLatex(line.trim())}`).join('\n')}
+${(typeof professionalSummary === 'string' ? professionalSummary.split('\n') : [professionalSummary]).filter(line => line.trim()).map(line => `    \\item ${line.trim()}`).join('\n')}
 \\end{itemize}
 
 ` : ''}${education.length > 0 ? `%-------------------- EDUCATION --------------------
 \\ressection{Education}
 
 ${education.map(edu => `\\ressubheading
-    {${escapeLatex(edu.institution || 'Institution Name')}}
-    {${escapeLatex(edu.degree || 'Degree')}}
-    {${escapeLatex(edu.gpa ? `GPA: ${edu.gpa}` : edu.grade || 'Grade')}}
-    {${escapeLatex(edu.dates || 'Year')}}
+    {${edu.institution || 'Institution Name'}}
+    {${edu.degree || 'Degree'}}
+    {${edu.gpa ? `GPA: ${edu.gpa}` : edu.grade || 'Grade'}}
+    {${edu.dates || 'Year'}}
 ${edu.details ? formatDetails(edu.details) : ''}`).join('\n\n')}
 
 ` : ''}${experience.length > 0 ? `%-------------------- PROFESSIONAL EXPERIENCE --------------------
 \\ressection{Professional Experience}
 
 ${experience.map(exp => `\\ressubheading
-    {${escapeLatex(exp.position || 'Position')}}
-    {${escapeLatex(exp.company || 'Company')}}
-    {${escapeLatex(exp.location || 'Location')}}
-    {${escapeLatex(exp.dates || 'Dates')}}
+    {${exp.position || 'Position'}}
+    {${exp.company || 'Company'}}
+    {${exp.location || 'Location'}}
+    {${exp.dates || 'Dates'}}
 ${exp.details ? formatDetails(exp.details) : ''}`).join('\n\n')}
 
 ` : ''}${projects.length > 0 ? `%-------------------- PROJECTS --------------------
 \\ressection{Projects}
 
 ${projects.map(proj => `\\ressubheading
-    {${escapeLatex(proj.name || 'Project Name')}}
-    {${escapeLatex(proj.type || 'Project Type')}}
-    {${escapeLatex(proj.location || 'Location')}}
-    {${escapeLatex(proj.dates || 'Year')}}
+    {${proj.name || 'Project Name'}}
+    {${proj.type || 'Project Type'}}
+    {${proj.location || 'Location'}}
+    {${proj.dates || 'Year'}}
 ${proj.details ? formatDetails(proj.details) : ''}`).join('\n\n')}
 
 ` : ''}${skills && Object.keys(skills).length > 0 ? `%-------------------- TECHNICAL SKILLS --------------------
@@ -353,7 +340,7 @@ ${proj.details ? formatDetails(proj.details) : ''}`).join('\n\n')}
 \\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-${Object.entries(skills).map(([category, skillList]) => `    \\item \\textbf{${escapeLatex(category)}:} ${escapeLatex(Array.isArray(skillList) ? skillList.join(', ') : skillList)}`).join('\n')}
+${Object.entries(skills).map(([category, skillList]) => `    \\item \\textbf{${category}:} ${Array.isArray(skillList) ? skillList.join(', ') : skillList}`).join('\n')}
 \\end{itemize}
 
 ` : ''}${positions.length > 0 ? `%-------------------- POSITIONS OF RESPONSIBILITY --------------------
@@ -361,7 +348,7 @@ ${Object.entries(skills).map(([category, skillList]) => `    \\item \\textbf{${e
 \\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-${positions.map(pos => `    \\item ${escapeLatex(pos)}`).join('\n')}
+${positions.map(pos => `    \\item ${pos}`).join('\n')}
 \\end{itemize}
 
 ` : ''}${certifications.length > 0 ? `%-------------------- CERTIFICATIONS --------------------
@@ -369,7 +356,7 @@ ${positions.map(pos => `    \\item ${escapeLatex(pos)}`).join('\n')}
 \\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-${certifications.map(cert => `    \\item \\textbf{${escapeLatex(cert)}}`).join('\n')}
+${certifications.map(cert => `    \\item \\textbf{${cert}}`).join('\n')}
 \\end{itemize}
 
 ` : ''}${interests ? `%-------------------- INTERESTS --------------------
@@ -377,7 +364,7 @@ ${certifications.map(cert => `    \\item \\textbf{${escapeLatex(cert)}}`).join('
 \\begin{itemize}[leftmargin=*]
     \\raggedright
     \\setlength\\itemsep{\\itemlistsep}
-    \\item ${escapeLatex(interests)}
+    \\item ${interests}
 \\end{itemize}
 
 ` : ''}\\end{document}`;
