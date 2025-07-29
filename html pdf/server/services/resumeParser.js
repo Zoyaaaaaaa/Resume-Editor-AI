@@ -796,7 +796,8 @@ FINAL ATTEMPT:
         const hasAreasOfInterest = data.areasOfInterest && data.areasOfInterest.trim().length > 0;
         
         // Consider data meaningful if we have personal info AND at least one other section
-        return hasPersonalInfo && (hasExperience || hasProjects || hasEducation || hasPositionOfResponsibility || hasAreasOfInterest);
+        // return hasPersonalInfo && (hasExperience || hasProjects || hasEducation || hasPositionOfResponsibility || hasAreasOfInterest);
+        return true;
     }
 
     validateStructuredData(data) {

@@ -10,6 +10,207 @@ class PDFPreview {
     initializePreview() {
         // Create initial preview structure
         this.createPreviewTemplate();
+        this.injectStyles();
+    }
+
+    injectStyles() {
+        if (!document.getElementById('resume-preview-styles')) {
+            const styleElement = document.createElement('style');
+            styleElement.id = 'resume-preview-styles';
+            styleElement.textContent = this.getPreviewStyles();
+            document.head.appendChild(styleElement);
+        }
+    }
+
+    getPreviewStyles() {
+        return `
+            /* A4 page setup */
+            .resume-preview {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                background: white;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                padding: 10mm;
+                box-sizing: border-box;
+                font-family: "Calibri", Arial, sans-serif;
+                color: #000;
+                position: relative;
+            }
+
+            .preview-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                color: #666;
+                font-size: 14px;
+            }
+
+            .preview-placeholder i {
+                font-size: 48px;
+                margin-bottom: 16px;
+                color: #a3d5f7;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 2px;
+                border-bottom: 1.5px solid #2c3e50;
+                padding-bottom: 2px;
+            }
+
+            .name {
+                font-size: 18pt;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 1px;
+            }
+
+            .contact-info {
+                font-size: 9pt;
+                color: #666;
+            }
+
+            .section-header {
+                background-color: #a3d5f7;
+                padding: 1px 5px;
+                font-size: 10.5pt;
+                font-weight: bold;
+                margin-top: 2px;
+                margin-bottom: 1px;
+                text-transform: uppercase;
+                border-left: 3px solid #2c3e50;
+            }
+
+            .section {
+                margin-bottom: 1px;
+            }
+
+            .subheader {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                font-size: 9.5pt;
+                margin-top: 1px;
+                margin-bottom: 0;
+                background-color: #f0f0f0;
+            }
+
+            .subheader .title {
+                flex: 1;
+            }
+
+            .subheader .date {
+                font-style: italic;
+                font-size: 8.5pt;
+                margin-left: 5px;
+                white-space: nowrap;
+                font-weight: normal;
+            }
+
+            ul {
+                margin: 0 0 0 20px;
+                padding: 0;
+                list-style-type: disc;
+            }
+
+            ul li {
+                margin: 0;
+                padding: 0;
+                font-size: 9.5pt;
+                line-height: 1.1;
+            }
+
+            .project-title {
+                font-size: 10pt;
+                font-weight: bold;
+                margin: 1px 0 0;
+            }
+
+            .project-description {
+                font-size: 9pt;
+                margin: 0 0 0 0;
+            }
+
+            .project-description .date {
+                font-style: italic;
+                font-size: 8.5pt;
+                float: right;
+            }
+
+            p {
+                margin: 0 0 1px 0;
+                font-size: 9.5pt;
+            }
+
+            .areas-text {
+                font-size: 9.5pt;
+                text-align: center;
+                margin: 0 0;
+            }
+
+            .extra-category {
+                font-weight: bold;
+                margin-top: 1px;
+                margin-bottom: 0;
+                display: inline-block;
+                width: 120px;
+                vertical-align: top;
+                font-size: 9.5pt;
+            }
+
+            .extra-content {
+                display: inline-block;
+                width: calc(100% - 125px);
+                vertical-align: top;
+                font-size: 9.5pt;
+            }
+
+            .extra-item {
+                margin-bottom: 1px;
+                display: block;
+            }
+
+            .extra-content ul {
+                margin: 0;
+                padding-left: 15px;
+            }
+
+            .extra-content ul li {
+                list-style-type: none;
+                position: relative;
+                padding-left: 10px;
+            }
+
+            .extra-content ul li:before {
+                content: "•";
+                position: absolute;
+                left: 0;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1px 0;
+            }
+
+            table td {
+                padding: 0 0;
+                vertical-align: top;
+                font-size: 9.5pt;
+            }
+
+            @media print {
+                .resume-preview {
+                    box-shadow: none;
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        `;
     }
 
     generatePreview(formData) {
@@ -82,32 +283,39 @@ class PDFPreview {
     }
 
     generateResumeHTML(data) {
-        const { personalInfo, areasOfInterest, experience, projects, education, positionOfResponsibility } = data;
+        const { personalInfo, areasOfInterest, experience, positionOfResponsibility, projects, education, technicalSkills, extraCurricular } = data;
 
         return `
             <div class="resume-document">
-                ${this.generateHeader(personalInfo)}
-                ${education?.length ? this.generateEducation(education) : ''}
+                <div class="header">
+                    ${this.generateHeader(personalInfo)}
+                </div>
+
                 ${areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : ''}
+                ${education?.length ? this.generateEducation(education) : ''}
                 ${experience?.length ? this.generateExperience(experience) : ''}
                 ${positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''}
                 ${projects?.length ? this.generateProjects(projects) : ''}
+                ${technicalSkills?.length ? this.generateTechnicalSkills(technicalSkills) : ''}
+                ${extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : ''}
             </div>
         `;
     }
 
     generateHeader(personalInfo) {
-        const { fullName = '', email = '', phone = '', location = '' } = personalInfo;
+        const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;
+        
+        const contactParts = [];
+        if (email) contactParts.push(this.escapeHtml(email));
+        if (phone) contactParts.push(this.escapeHtml(phone));
+        if (linkedIn) contactParts.push(this.escapeHtml(linkedIn));
+        if (location) contactParts.push(this.escapeHtml(location));
+        
+        const contactInfo = contactParts.length > 0 ? contactParts.join(' | ') : '[Email] | [Phone] | [LinkedIn] | [Location]';
         
         return `
-            <div class="resume-header">
-                <h1 class="resume-name">${this.formatText(fullName)}</h1>
-                <div class="resume-contact">
-                    ${email ? `<span class="contact-item">${email}</span>` : ''}
-                    ${phone ? `<span class="contact-item">${phone}</span>` : ''}
-                    ${location ? `<span class="contact-item">${location}</span>` : ''}
-                </div>
-            </div>
+            <div class="name">${this.escapeHtml(fullName)}</div>
+            <div class="contact-info">${contactInfo}</div>
         `;
     }
 
@@ -115,78 +323,9 @@ class PDFPreview {
         if (!areasText.trim()) return '';
         
         return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>AREAS OF INTEREST</h2>
-                </div>
-                <div class="section-content">
-                    <p class="areas-text">${this.formatText(areasText)}</p>
-                </div>
-            </div>
-        `;
-    }
-
-    generateExperience(experiences) {
-        if (!experiences?.length) return '';
-
-        const experienceItems = experiences
-            .filter(exp => exp.position || exp.company || (exp.bulletPoints && exp.bulletPoints.length > 0))
-            .map(exp => `
-                <div class="experience-item">
-                    <div class="item-header">
-                        <div class="item-title-row">
-                            <strong>${this.formatText(exp.position || 'Position')}</strong>
-                            <span class="item-date">${this.formatText(exp.dates || '')}</span>
-                        </div>
-                        <div class="item-subtitle">
-                            ${this.formatText(exp.company || '')}${exp.location ? ` | ${this.formatText(exp.location)}` : ''}
-                        </div>
-                    </div>
-                    ${exp.bulletPoints && exp.bulletPoints.length > 0 ? this.generateBulletPointsHTML(exp.bulletPoints) : ''}
-                </div>
-            `).join('');
-
-        return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>PROFESSIONAL EXPERIENCE</h2>
-                </div>
-                <div class="section-content">
-                    ${experienceItems}
-                </div>
-            </div>
-        `;
-    }
-
-    generateProjects(projects) {
-        if (!projects?.length) return '';
-
-        const projectItems = projects
-            .filter(proj => proj.title || (proj.bulletPoints && proj.bulletPoints.length > 0))
-            .map(proj => `
-                <div class="project-item">
-                    <div class="item-header">
-                        <div class="item-title-row">
-                            <strong>${this.formatText(proj.title || 'Project Title')}</strong>
-                            <span class="item-date">${this.formatText(proj.duration || '')}</span>
-                        </div>
-                        <div class="item-subtitle">
-                            ${this.formatText(proj.organization || '')}
-                            ${proj.technologies ? ` | Technologies: ${this.formatText(proj.technologies)}` : ''}
-                        </div>
-                    </div>
-                    ${proj.bulletPoints && proj.bulletPoints.length > 0 ? this.generateBulletPointsHTML(proj.bulletPoints) : ''}
-                </div>
-            `).join('');
-
-        return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>KEY PROJECTS</h2>
-                </div>
-                <div class="section-content">
-                    ${projectItems}
-                </div>
+            <div class="section">
+                <div class="section-header">SUMMARY</div>
+                <p class="areas-text">${this.escapeHtml(areasText)}</p>
             </div>
         `;
     }
@@ -195,61 +334,104 @@ class PDFPreview {
         if (!educationList?.length) return '';
 
         const educationItems = educationList
-            .filter(edu => edu.degree || edu.institution || (edu.bulletPoints && edu.bulletPoints.length > 0))
-            .map(edu => `
-                <div class="education-item">
-                    <div class="item-header">
-                        <div class="item-title-row">
-                            <strong>${this.formatText(edu.degree || 'Degree')}${edu.field ? ` in ${this.formatText(edu.field)}` : ''}</strong>
-                            <span class="item-date">${this.formatText(edu.duration || '')}</span>
-                        </div>
-                        <div class="item-subtitle">
-                            ${this.formatText(edu.institution || '')}
-                            ${edu.grade ? ` | Grade: ${this.formatText(edu.grade)}` : ''}
-                        </div>
+            .filter(edu => edu.degree || edu.institution || edu.bulletPoints?.length)
+            .map(edu => {
+                const bullets = this.generateBulletPoints(edu.bulletPoints);
+                const degreeText = edu.degree && edu.field ? 
+                    `${this.escapeHtml(edu.degree)} | ${this.escapeHtml(edu.field)}` :
+                    this.escapeHtml(edu.degree || '');
+                    
+                return `
+                    <div class="subheader">
+                        <div class="title">${degreeText}${edu.institution ? ` | ${this.escapeHtml(edu.institution)}` : ''}</div>
+                        <div class="date">${this.escapeHtml(edu.duration || '')}</div>
                     </div>
-                    ${edu.bulletPoints && edu.bulletPoints.length > 0 ? this.generateBulletPointsHTML(edu.bulletPoints) : ''}
-                </div>
-            `).join('');
+                    ${bullets ? `<ul>${bullets}</ul>` : ''}
+                `;
+            }).join('');
 
         return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>EDUCATION</h2>
-                </div>
-                <div class="section-content">
-                    ${educationItems}
-                </div>
+            <div class="section">
+                <div class="section-header">EDUCATION</div>
+                ${educationItems}
             </div>
         `;
     }
 
-    generateExtracurricular(activities) {
-        if (!activities?.length) return '';
+    generateExperience(experiences) {
+        if (!experiences?.length) return '';
 
-        const activityItems = activities
-            .filter(activity => activity.activity || activity.description)
-            .map(activity => `
-                <div class="activity-item">
-                    <div class="item-header">
-                        <div class="item-title-row">
-                            <strong>${this.formatText(activity.activity || 'Activity')}</strong>
-                            <span class="item-date">${this.formatText(activity.duration || '')}</span>
-                        </div>
-                        ${activity.organization ? `<div class="item-subtitle">${this.formatText(activity.organization)}</div>` : ''}
+        const experienceItems = experiences
+            .filter(exp => exp.position || exp.company || exp.bulletPoints?.length)
+            .map(exp => {
+                const bullets = this.generateBulletPoints(exp.bulletPoints);
+                return `
+                    <div class="subheader">
+                        <div class="title">${this.escapeHtml(exp.position || '')}${exp.company ? ` | ${this.escapeHtml(exp.company)}` : ''}</div>
+                        <div class="date">${this.escapeHtml(exp.duration || '')}</div>
                     </div>
-                    ${activity.description ? `<div class="item-description">${this.formatDescription(activity.description)}</div>` : ''}
-                </div>
-            `).join('');
+                    ${bullets ? `<ul>${bullets}</ul>` : ''}
+                `;
+            }).join('');
 
         return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>EXTRA-CURRICULAR</h2>
-                </div>
-                <div class="section-content">
-                    ${activityItems}
-                </div>
+            <div class="section">
+                <div class="section-header">PROFESSIONAL EXPERIENCE</div>
+                ${experienceItems}
+            </div>
+        `;
+    }
+
+    generateProjects(projects) {
+        if (!projects?.length) return '';
+
+        const projectItems = projects
+            .filter(proj => proj.title || proj.bulletPoints?.length)
+            .map(proj => {
+                const bullets = this.generateBulletPoints(proj.bulletPoints);
+                const descriptionParts = [];
+                if (proj.technologies) descriptionParts.push(`<strong>${this.escapeHtml(proj.technologies)}</strong>`);
+                if (proj.organization) descriptionParts.push(`${this.escapeHtml(proj.organization)}`);
+                if (proj.type) descriptionParts.push(`${this.escapeHtml(proj.type)}`);
+                
+                const description = descriptionParts.join(' | ');
+                
+                return `
+                    <div class="project">
+                        <div class="project-title">${this.escapeHtml(proj.title || '')}</div>
+                        <p class="project-description">${description} <span class="date">${this.escapeHtml(proj.duration || '')}</span></p>
+                        ${bullets ? `<ul>${bullets}</ul>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+        return `
+            <div class="section">
+                <div class="section-header">KEY PROJECTS</div>
+                ${projectItems}
+            </div>
+        `;
+    }
+
+    generateTechnicalSkills(skills) {
+        if (!skills?.length) return '';
+
+        const languages = [];
+        const tools = [];
+        
+        skills.forEach(skill => {
+            if (skill.category === 'language') {
+                languages.push(this.escapeHtml(skill.name));
+            } else {
+                tools.push(this.escapeHtml(skill.name));
+            }
+        });
+
+        return `
+            <div class="section">
+                <div class="section-header">TECHNICAL SKILLS</div>
+                ${languages.length ? `<p><strong>Languages & Software:</strong> ${languages.join(' | ')}</p>` : ''}
+                ${tools.length ? `<p><strong>Tools & Libraries:</strong> ${tools.join(' | ')}</p>` : ''}
             </div>
         `;
     }
@@ -258,89 +440,92 @@ class PDFPreview {
         if (!positions?.length) return '';
 
         const positionItems = positions
-            .filter(pos => pos.position || pos.organization || (pos.bulletPoints && pos.bulletPoints.length > 0))
-            .map(pos => `
-                <div class="position-item">
-                    <div class="item-header">
-                        <div class="item-title-row">
-                            <strong>${this.formatText(pos.position || 'Position')}</strong>
-                            <span class="item-date">${this.formatText(pos.dates || '')}</span>
-                        </div>
-                        <div class="item-subtitle">
-                            ${this.formatText(pos.organization || '')}${pos.institution ? ` | ${this.formatText(pos.institution)}` : ''}
-                        </div>
+            .filter(pos => pos.position || pos.organization || pos.bulletPoints?.length)
+            .map(pos => {
+                const bullets = this.generateBulletPoints(pos.bulletPoints);
+                return `
+                    <div class="subheader">
+                        <div class="title">${this.escapeHtml(pos.position || '')}${pos.organization ? ` | ${this.escapeHtml(pos.organization)}` : ''}</div>
+                        <div class="date">${this.escapeHtml(pos.duration || '')}</div>
                     </div>
-                    ${pos.bulletPoints && pos.bulletPoints.length > 0 ? this.generateBulletPointsHTML(pos.bulletPoints) : ''}
-                </div>
-            `).join('');
+                    ${bullets ? `<ul>${bullets}</ul>` : ''}
+                `;
+            }).join('');
 
         return `
-            <div class="resume-section">
-                <div class="section-header-blue">
-                    <h2>POSITION OF RESPONSIBILITY</h2>
-                </div>
-                <div class="section-content">
-                    ${positionItems}
-                </div>
+            <div class="section">
+                <div class="section-header">ACHIEVEMENTS</div>
+                ${positionItems}
             </div>
         `;
     }
 
-    generateBulletPointsHTML(bulletPoints) {
-        if (!bulletPoints || bulletPoints.length === 0) return '';
+    generateExtraCurricular(activities) {
+        if (!activities?.length) return '';
+
+        const groupedActivities = {};
         
-        const validBullets = bulletPoints.filter(point => point && point.trim());
-        if (validBullets.length === 0) return '';
-        
-        const bulletHTML = validBullets
-            .map(point => `<li>${this.formatText(point.trim())}</li>`)
+        activities.forEach(activity => {
+            const category = activity.category || 'Other';
+            if (!groupedActivities[category]) {
+                groupedActivities[category] = [];
+            }
+            groupedActivities[category].push(activity);
+        });
+
+        const activityItems = Object.entries(groupedActivities)
+            .map(([category, items]) => {
+                const itemList = items
+                    .map(item => {
+                        const date = item.date ? `<span style="font-style: italic; float: right;">${this.escapeHtml(item.date)}</span>` : '';
+                        return `<li>${this.escapeHtml(item.description || '')} ${date}</li>`;
+                    })
+                    .join('');
+                
+                return `
+                    <div class="extra-item">
+                        <div class="extra-category">${this.escapeHtml(category)}</div>
+                        <div class="extra-content">
+                            <ul>${itemList}</ul>
+                        </div>
+                    </div>
+                `;
+            })
             .join('');
-            
-        return `<ul class="bullet-points">${bulletHTML}</ul>`;
+
+        return `
+            <div class="section">
+                <div class="section-header">EXTRA-CURRICULAR</div>
+                ${activityItems}
+            </div>
+        `;
     }
 
-    formatText(text) {
+    generateBulletPoints(bulletPoints) {
+        if (bulletPoints && bulletPoints.length > 0) {
+            const validBullets = bulletPoints.filter(point => point && point.trim());
+            if (validBullets.length > 0) {
+                return validBullets
+                    .map(point => {
+                        // Format bullet points with strong tags for action verbs
+                        const formattedPoint = point.replace(/^(<strong>)?([A-Z][a-z]+[a-z]*)<\/strong>?\s*/i, 
+                            (match, p1, p2) => `<strong>${p2}</strong>`);
+                        return `<li>${formattedPoint}</li>`;
+                    })
+                    .join('');
+            }
+        }
+        return '';
+    }
+
+    escapeHtml(text) {
         if (!text) return '';
-        return text.toString().trim();
-    }
-
-    formatDescription(description) {
-        if (!description) return '';
-        
-        let text = description;
-        
-        // Split into sentences/points and convert to bullet format
-        let points = text
-            .split(/[•\n]/) // Split by existing bullets or line breaks
-            .map(point => point.trim())
-            .filter(point => point.length > 0);
-        
-        // If no existing bullet structure, split by periods for longer text
-        if (points.length === 1 && points[0].length > 100) {
-            points = points[0]
-                .split(/\.\s+/) // Split by periods followed by space
-                .map(point => point.trim())
-                .filter(point => point.length > 10) // Only keep substantial points
-                .map(point => point.endsWith('.') ? point : point + '.'); // Ensure periods
-        }
-        
-        // Format as bullet points
-        if (points.length > 1) {
-            const bulletPoints = points.map(point => {
-                // Handle bold formatting
-                point = point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                point = point.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                return `<li>${point}</li>`;
-            }).join('');
-            
-            return `<ul>${bulletPoints}</ul>`;
-        } else {
-            // Single point, just format it
-            let formatted = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>');
-            return `<ul><li>${formatted}</li></ul>`;
-        }
+        return text.toString()
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     // Method to export the current preview as image or PDF
@@ -371,157 +556,6 @@ class PDFPreview {
         this.currentData[sectionName] = data;
         this.renderPreview();
     }
-}
-
-// Add CSS styles for the resume preview
-const previewStyles = `
-<style>
-.resume-document {
-    font-family: "Calibri", sans-serif;
-    font-size: 10pt;
-    line-height: 1;
-    color: #000;
-    background: white;
-    padding: 1.5rem;
-    max-width: 8.5in;
-    margin: 0 auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.resume-header {
-    text-align: center;
-    margin-bottom: 1.2rem;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 0.8rem;
-}
-
-.resume-name {
-    font-size: 20pt;
-    font-weight: bold;
-    margin-bottom: 0.6rem;
-    color: #000;
-    letter-spacing: 0.5px;
-}
-
-.resume-contact {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    font-size: 10pt;
-}
-
-.contact-item {
-    color: #000;
-    font-weight: 500;
-}
-
-.resume-section {
-    margin-bottom: 1.2rem;
-}
-
-.section-header-blue {
-    background-color: #a3d5f7;
-    padding: 4px 6px;
-    font-size: 11pt;
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin-top: 12px;
-    border-radius: 2px;
-    color: #000;
-}
-
-.section-header-blue h2 {
-    font-size: 11pt;
-    margin: 0;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.section-content {
-    padding: 0 0.8rem;
-}
-
-.experience-item,
-.project-item,
-.education-item,
-.activity-item {
-    margin-bottom: 1rem;
-    page-break-inside: avoid;
-}
-
-.item-header {
-    margin-bottom: 0.3rem;
-}
-
-.item-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.3rem;
-}
-
-.item-title-row strong {
-    color: #000;
-    font-weight: bold;
-    font-size: 11pt;
-}
-
-.item-subtitle {
-    font-style: italic;
-    color: #333;
-    font-size: 10pt;
-    font-weight: 500;
-}
-
-.item-date {
-    font-style: italic;
-    color: #444;
-    font-size: 10pt;
-    white-space: nowrap;
-    font-weight: 500;
-}
-
-.item-description {
-    margin-top: 0.4rem;
-    text-align: justify;
-    color: #000;
-    line-height: 1.5;
-}
-
-.item-description ul {
-    margin: 0.2rem 0;
-    padding-left: 1.2rem;
-}
-
-.item-description li {
-    margin-bottom: 0.1rem;
-}
-
-.areas-text {
-    text-align: center;
-    font-weight: bold;
-    font-size: 11pt;
-    margin: 0;
-    color: #000;
-    padding: 0.2rem 0;
-}
-
-@media print {
-    .resume-document {
-        box-shadow: none;
-        padding: 0.5in;
-    }
-}
-</style>
-`;
-
-// Inject styles into the document
-if (!document.getElementById('resume-preview-styles')) {
-    const styleElement = document.createElement('style');
-    styleElement.id = 'resume-preview-styles';
-    styleElement.textContent = previewStyles.replace('<style>', '').replace('</style>', '');
-    document.head.appendChild(styleElement);
 }
 
 // Initialize PDF preview when DOM is loaded

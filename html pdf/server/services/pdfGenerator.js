@@ -707,11 +707,14 @@ class PDFGenerator {
         font-size: 10pt;
         font-weight: bold;
         margin: 1px 0 0;
+        background-color: #f0f0f0;
     }
     
     .project-description {
         font-size: 9pt;
         margin: 0 0 0 0;
+        font-weight: normal;
+        font-style: italic;
     }
     
     .project-description .date {
@@ -806,7 +809,7 @@ class PDFGenerator {
         
         return `
     <div class="section">
-        <div class="section-header">AREAS OF INTEREST</div>
+        <div class="section-header">SUMMARY</div>
         <p class="areas-text">${this.escapeHtml(areasText)}</p>
     </div>
         `;
@@ -936,7 +939,7 @@ class PDFGenerator {
 
         return `
     <div class="section">
-        <div class="section-header">POSITIONS OF RESPONSIBILITY</div>
+        <div class="section-header">ACHIEVEMENTS</div>
         ${positionItems}
     </div>
         `;

@@ -219,17 +219,22 @@ router.post('/enhance-point',
                 prompt += `Target job description: ${jobDescription}\n\n`;
             }
 
-            prompt += `Instructions:
-- Make this point more impactful and professional
-- Use strong action verbs
-- Add quantifiable results if appropriate
-- Keep it concise (1-2 sentences max)
+            prompt += `MANDATORY CHARACTER REQUIREMENTS:
+- MUST BE exactly 95 characters (one PDF line) OR 190 characters (two PDF lines)
+- Count ALL characters including spaces, punctuation, and special characters
+- Example of 95 characters: "Developed automated data pipeline using Python and SQL, reducing processing time by 45%"
+- Example of 94 characters: "Led cross-functional team of 8 developers, delivering 3 major features ahead of schedule"
+
+Quality Instructions (while meeting character requirements):
+- Make this point impactful and professional
+- Use strong action verbs and quantifiable results where appropriate
 - Ensure ATS-friendly keywords
 - Maintain truthfulness to the original meaning
 - DO NOT include bullet points (•) in the response
-- Return ONLY the enhanced text without any formatting or bullet points
+- DO NOT include character count in your response
+- Return ONLY the enhanced text without any formatting, bullet points, or character counts
 
-Return only the enhanced point text, nothing else. No bullet points or special formatting.`;
+Return only the enhanced point text that MUST meet the character count requirements. Do not include the character count in your response.`;
 
             const enhancedContent = await aiService.generateContent(prompt);
             

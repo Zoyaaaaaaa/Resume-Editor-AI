@@ -28,8 +28,6 @@ class ResumeEditorApp {
         // Keyboard shortcuts
         document.addEventListener('keydown', e => this.handleKeyboardShortcuts(e));
 
-        // Auto-save every 30 seconds
-        setInterval(() => this.autoSave(), 30000);
 
         // Single click listener for AI enhancement buttons
         document.addEventListener('click', e => {
@@ -149,7 +147,6 @@ class ResumeEditorApp {
     }
 
     handleKeyboardShortcuts(e) {
-        if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); this.autoSave(); }
         if ((e.ctrlKey||e.metaKey) && e.key==='d') { e.preventDefault(); this.downloadPDF(); }
         if ((e.ctrlKey||e.metaKey) && e.key==='u') { e.preventDefault(); this.triggerFileUpload(); }
         if ((e.ctrlKey||e.metaKey) && e.key==='=') { e.preventDefault(); this.adjustZoom(10); }
@@ -161,28 +158,7 @@ class ResumeEditorApp {
         }
     }
 
-    autoSave() {
-        if (!window.formHandler) return;
-        try {
-            localStorage.setItem('resumeEditorData', JSON.stringify({
-                data: window.formHandler.getFormData(),
-                timestamp: Date.now()
-            }));
-            this.showInfo('Auto-saved', 1000);
-        } catch(err) {
-            console.error(err);
-        }
-    }
 
-    loadAutoSavedData() {
-        try {
-            const saved = JSON.parse(localStorage.getItem('resumeEditorData')||'{}');
-            if (saved.timestamp && Date.now()-saved.timestamp < 86400000 && window.formHandler) {
-                window.formHandler.populateFromData(saved.data);
-                this.showInfo('Previous session restored');
-            }
-        } catch(err) { console.error(err); }
-    }
 
     showLoading(msg='Loading...') {
         this.isLoading=true;
@@ -360,7 +336,6 @@ class ResumeEditorApp {
     }
 
     init() {
-        setTimeout(() => this.loadAutoSavedData(), 100);
         this.checkForUpdates();
         setTimeout(() => this.initializeDragAndDrop(), 500);
         console.log('Resume Editor App initialized');
