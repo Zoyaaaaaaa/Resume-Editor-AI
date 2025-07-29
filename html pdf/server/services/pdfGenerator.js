@@ -612,177 +612,177 @@ class PDFGenerator {
         `;
     }
 
-    getStyles() {
-        return `
-        /* A4 page setup */
-        @page {
-            size: A4 portrait;
-            margin: 10mm;
-        }
-        
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: "Calibri", Arial, sans-serif;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-size: 10pt;
-            line-height: 1.0;
-            //margin: 10mm;
-            color: #000;
-            background-color: #fff;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 5px;
-            border-bottom: 1.5px solid #2c3e50;
-            padding-bottom: 5px;
-        }
-        
-        .name {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 2px;
-        }
-        
-        .contact-info {
-            font-size: 9pt;
-            color: #666;
-        }
-        
-        .section-header {
-            background-color: #a3d5f7;
-            padding: 1px 5px;
-            font-size: 10.5pt;
-            font-weight: bold;
-            margin-top: 5px;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            border-left: 3px solid #2c3e50;
-        }
-        
-        .section {
-            margin-bottom: 3px;
-        }
-        
-        .subheader {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 9.5pt;
-            margin-top: 3px;
-            margin-bottom: 1px;
-        }
-        
-        .subheader .title {
-            flex: 1;
-        }
-        
-        .subheader .date {
-            font-style: italic;
-            font-size: 8.5pt;
-            margin-left: 5px;
-            white-space: nowrap;
-            font-weight: normal;
-        }
-        
-        ul {
-            margin: 0 0 1px 20px;
-            padding: 0;
-            list-style-type: disc;
-        }
-        
-        ul li {
-            margin: 0;
-            padding: 0;
-            font-size: 9.5pt;
-            line-height: 1.1;
-        }
-        
-        .project-title {
-            font-size: 10pt;
-            font-weight: bold;
-            margin: 2px 0 0;
-        }
-        
-        .project-description {
-            font-size: 9pt;
-            margin: 0 0 1px 0;
-        }
-        
-        .project-description .date {
-            font-style: italic;
-            font-size: 8.5pt;
-            float: right;
-        }
-        
-        p {
-            margin: 0 0 1px 0;
-            font-size: 9.5pt;
-        }
-        
-        .areas-text {
-            font-size: 9.5pt;
-            text-align: center;
-            margin: 1px 0;
-        }
-        
-        .extra-category {
-            font-weight: bold;
-            margin-top: 2px;
-            margin-bottom: 1px;
-            display: inline-block;
-            width: 120px;
-            vertical-align: top;
-            font-size: 9.5pt;
-        }
-        
-        .extra-content {
-            display: inline-block;
-            width: calc(100% - 125px);
-            vertical-align: top;
-            font-size: 9.5pt;
-        }
-        
-        .extra-item {
-            margin-bottom: 2px;
-            display: block;
-        }
-        
-        .extra-content ul {
-            margin: 0;
-            padding-left: 15px;
-        }
-        
-        .extra-content ul li {
-            list-style-type: none;
-            position: relative;
-            padding-left: 10px;
-        }
-        
-        .extra-content ul li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2px 0;
-        }
-        
-        table td {
-            padding: 1px 0;
-            vertical-align: top;
-            font-size: 9.5pt;
-        }
-        `;
+  getStyles() {
+    return `
+    /* A4 page setup */
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
     }
+    
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: "Calibri", Arial, sans-serif;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-size: 10pt;
+        line-height: 1.1;
+        color: #000;
+        background-color: #fff;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 2px;
+        border-bottom: 1.5px solid #2c3e50;
+        padding-bottom: 2px;
+    }
+    
+    .name {
+        font-size: 18pt;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 1px;
+    }
+    
+    .contact-info {
+        font-size: 9pt;
+        color: #666;
+    }
+    
+    .section-header {
+        background-color: #a3d5f7;
+        padding: 1px 5px;
+        font-size: 10.5pt;
+        font-weight: bold;
+        margin-top: 2px;
+        margin-bottom: 1px;
+        text-transform: uppercase;
+        border-left: 3px solid #2c3e50;
+    }
+    
+    .section {
+        margin-bottom: 1px;
+    }
+    
+    .subheader {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 9.5pt;
+        margin-top: 1px;
+        margin-bottom: 0;
+        background-color: #f0f0f0;
+    }
+    
+    .subheader .title {
+        flex: 1;
+    }
+    
+    .subheader .date {
+        font-style: italic;
+        font-size: 8.5pt;
+        margin-left: 5px;
+        white-space: nowrap;
+        font-weight: normal;
+    }
+    
+    ul {
+        margin: 0 0 0 20px;
+        padding: 0;
+        list-style-type: disc;
+    }
+    
+    ul li {
+        margin: 0;
+        padding: 0;
+        font-size: 9.5pt;
+        line-height: 1.1;
+    }
+    
+    .project-title {
+        font-size: 10pt;
+        font-weight: bold;
+        margin: 1px 0 0;
+    }
+    
+    .project-description {
+        font-size: 9pt;
+        margin: 0 0 0 0;
+    }
+    
+    .project-description .date {
+        font-style: italic;
+        font-size: 8.5pt;
+        float: right;
+    }
+    
+    p {
+        margin: 0 0 1px 0;
+        font-size: 9.5pt;
+    }
+    
+    .areas-text {
+        font-size: 9.5pt;
+        text-align: center;
+        margin: 0 0;
+    }
+    
+    .extra-category {
+        font-weight: bold;
+        margin-top: 1px;
+        margin-bottom: 0;
+        display: inline-block;
+        width: 120px;
+        vertical-align: top;
+        font-size: 9.5pt;
+    }
+    
+    .extra-content {
+        display: inline-block;
+        width: calc(100% - 125px);
+        vertical-align: top;
+        font-size: 9.5pt;
+    }
+    
+    .extra-item {
+        margin-bottom: 1px;
+        display: block;
+    }
+    
+    .extra-content ul {
+        margin: 0;
+        padding-left: 15px;
+    }
+    
+    .extra-content ul li {
+        list-style-type: none;
+        position: relative;
+        padding-left: 10px;
+    }
+    
+    .extra-content ul li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1px 0;
+    }
+    
+    table td {
+        padding: 0 0;
+        vertical-align: top;
+        font-size: 9.5pt;
+    }
+    `;
+}
 
     generateHeader(personalInfo) {
         const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;
