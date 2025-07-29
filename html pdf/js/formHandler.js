@@ -5,9 +5,9 @@ class FormHandler {
             personalInfo: {},
             areasOfInterest: '',
             experience: [],
+            positionOfResponsibility: [],
             projects: [],
-            education: [],
-            extracurricular: []
+            education: []
         };
         
         this.initializeEventListeners();
@@ -33,23 +33,16 @@ class FormHandler {
             this.addExperienceEntry();
         });
 
+        document.getElementById('addPosition').addEventListener('click', () => {
+            this.addPositionEntry();
+        });
+
         document.getElementById('addProject').addEventListener('click', () => {
             this.addProjectEntry();
         });
 
         document.getElementById('addEducation').addEventListener('click', () => {
             this.addEducationEntry();
-        });
-
-        document.getElementById('addExtracurricular').addEventListener('click', () => {
-            this.addExtracurricularEntry();
-        });
-
-        // AI Enhance buttons
-        document.querySelectorAll('.btn-enhance').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.enhanceSection(e.target.dataset.section);
-            });
         });
     }
 
@@ -90,26 +83,71 @@ class FormHandler {
                         <input type="text" name="dates" value="${data.dates || ''}" placeholder="e.g., May 2025 - Present">
                     </div>
                 </div>
-                <div class="form-group description-group">
-                    <label>Description</label>
-                    <div class="formatting-controls">
-                        <button type="button" class="format-btn" data-format="bold">
-                            <i class="fas fa-bold"></i>
-                        </button>
-                        <button type="button" class="format-btn" data-format="italic">
-                            <i class="fas fa-italic"></i>
-                        </button>
-                        <button type="button" class="format-btn" data-format="bullet">
-                            <i class="fas fa-list-ul"></i>
+                <div class="form-group bullet-points-group">
+                    <label>Key Responsibilities & Achievements</label>
+                    <div class="point-enhancement-area">
+                        <small>Add individual bullet points for your achievements:</small>
+                        <div class="bullet-points-container"></div>
+                        <button type="button" class="btn-add-point" style="margin-top: 10px; padding: 8px 12px; font-size: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Add Bullet Point
                         </button>
                     </div>
-                    <textarea name="description" rows="4" placeholder="Describe your key responsibilities and achievements...">${data.description || ''}</textarea>
                 </div>
             </div>
         `;
         
         container.insertAdjacentHTML('beforeend', entryHTML);
         this.attachEntryListeners(entryId, 'experience');
+        this.updateFormData();
+    }
+
+    addPositionEntry(data = {}) {
+        const container = document.getElementById('positionContainer');
+        const entryId = 'pos_' + Date.now();
+        
+        const entryHTML = `
+            <div class="entry-item" data-id="${entryId}">
+                <div class="entry-header">
+                    <span class="entry-title">Position of Responsibility</span>
+                    <div class="entry-actions">
+                        <button class="remove-entry" onclick="formHandler.removeEntry('${entryId}', 'positionOfResponsibility')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="entry-grid">
+                    <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" name="position" value="${data.position || ''}" placeholder="e.g., Executive Member">
+                    </div>
+                    <div class="form-group">
+                        <label>Organization</label>
+                        <input type="text" name="organization" value="${data.organization || ''}" placeholder="e.g., Post Graduate Academic Council">
+                    </div>
+                    <div class="form-group">
+                        <label>Institution</label>
+                        <input type="text" name="institution" value="${data.institution || ''}" placeholder="e.g., IIT Bombay">
+                    </div>
+                    <div class="form-group">
+                        <label>Dates</label>
+                        <input type="text" name="dates" value="${data.dates || ''}" placeholder="e.g., June'23-Present">
+                    </div>
+                </div>
+                <div class="form-group bullet-points-group">
+                    <label>Key Responsibilities & Achievements</label>
+                    <div class="point-enhancement-area">
+                        <small>Add individual bullet points for your achievements:</small>
+                        <div class="bullet-points-container"></div>
+                        <button type="button" class="btn-add-point" style="margin-top: 10px; padding: 8px 12px; font-size: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Add Bullet Point
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', entryHTML);
+        this.attachEntryListeners(entryId, 'positionOfResponsibility');
         this.updateFormData();
     }
 
@@ -159,6 +197,13 @@ class FormHandler {
                         </button>
                     </div>
                     <textarea name="description" rows="4" placeholder="Describe the project objectives, your role, and key outcomes...">${data.description || ''}</textarea>
+                    <div class="point-enhancement-area" style="margin-top: 10px;">
+                        <small>Click "Add Bullet Point" then enhance individual points:</small>
+                        <div class="bullet-points-container"></div>
+                        <button type="button" class="btn-add-point" style="margin-top: 5px; padding: 3px 8px; font-size: 12px;">
+                            <i class="fas fa-plus"></i> Add Bullet Point
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -204,9 +249,15 @@ class FormHandler {
                         <input type="text" name="grade" value="${data.grade || ''}" placeholder="e.g., 8.5/10">
                     </div>
                 </div>
-                <div class="form-group description-group">
-                    <label>Additional Details (Optional)</label>
-                    <textarea name="details" rows="2" placeholder="Relevant coursework, achievements, etc...">${data.details || ''}</textarea>
+                <div class="form-group bullet-points-group">
+                    <label>Achievements & Coursework (Optional)</label>
+                    <div class="point-enhancement-area">
+                        <small>Add relevant coursework, achievements, or other details:</small>
+                        <div class="bullet-points-container"></div>
+                        <button type="button" class="btn-add-point" style="margin-top: 10px; padding: 8px 12px; font-size: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Add Bullet Point
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -216,97 +267,127 @@ class FormHandler {
         this.updateFormData();
     }
 
-    addExtracurricularEntry(data = {}) {
-        const container = document.getElementById('extracurricularContainer');
-        const entryId = 'extra_' + Date.now();
-        
-        const entryHTML = `
-            <div class="entry-item" data-id="${entryId}">
-                <div class="entry-header">
-                    <span class="entry-title">Extra-Curricular Activity</span>
-                    <div class="entry-actions">
-                        <button class="remove-entry" onclick="formHandler.removeEntry('${entryId}', 'extracurricular')">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="entry-grid">
-                    <div class="form-group">
-                        <label>Activity/Role</label>
-                        <input type="text" name="activity" value="${data.activity || ''}" placeholder="e.g., Volunteering">
-                    </div>
-                    <div class="form-group">
-                        <label>Organization</label>
-                        <input type="text" name="organization" value="${data.organization || ''}" placeholder="e.g., TA | Prayog Lab">
-                    </div>
-                    <div class="form-group">
-                        <label>Duration</label>
-                        <input type="text" name="duration" value="${data.duration || ''}" placeholder="e.g., July'23">
-                    </div>
-                </div>
-                <div class="form-group description-group">
-                    <label>Description</label>
-                    <textarea name="description" rows="3" placeholder="Describe your involvement and achievements...">${data.description || ''}</textarea>
-                </div>
-            </div>
-        `;
-        
-        container.insertAdjacentHTML('beforeend', entryHTML);
-        this.attachEntryListeners(entryId, 'extracurricular');
-        this.updateFormData();
-    }
 
     attachEntryListeners(entryId, section) {
         const entry = document.querySelector(`[data-id="${entryId}"]`);
         
         // Add input listeners for all form fields in this entry
-        entry.querySelectorAll('input, textarea').forEach(input => {
+        entry.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
                 this.updateFormData();
             });
         });
 
-        // Add formatting control listeners
-        entry.querySelectorAll('.format-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        // Add bullet point functionality
+        const addPointBtn = entry.querySelector('.btn-add-point');
+        if (addPointBtn) {
+            addPointBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.applyFormatting(btn, entry);
+                this.addBulletPoint(entry, section);
             });
-        });
+        }
     }
 
-    applyFormatting(btn, entry) {
-        const format = btn.dataset.format;
-        const textarea = entry.querySelector('textarea[name="description"]');
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selectedText = textarea.value.substring(start, end);
+    addBulletPoint(entry, section) {
+        const container = entry.querySelector('.bullet-points-container');
+        const pointId = 'point_' + Date.now();
+        
+        const pointHTML = `
+            <div class="bullet-point-item" data-point-id="${pointId}" style="margin-bottom: 8px; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">•</span>
+                <input type="text" class="bullet-point-input" placeholder="Enter a bullet point..." style="flex: 1; margin-right: 8px; padding: 4px;">
+                <button type="button" class="btn-enhance-point" data-section="${section}" style="padding: 2px 6px; font-size: 11px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                    ✨ Enhance
+                </button>
+                <button type="button" class="btn-remove-point" style="padding: 2px 6px; font-size: 11px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; margin-left: 4px;">
+                    ×
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', pointHTML);
+        
+        // Add listeners for the new point
+        const pointElement = container.querySelector(`[data-point-id="${pointId}"]`);
+        const input = pointElement.querySelector('.bullet-point-input');
+        const enhanceBtn = pointElement.querySelector('.btn-enhance-point');
+        const removeBtn = pointElement.querySelector('.btn-remove-point');
+        
+        input.addEventListener('input', () => this.updateFormData());
+        
+        enhanceBtn.addEventListener('click', () => {
+            this.enhancePoint(input, section, entry);
+        });
+        
+        removeBtn.addEventListener('click', () => {
+            pointElement.remove();
+            this.updateFormData();
+        });
+        
+        input.focus();
+    }
 
-        if (!selectedText) {
-            this.showMessage('Please select text to format', 'info');
+    async enhancePoint(input, section, entry) {
+        const originalText = input.value.trim();
+        if (!originalText) {
+            alert('Please enter some text first');
             return;
         }
 
-        let formattedText = selectedText;
-        
-        switch (format) {
-            case 'bold':
-                formattedText = `**${selectedText}**`;
-                break;
-            case 'italic':
-                formattedText = `*${selectedText}*`;
-                break;
-            case 'bullet':
-                formattedText = `• ${selectedText}`;
-                break;
-        }
+        const enhanceBtn = input.parentElement.querySelector('.btn-enhance-point');
+        const originalBtnText = enhanceBtn.innerHTML;
+        enhanceBtn.innerHTML = '⏳';
+        enhanceBtn.disabled = true;
 
-        textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-        textarea.focus();
-        textarea.setSelectionRange(start, start + formattedText.length);
-        
-        this.updateFormData();
+        try {
+            // Get context from the entry
+            const context = this.getEntryContext(entry);
+            
+            const response = await fetch('/api/gemini/enhance-point', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: section,
+                    content: originalText,
+                    context: context
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Enhancement failed');
+            }
+
+            const result = await response.json();
+            input.value = result.enhancedContent || originalText;
+            
+            enhanceBtn.innerHTML = '✅';
+            setTimeout(() => {
+                enhanceBtn.innerHTML = originalBtnText;
+                enhanceBtn.disabled = false;
+            }, 2000);
+            
+            this.updateFormData();
+            
+        } catch (error) {
+            console.error('Enhancement error:', error);
+            alert('Enhancement failed. Please try again.');
+            enhanceBtn.innerHTML = originalBtnText;
+            enhanceBtn.disabled = false;
+        }
     }
+
+    getEntryContext(entry) {
+        // Extract context information from the entry
+        const position = entry.querySelector('[name="position"]')?.value || '';
+        const company = entry.querySelector('[name="company"]')?.value || '';
+        const organization = entry.querySelector('[name="organization"]')?.value || '';
+        const title = entry.querySelector('[name="title"]')?.value || '';
+        
+        return `${position} ${company} ${organization} ${title}`.trim();
+    }
+
 
     removeEntry(entryId, section) {
         const entry = document.querySelector(`[data-id="${entryId}"]`);
@@ -319,22 +400,22 @@ class FormHandler {
     updateFormData() {
         // Update experience data
         this.formData.experience = this.getEntriesData('experienceContainer', [
-            'position', 'company', 'location', 'dates', 'description'
+            'position', 'company', 'location', 'dates'
+        ]);
+
+        // Update position of responsibility data
+        this.formData.positionOfResponsibility = this.getEntriesData('positionContainer', [
+            'position', 'organization', 'institution', 'dates'
         ]);
 
         // Update projects data
         this.formData.projects = this.getEntriesData('projectsContainer', [
-            'title', 'organization', 'duration', 'technologies', 'description'
+            'title', 'organization', 'duration', 'technologies'
         ]);
 
         // Update education data
         this.formData.education = this.getEntriesData('educationContainer', [
-            'degree', 'field', 'institution', 'duration', 'grade', 'details'
-        ]);
-
-        // Update extracurricular data
-        this.formData.extracurricular = this.getEntriesData('extracurricularContainer', [
-            'activity', 'organization', 'duration', 'description'
+            'degree', 'field', 'institution', 'duration', 'grade'
         ]);
 
         this.updatePreview();
@@ -350,32 +431,41 @@ class FormHandler {
                 const input = entry.querySelector(`[name="${field}"]`);
                 data[field] = input ? input.value : '';
             });
+            
+            // Collect bullet points
+            const bulletPoints = [];
+            const bulletInputs = entry.querySelectorAll('.bullet-point-input');
+            bulletInputs.forEach(input => {
+                if (input.value.trim()) {
+                    bulletPoints.push(input.value.trim());
+                }
+            });
+            data.bulletPoints = bulletPoints;
+            
             return data;
         });
     }
 
     updatePreview() {
-        console.log('updatePreview called, pdfPreview available:', !!window.pdfPreview);
-        console.log('Current form data for preview:', this.formData);
-        
-        if (window.pdfPreview) {
+        // Wait for pdfPreview to be available
+        if (window.pdfPreview && typeof window.pdfPreview.generatePreview === 'function') {
             window.pdfPreview.generatePreview(this.formData);
         } else {
-            console.warn('PDF preview not available yet');
+            // Retry after a short delay if pdfPreview is not ready
+            setTimeout(() => {
+                if (window.pdfPreview && typeof window.pdfPreview.generatePreview === 'function') {
+                    window.pdfPreview.generatePreview(this.formData);
+                }
+            }, 100);
         }
-    }
-
-    enhanceSection(section) {
-        this.showMessage('AI Enhancement feature coming soon!', 'info');
-        // TODO: Implement AI enhancement
     }
 
     addInitialEntries() {
         // Add one initial entry for each section
         this.addExperienceEntry();
+        this.addPositionEntry();
         this.addProjectEntry();
         this.addEducationEntry();
-        this.addExtracurricularEntry();
     }
 
     showMessage(text, type = 'info') {
@@ -403,133 +493,228 @@ class FormHandler {
     populateFromData(resumeData) {
         console.log('populateFromData called with:', resumeData);
         
-        // Debug: Check if DOM is ready
-        console.log('Document ready state:', document.readyState);
-        console.log('All form inputs found:', document.querySelectorAll('input').length);
-        console.log('FormHandler instance:', this);
-        
         if (!resumeData) {
             console.error('No resume data provided to populateFromData');
             return;
         }
         
         // Personal Information
-        console.log('Processing personal info:', resumeData.personalInfo);
         if (resumeData.personalInfo) {
             Object.keys(resumeData.personalInfo).forEach(key => {
-                console.log(`Looking for element with ID: ${key}`);
                 const input = document.getElementById(key);
-                console.log(`Element found:`, input);
-                
                 if (input) {
-                    console.log(`Setting ${key} to:`, resumeData.personalInfo[key]);
-                    console.log(`Current value before:`, input.value);
                     input.value = resumeData.personalInfo[key];
-                    console.log(`Current value after:`, input.value);
-                    
-                    // Force trigger change event
                     input.dispatchEvent(new Event('input', { bubbles: true }));
-                    
                     this.updatePersonalInfo(key, resumeData.personalInfo[key]);
-                } else {
-                    console.error(`Input element not found for key: ${key}`);
-                    console.log('All elements with this tag:', document.getElementsByTagName('input'));
                 }
             });
-        } else {
-            console.warn('No personal info in resume data');
         }
 
         // Areas of Interest
-        console.log('Processing areas of interest:', resumeData.areasOfInterest);
         const areasInput = document.getElementById('areasOfInterest');
         if (areasInput) {
             areasInput.value = resumeData.areasOfInterest || '';
             this.formData.areasOfInterest = resumeData.areasOfInterest || '';
-            console.log('Set areas of interest to:', areasInput.value);
         }
 
         // Clear existing entries
-        console.log('Clearing existing entries...');
-        const containers = ['experienceContainer', 'projectsContainer', 'educationContainer', 'extracurricularContainer'];
+        const containers = ['experienceContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
         containers.forEach(containerId => {
             const container = document.getElementById(containerId);
             if (container) {
                 container.innerHTML = '';
-                console.log(`Cleared ${containerId}`);
-            } else {
-                console.error(`Container not found: ${containerId}`);
             }
         });
 
         // Add experience entries
-        console.log('Adding experience entries:', resumeData.experience);
         if (resumeData.experience && resumeData.experience.length > 0) {
             resumeData.experience.forEach((exp, index) => {
-                console.log(`Adding experience ${index + 1}:`, exp);
                 this.addExperienceEntry(exp);
+                // Add bullet points after entry is created with specific index
+                if (exp.bulletPoints && exp.bulletPoints.length > 0) {
+                    setTimeout(() => this.populateBulletPointsForEntry('experienceContainer', index, exp.bulletPoints), 100);
+                }
             });
         } else {
-            console.log('No experience data, adding empty entry');
             this.addExperienceEntry();
         }
 
-        // Add project entries
-        console.log('Adding project entries:', resumeData.projects);
-        if (resumeData.projects && resumeData.projects.length > 0) {
-            resumeData.projects.forEach((proj, index) => {
-                console.log(`Adding project ${index + 1}:`, proj);
-                this.addProjectEntry(proj);
+        // Add position entries
+        if (resumeData.positionOfResponsibility && resumeData.positionOfResponsibility.length > 0) {
+            resumeData.positionOfResponsibility.forEach((pos, index) => {
+                this.addPositionEntry(pos);
+                // Add bullet points after entry is created with specific index
+                if (pos.bulletPoints && pos.bulletPoints.length > 0) {
+                    setTimeout(() => this.populateBulletPointsForEntry('positionContainer', index, pos.bulletPoints), 100);
+                }
             });
         } else {
-            console.log('No project data, adding empty entry');
+            this.addPositionEntry();
+        }
+
+        // Add project entries
+        if (resumeData.projects && resumeData.projects.length > 0) {
+            resumeData.projects.forEach((proj, index) => {
+                this.addProjectEntry(proj);
+                // Add bullet points after entry is created with specific index
+                if (proj.bulletPoints && proj.bulletPoints.length > 0) {
+                    setTimeout(() => this.populateBulletPointsForEntry('projectsContainer', index, proj.bulletPoints), 100);
+                }
+            });
+        } else {
             this.addProjectEntry();
         }
 
         // Add education entries
-        console.log('Adding education entries:', resumeData.education);
         if (resumeData.education && resumeData.education.length > 0) {
             resumeData.education.forEach((edu, index) => {
-                console.log(`Adding education ${index + 1}:`, edu);
                 this.addEducationEntry(edu);
+                // Add bullet points after entry is created with specific index
+                if (edu.bulletPoints && edu.bulletPoints.length > 0) {
+                    setTimeout(() => this.populateBulletPointsForEntry('educationContainer', index, edu.bulletPoints), 100);
+                }
             });
         } else {
-            console.log('No education data, adding empty entry');
             this.addEducationEntry();
         }
 
-        // Add extracurricular entries
-        console.log('Adding extracurricular entries:', resumeData.extracurricular);
-        if (resumeData.extracurricular && resumeData.extracurricular.length > 0) {
-            resumeData.extracurricular.forEach((extra, index) => {
-                console.log(`Adding extracurricular ${index + 1}:`, extra);
-                this.addExtracurricularEntry(extra);
-            });
-        } else {
-            console.log('No extracurricular data, adding empty entry');
-            this.addExtracurricularEntry();
-        }
-
-        console.log('About to update form data and preview...');
         this.updateFormData();
-        console.log('Form data updated, current form data:', this.formData);
         
         // Force preview update
-        console.log('Forcing preview update...');
         if (window.pdfPreview) {
             window.pdfPreview.generatePreview(this.formData);
         } else {
-            console.error('PDF preview not available');
-            // Try again after a short delay
             setTimeout(() => {
                 if (window.pdfPreview) {
-                    console.log('Retrying preview update...');
                     window.pdfPreview.generatePreview(this.formData);
                 }
             }, 500);
         }
         
         this.showMessage('Resume data loaded successfully!', 'success');
+    }
+
+    // Method to populate bullet points for a specific entry
+    populateBulletPointsForEntry(containerId, entryIndex, bulletPoints) {
+        if (!bulletPoints || bulletPoints.length === 0) return;
+        
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // Get the specific entry by index
+        const entries = container.querySelectorAll('.entry-item');
+        const targetEntry = entries[entryIndex];
+        if (!targetEntry) return;
+        
+        const bulletContainer = targetEntry.querySelector('.bullet-points-container');
+        if (!bulletContainer) return;
+        
+        // Clear any existing bullet points in this specific entry
+        bulletContainer.innerHTML = '';
+        
+        // Determine section name for bullet point functionality
+        let section = '';
+        if (containerId === 'experienceContainer') section = 'experience';
+        else if (containerId === 'positionContainer') section = 'positionOfResponsibility';
+        else if (containerId === 'projectsContainer') section = 'projects';
+        else if (containerId === 'educationContainer') section = 'education';
+        
+        // Add each bullet point to this specific entry
+        bulletPoints.forEach(point => {
+            if (point && point.trim()) {
+                this.addBulletPointWithText(targetEntry, section, point.trim());
+            }
+        });
+    }
+
+    // Method to populate bullet points from parsed resume data (kept for backward compatibility)
+    populateBulletPoints(section, bulletPoints) {
+        if (!bulletPoints || bulletPoints.length === 0) return;
+        
+        let containerId = '';
+        switch(section) {
+            case 'experience':
+                containerId = 'experienceContainer';
+                break;
+            case 'positionOfResponsibility':
+                containerId = 'positionContainer';
+                break;
+            case 'projects':
+                containerId = 'projectsContainer';
+                break;
+            case 'education':
+                containerId = 'educationContainer';
+                break;
+            default:
+                return;
+        }
+        
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // Get the last entry (most recently added)
+        const entries = container.querySelectorAll('.entry-item');
+        const lastEntry = entries[entries.length - 1];
+        if (!lastEntry) return;
+        
+        const bulletContainer = lastEntry.querySelector('.bullet-points-container');
+        if (!bulletContainer) return;
+        
+        // Add each bullet point
+        bulletPoints.forEach(point => {
+            if (point && point.trim()) {
+                this.addBulletPointWithText(lastEntry, section, point.trim());
+            }
+        });
+    }
+    
+    // Method to add bullet point with pre-filled text
+    addBulletPointWithText(entry, section, text) {
+        const container = entry.querySelector('.bullet-points-container');
+        const pointId = 'point_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        const pointHTML = `
+            <div class="bullet-point-item" data-point-id="${pointId}" style="margin-bottom: 8px; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">•</span>
+                <input type="text" class="bullet-point-input" value="${this.escapeHtml(text)}" style="flex: 1; margin-right: 8px; padding: 4px;">
+                <button type="button" class="btn-enhance-point" data-section="${section}" style="padding: 2px 6px; font-size: 11px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                    ✨ Enhance
+                </button>
+                <button type="button" class="btn-remove-point" style="padding: 2px 6px; font-size: 11px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; margin-left: 4px;">
+                    ×
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', pointHTML);
+        
+        // Add listeners for the new point
+        const pointElement = container.querySelector(`[data-point-id="${pointId}"]`);
+        const input = pointElement.querySelector('.bullet-point-input');
+        const enhanceBtn = pointElement.querySelector('.btn-enhance-point');
+        const removeBtn = pointElement.querySelector('.btn-remove-point');
+        
+        input.addEventListener('input', () => this.updateFormData());
+        
+        enhanceBtn.addEventListener('click', () => {
+            this.enhancePoint(input, section, entry);
+        });
+        
+        removeBtn.addEventListener('click', () => {
+            pointElement.remove();
+            this.updateFormData();
+        });
+    }
+
+    // Helper method to escape HTML
+    escapeHtml(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     // Method to get current form data
@@ -542,29 +727,16 @@ class FormHandler {
 let formHandler;
 
 function initializeFormHandler() {
-    console.log('Initializing FormHandler...');
     try {
         formHandler = new FormHandler();
         window.formHandler = formHandler; // Make it globally accessible
-        console.log('FormHandler initialized and attached to window');
-        console.log('window.formHandler is now:', window.formHandler);
     } catch (error) {
         console.error('Error initializing FormHandler:', error);
     }
 }
 
-// Try multiple initialization methods
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeFormHandler);
-} else {
-    // DOM is already loaded
-    initializeFormHandler();
-}
-
-// Also try when window loads (as a backup)
-window.addEventListener('load', () => {
-    if (!window.formHandler) {
-        console.log('FormHandler not found on window load, reinitializing...');
-        initializeFormHandler();
-    }
+// Initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit for all scripts to load
+    setTimeout(initializeFormHandler, 100);
 });

@@ -82,7 +82,7 @@ class PDFPreview {
     }
 
     generateResumeHTML(data) {
-        const { personalInfo, areasOfInterest, experience, projects, education, extracurricular } = data;
+        const { personalInfo, areasOfInterest, experience, projects, education, positionOfResponsibility } = data;
 
         return `
             <div class="resume-document">
@@ -90,8 +90,8 @@ class PDFPreview {
                 ${education?.length ? this.generateEducation(education) : ''}
                 ${areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : ''}
                 ${experience?.length ? this.generateExperience(experience) : ''}
+                ${positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''}
                 ${projects?.length ? this.generateProjects(projects) : ''}
-                ${extracurricular?.length ? this.generateExtracurricular(extracurricular) : ''}
             </div>
         `;
     }
@@ -130,7 +130,7 @@ class PDFPreview {
         if (!experiences?.length) return '';
 
         const experienceItems = experiences
-            .filter(exp => exp.position || exp.company || exp.description)
+            .filter(exp => exp.position || exp.company || (exp.bulletPoints && exp.bulletPoints.length > 0))
             .map(exp => `
                 <div class="experience-item">
                     <div class="item-header">
@@ -142,7 +142,7 @@ class PDFPreview {
                             ${this.formatText(exp.company || '')}${exp.location ? ` | ${this.formatText(exp.location)}` : ''}
                         </div>
                     </div>
-                    ${exp.description ? `<div class="item-description">${this.formatDescription(exp.description)}</div>` : ''}
+                    ${exp.bulletPoints && exp.bulletPoints.length > 0 ? this.generateBulletPointsHTML(exp.bulletPoints) : ''}
                 </div>
             `).join('');
 
@@ -162,7 +162,7 @@ class PDFPreview {
         if (!projects?.length) return '';
 
         const projectItems = projects
-            .filter(proj => proj.title || proj.description)
+            .filter(proj => proj.title || (proj.bulletPoints && proj.bulletPoints.length > 0))
             .map(proj => `
                 <div class="project-item">
                     <div class="item-header">
@@ -175,7 +175,7 @@ class PDFPreview {
                             ${proj.technologies ? ` | Technologies: ${this.formatText(proj.technologies)}` : ''}
                         </div>
                     </div>
-                    ${proj.description ? `<div class="item-description">${this.formatDescription(proj.description)}</div>` : ''}
+                    ${proj.bulletPoints && proj.bulletPoints.length > 0 ? this.generateBulletPointsHTML(proj.bulletPoints) : ''}
                 </div>
             `).join('');
 
@@ -195,7 +195,7 @@ class PDFPreview {
         if (!educationList?.length) return '';
 
         const educationItems = educationList
-            .filter(edu => edu.degree || edu.institution)
+            .filter(edu => edu.degree || edu.institution || (edu.bulletPoints && edu.bulletPoints.length > 0))
             .map(edu => `
                 <div class="education-item">
                     <div class="item-header">
@@ -208,7 +208,7 @@ class PDFPreview {
                             ${edu.grade ? ` | Grade: ${this.formatText(edu.grade)}` : ''}
                         </div>
                     </div>
-                    ${edu.details ? `<div class="item-description">${this.formatDescription(edu.details)}</div>` : ''}
+                    ${edu.bulletPoints && edu.bulletPoints.length > 0 ? this.generateBulletPointsHTML(edu.bulletPoints) : ''}
                 </div>
             `).join('');
 
@@ -252,6 +252,51 @@ class PDFPreview {
                 </div>
             </div>
         `;
+    }
+
+    generatePositionOfResponsibility(positions) {
+        if (!positions?.length) return '';
+
+        const positionItems = positions
+            .filter(pos => pos.position || pos.organization || (pos.bulletPoints && pos.bulletPoints.length > 0))
+            .map(pos => `
+                <div class="position-item">
+                    <div class="item-header">
+                        <div class="item-title-row">
+                            <strong>${this.formatText(pos.position || 'Position')}</strong>
+                            <span class="item-date">${this.formatText(pos.dates || '')}</span>
+                        </div>
+                        <div class="item-subtitle">
+                            ${this.formatText(pos.organization || '')}${pos.institution ? ` | ${this.formatText(pos.institution)}` : ''}
+                        </div>
+                    </div>
+                    ${pos.bulletPoints && pos.bulletPoints.length > 0 ? this.generateBulletPointsHTML(pos.bulletPoints) : ''}
+                </div>
+            `).join('');
+
+        return `
+            <div class="resume-section">
+                <div class="section-header-blue">
+                    <h2>POSITION OF RESPONSIBILITY</h2>
+                </div>
+                <div class="section-content">
+                    ${positionItems}
+                </div>
+            </div>
+        `;
+    }
+
+    generateBulletPointsHTML(bulletPoints) {
+        if (!bulletPoints || bulletPoints.length === 0) return '';
+        
+        const validBullets = bulletPoints.filter(point => point && point.trim());
+        if (validBullets.length === 0) return '';
+        
+        const bulletHTML = validBullets
+            .map(point => `<li>${this.formatText(point.trim())}</li>`)
+            .join('');
+            
+        return `<ul class="bullet-points">${bulletHTML}</ul>`;
     }
 
     formatText(text) {
@@ -332,12 +377,12 @@ class PDFPreview {
 const previewStyles = `
 <style>
 .resume-document {
-    font-family: 'Times New Roman', serif;
-    line-height: 1.4;
+    font-family: "Calibri", sans-serif;
+    font-size: 10pt;
+    line-height: 1;
     color: #000;
     background: white;
     padding: 1.5rem;
-    font-size: 11pt;
     max-width: 8.5in;
     margin: 0 auto;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -376,20 +421,21 @@ const previewStyles = `
 }
 
 .section-header-blue {
-    background: linear-gradient(135deg, #4a90e2, #357abd);
-    color: white;
-    padding: 0.4rem 1rem;
-    margin-bottom: 0.6rem;
+    background-color: #a3d5f7;
+    padding: 4px 6px;
+    font-size: 11pt;
     font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 12px;
     border-radius: 2px;
+    color: #000;
 }
 
 .section-header-blue h2 {
-    font-size: 12pt;
+    font-size: 11pt;
     margin: 0;
     font-weight: bold;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .section-content {

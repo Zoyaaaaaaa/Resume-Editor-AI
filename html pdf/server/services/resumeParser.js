@@ -141,7 +141,8 @@ Extract information for this EXACT JSON structure:
             "company": "company name", 
             "location": "work location",
             "dates": "employment period",
-            "description": "detailed job responsibilities and achievements"
+            "description": "detailed job responsibilities and achievements",
+            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
         }
     ],
     "projects": [
@@ -150,7 +151,8 @@ Extract information for this EXACT JSON structure:
             "organization": "organization or course",
             "duration": "project timeline",
             "technologies": "technologies/tools used",
-            "description": "project details and outcomes"
+            "description": "project details and outcomes",
+            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
         }
     ],
     "education": [
@@ -160,15 +162,18 @@ Extract information for this EXACT JSON structure:
             "institution": "university/school name",
             "duration": "study period",
             "grade": "GPA/grade",
-            "details": "additional academic details"
+            "details": "additional academic details",
+            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
         }
     ],
-    "extracurricular": [
+    "positionOfResponsibility": [
         {
-            "activity": "activity/role name",
+            "position": "position/role name",
             "organization": "organization name",
-            "duration": "time period",
-            "description": "activity description"
+            "institution": "institution name",
+            "dates": "time period",
+            "description": "position description",
+            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
         }
     ]
 }`;
@@ -179,11 +184,14 @@ Extract information for this EXACT JSON structure:
 CRITICAL INSTRUCTIONS FOR TEMPLATE COMPLIANCE:
 - Fix ALL spacing issues in text (ensure proper word separation)
 - Extract ONLY information that fits our 5 main sections
-- For Experience: Include position, company, location, dates, and BULLET-POINT description
-- For Projects: Include title, organization/course, duration, technologies, BULLET-POINT description
-- For Education: Include degree, field, institution, duration, grade/GPA, coursework details
-- For Extra-curricular: Include activity name, organization, duration, BULLET-POINT description
-- FORMAT DESCRIPTIONS: Break long paragraphs into bullet points starting with "•"
+- For Experience: Include position, company, location, dates, description AND bulletPoints array
+- For Projects: Include title, organization/course, duration, technologies, description AND bulletPoints array  
+- For Education: Include degree, field, institution, duration, grade/GPA, details AND bulletPoints array
+- For Position of Responsibility: Include position, organization, institution, dates, description AND bulletPoints array
+- BULLET POINTS: Extract key achievements/responsibilities as separate array items
+- If description has bullet points (•, -, *), extract each as separate bulletPoints array item
+- If description is paragraph format, break into logical bullet points
+- Keep description field for summary, use bulletPoints for detailed points
 - IGNORE: Images, charts, graphics, social media links, references
 - CLEAN UP: All concatenated words and ensure proper spacing
 - Return ONLY the JSON object, no markdown or explanations`;
@@ -231,13 +239,13 @@ FINAL ATTEMPT:
         const hasEducation = data.education && data.education.length > 0 && 
             data.education.some(edu => edu.degree || edu.institution);
             
-        const hasExtracurricular = data.extracurricular && data.extracurricular.length > 0 && 
-            data.extracurricular.some(ext => ext.activity || ext.description);
+        const hasPositionOfResponsibility = data.positionOfResponsibility && data.positionOfResponsibility.length > 0 && 
+            data.positionOfResponsibility.some(pos => pos.position || pos.description);
             
         const hasAreasOfInterest = data.areasOfInterest && data.areasOfInterest.trim().length > 0;
         
         // Consider data meaningful if we have personal info AND at least one other section
-        return hasPersonalInfo && (hasExperience || hasProjects || hasEducation || hasExtracurricular || hasAreasOfInterest);
+        return hasPersonalInfo && (hasExperience || hasProjects || hasEducation || hasPositionOfResponsibility || hasAreasOfInterest);
     }
 
     validateStructuredData(data) {
@@ -253,7 +261,7 @@ FINAL ATTEMPT:
             experience: [],
             projects: [],
             education: [],
-            extracurricular: []
+            positionOfResponsibility: []
         };
 
         // Merge with defaults to ensure all fields exist
@@ -280,14 +288,14 @@ FINAL ATTEMPT:
                 data.projects.filter(item => item && typeof item === 'object') : [];
             result.education = Array.isArray(data.education) ? 
                 data.education.filter(item => item && typeof item === 'object') : [];
-            result.extracurricular = Array.isArray(data.extracurricular) ? 
-                data.extracurricular.filter(item => item && typeof item === 'object') : [];
+            result.positionOfResponsibility = Array.isArray(data.positionOfResponsibility) ? 
+                data.positionOfResponsibility.filter(item => item && typeof item === 'object') : [];
                 
             // Clean up null values and fix text in array items
-            result.experience = result.experience.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
-            result.projects = result.projects.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
-            result.education = result.education.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
-            result.extracurricular = result.extracurricular.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
+            result.experience = result.experience.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
+            result.projects = result.projects.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
+            result.education = result.education.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
+            result.positionOfResponsibility = result.positionOfResponsibility.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
         }
 
         console.log('Validated structured data:', JSON.stringify(result, null, 2));
@@ -312,6 +320,135 @@ FINAL ATTEMPT:
             }
         });
         return cleaned;
+    }
+    
+    processEntryWithBulletPoints(entry) {
+        // Ensure bulletPoints is an array
+        if (!entry.bulletPoints) {
+            entry.bulletPoints = [];
+        }
+        
+        // ALWAYS convert description to bullet points, regardless of existing bullet points
+        if (entry.description && entry.description.trim()) {
+            const extractedBullets = this.extractBulletPointsFromDescription(entry.description);
+            if (extractedBullets.length > 0) {
+                // Add extracted bullets to existing bullet points (if any)
+                entry.bulletPoints = [...entry.bulletPoints, ...extractedBullets];
+            } else {
+                // If no bullets extracted, treat entire description as one bullet point
+                entry.bulletPoints.push(entry.description.trim());
+            }
+            // ALWAYS clear description since everything goes to bullet points
+            entry.description = '';
+        }
+        
+        // Also check details field (for education) and convert to bullet points
+        if (entry.details && entry.details.trim()) {
+            const extractedBullets = this.extractBulletPointsFromDescription(entry.details);
+            if (extractedBullets.length > 0) {
+                entry.bulletPoints = [...entry.bulletPoints, ...extractedBullets];
+            } else {
+                entry.bulletPoints.push(entry.details.trim());
+            }
+            // Clear details field
+            entry.details = '';
+        }
+        
+        // Clean and deduplicate bullet points
+        if (Array.isArray(entry.bulletPoints)) {
+            entry.bulletPoints = entry.bulletPoints
+                .filter(point => point && typeof point === 'string' && point.trim())
+                .map(point => this.fixTextSpacing(point.replace(/^[•\-\*]\s*/, '').trim()))
+                .filter((point, index, arr) => arr.indexOf(point) === index) // Remove duplicates
+                .filter(point => point.length > 3); // Remove very short points
+        }
+        
+        return entry;
+    }
+    
+    extractBulletPointsFromDescription(description) {
+        if (!description) return [];
+        
+        const bullets = [];
+        
+        // Strategy 1: Look for existing bullet point markers
+        const bulletLines = description.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.match(/^[•\-\*\+]\s+/));
+        
+        if (bulletLines.length > 0) {
+            bulletLines.forEach(line => {
+                const cleaned = line.replace(/^[•\-\*\+]\s+/, '').trim();
+                if (cleaned.length > 5) {
+                    bullets.push(cleaned);
+                }
+            });
+            return bullets;
+        }
+        
+        // Strategy 2: Look for numbered lists
+        const numberedLines = description.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.match(/^\d+[\.\)]\s+/));
+        
+        if (numberedLines.length > 0) {
+            numberedLines.forEach(line => {
+                const cleaned = line.replace(/^\d+[\.\)]\s+/, '').trim();
+                if (cleaned.length > 5) {
+                    bullets.push(cleaned);
+                }
+            });
+            return bullets;
+        }
+        
+        // Strategy 3: Split by common action verbs or sentence patterns
+        const actionVerbs = ['Developed', 'Created', 'Implemented', 'Managed', 'Led', 'Built', 'Designed', 'Executed', 'Analyzed', 'Optimized', 'Automated', 'Streamlined', 'Delivered', 'Achieved', 'Collaborated', 'Coordinated', 'Established', 'Enhanced', 'Improved', 'Maintained', 'Researched', 'Conducted', 'Performed', 'Supervised', 'Trained', 'Organized', 'Planned', 'Initiated', 'Supported', 'Assisted'];
+        
+        // Try to split by sentences that start with action verbs
+        const sentences = description.split(/[\.!?]+/)
+            .map(s => s.trim())
+            .filter(s => s.length > 10);
+            
+        if (sentences.length > 1) {
+            sentences.forEach(sentence => {
+                // Check if sentence starts with action verb or has action patterns
+                const startsWithAction = actionVerbs.some(verb => 
+                    sentence.startsWith(verb) || sentence.includes(' ' + verb.toLowerCase() + ' ')
+                );
+                
+                if (startsWithAction || sentence.length > 20) {
+                    bullets.push(sentence.trim());
+                }
+            });
+            
+            if (bullets.length > 0) {
+                return bullets;
+            }
+        }
+        
+        // Strategy 4: Split by line breaks if they exist
+        const lines = description.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 10);
+            
+        if (lines.length > 1) {
+            return lines;
+        }
+        
+        // Strategy 5: If all else fails, try to break long descriptions intelligently
+        if (description.length > 100) {
+            // Split by common separators
+            const parts = description.split(/[;,]\s+/)
+                .map(part => part.trim())
+                .filter(part => part.length > 15);
+                
+            if (parts.length > 1) {
+                return parts;
+            }
+        }
+        
+        // If no good splits found, return the entire description as one bullet
+        return [description.trim()];
     }
     
     fixTextSpacing(text) {

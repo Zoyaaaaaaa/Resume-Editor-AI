@@ -28,7 +28,7 @@
             <div class="editor-panel">
                 <div class="scroll-container">
                     <!-- Personal Information Section -->
-                    <section class="form-section">
+                    <section class="form-section box">
                         <h2>Personal Information</h2>
                         <div class="form-grid">
                             <div class="form-group">
@@ -48,10 +48,13 @@
                                 <input type="text" id="location" name="location" placeholder="City, State">
                             </div>
                         </div>
+                        <button class="btn btn-enhance" data-section="personalInfo">
+                            <i class="fas fa-magic"></i> AI Enhance
+                        </button>
                     </section>
 
                     <!-- Areas of Interest Section -->
-                    <section class="form-section">
+                    <section class="form-section box">
                         <h2>Areas of Interest</h2>
                         <div class="form-group">
                             <label for="areasOfInterest">Areas of Interest</label>
@@ -60,13 +63,10 @@
                     </section>
 
                     <!-- Professional Experience Section -->
-                    <section class="form-section">
+                    <section class="form-section box">
                         <div class="section-header">
                             <h2>Professional Experience</h2>
                             <div class="section-actions">
-                                <button class="btn btn-enhance" data-section="experience">
-                                    <i class="fas fa-magic"></i> AI Enhance
-                                </button>
                                 <button class="btn btn-add" id="addExperience">
                                     <i class="fas fa-plus"></i> Add Experience
                                 </button>
@@ -77,14 +77,26 @@
                         </div>
                     </section>
 
+                    <!-- Position of Responsibility Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Position of Responsibility</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addPosition">
+                                    <i class="fas fa-plus"></i> Add Position
+                                </button>
+                            </div>
+                        </div>
+                        <div id="positionContainer">
+                            <!-- Position entries will be added here -->
+                        </div>
+                    </section>
+
                     <!-- Key Projects Section -->
-                    <section class="form-section">
+                    <section class="form-section box">
                         <div class="section-header">
                             <h2>Key Projects</h2>
                             <div class="section-actions">
-                                <button class="btn btn-enhance" data-section="projects">
-                                    <i class="fas fa-magic"></i> AI Enhance
-                                </button>
                                 <button class="btn btn-add" id="addProject">
                                     <i class="fas fa-plus"></i> Add Project
                                 </button>
@@ -96,13 +108,10 @@
                     </section>
 
                     <!-- Education Section -->
-                    <section class="form-section">
+                    <section class="form-section box">
                         <div class="section-header">
                             <h2>Education</h2>
                             <div class="section-actions">
-                                <button class="btn btn-enhance" data-section="education">
-                                    <i class="fas fa-magic"></i> AI Enhance
-                                </button>
                                 <button class="btn btn-add" id="addEducation">
                                     <i class="fas fa-plus"></i> Add Education
                                 </button>
@@ -110,24 +119,6 @@
                         </div>
                         <div id="educationContainer">
                             <!-- Education entries will be added here -->
-                        </div>
-                    </section>
-
-                    <!-- Extra-Curricular Section -->
-                    <section class="form-section">
-                        <div class="section-header">
-                            <h2>Extra-Curricular</h2>
-                            <div class="section-actions">
-                                <button class="btn btn-enhance" data-section="extracurricular">
-                                    <i class="fas fa-magic"></i> AI Enhance
-                                </button>
-                                <button class="btn btn-add" id="addExtracurricular">
-                                    <i class="fas fa-plus"></i> Add Activity
-                                </button>
-                            </div>
-                        </div>
-                        <div id="extracurricularContainer">
-                            <!-- Extra-curricular entries will be added here -->
                         </div>
                     </section>
                 </div>

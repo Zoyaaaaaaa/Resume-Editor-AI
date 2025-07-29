@@ -7,7 +7,14 @@ class AIService {
         this.model = null;
         
         if (this.genAI) {
-            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            this.model = this.genAI.getGenerativeModel({ 
+                model: 'gemini-1.5-flash',
+                generationConfig: {
+                    temperature: 0.7,
+                    topP: 0.9,
+                    topK: 40
+                }
+            });
         }
     }
 
@@ -21,77 +28,139 @@ class AIService {
                 return { available: false, reason: 'API key not configured' };
             }
 
-            // Test the service with a simple prompt
             const result = await this.model.generateContent('Hello');
-            return { available: true, response: result.response.text() };
+            return { 
+                available: true, 
+                response: await result.response.text() 
+            };
         } catch (error) {
             console.error('AI service status check failed:', error);
-            return { available: false, reason: error.message };
+            return { 
+                available: false, 
+                reason: error.message 
+            };
         }
     }
 
-    async structureResumeData(prompt) {
+    async generateContent(prompt, options = {}) {
         if (!await this.isAvailable()) {
             throw new Error('AI service not available');
         }
 
         try {
-            const result = await this.model.generateContent(prompt);
-            const responseText = result.response.text();
+            const { format = 'text', retries = 2 } = options;
+            let lastError = null;
+
+            for (let i = 0; i <= retries; i++) {
+                try {
+                    const result = await this.model.generateContent(prompt);
+                    const responseText = await result.response.text();
+                    
+                    if (format === 'json') {
+                        return this.parseJsonResponse(responseText);
+                    }
+                    return responseText;
+                } catch (error) {
+                    lastError = error;
+                    if (i < retries) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                    }
+                }
+            }
+
+            throw lastError || new Error('AI generation failed');
+        } catch (error) {
+            console.error('AI generation error:', error);
+            throw new Error(`Failed to generate content: ${error.message}`);
+        }
+    }
+
+    parseJsonResponse(responseText) {
+        try {
+            let cleanedText = responseText.trim()
+                .replace(/```json\s*/g, '')
+                .replace(/```\s*/g, '');
             
-            console.log('Raw AI response:', responseText);
-            
-            // Clean the response text
-            let cleanedText = responseText.trim();
-            
-            // Remove markdown code blocks if present
-            cleanedText = cleanedText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-            
-            // Remove any leading/trailing non-JSON text
             const jsonStart = cleanedText.indexOf('{');
             const jsonEnd = cleanedText.lastIndexOf('}');
             
             if (jsonStart === -1 || jsonEnd === -1) {
-                throw new Error('No valid JSON structure found in AI response');
+                throw new Error('No valid JSON structure found');
             }
             
             const jsonText = cleanedText.substring(jsonStart, jsonEnd + 1);
-            console.log('Extracted JSON text:', jsonText);
-            
-            // Parse the JSON
             const parsedData = JSON.parse(jsonText);
             
-            // Validate that it has the expected structure
             if (!parsedData || typeof parsedData !== 'object') {
                 throw new Error('Parsed data is not a valid object');
             }
             
             return parsedData;
-
         } catch (error) {
-            console.error('AI structuring error:', error);
-            console.error('Failed response text:', error.responseText || 'No response text');
+            console.error('JSON parsing error:', error);
+            throw new Error(`Failed to parse AI response: ${error.message}`);
+        }
+    }
+
+    async structureResumeData(text) {
+        try {
+            const prompt = `Parse this resume text into structured JSON format:
+            
+${text}
+
+Return data in this exact format:
+{
+    "personalInfo": {
+        "fullName": "",
+        "email": "",
+        "phone": "",
+        "address": "",
+        "linkedIn": "",
+        "portfolio": ""
+    },
+    "education": [{
+        "degree": "",
+        "institution": "",
+        "year": "",
+        "details": ""
+    }],
+    "experience": [{
+        "title": "",
+        "company": "",
+        "duration": "",
+        "description": ""
+    }],
+    "skills": [],
+    "projects": [{
+        "title": "",
+        "description": ""
+    }],
+    "certifications": []
+}`;
+
+            return await this.generateContent(prompt, { format: 'json' });
+        } catch (error) {
+            console.error('Resume structuring error:', error);
             throw new Error(`Failed to structure resume data: ${error.message}`);
         }
     }
 
     async enhanceContent(options) {
         if (!await this.isAvailable()) {
-            throw new Error('AI service not available - Gemini API key not configured');
+            throw new Error('AI service not available');
         }
 
         const { section, content, jobDescription, enhancementType } = options;
 
         try {
             const prompt = this.createEnhancementPrompt(section, content, jobDescription, enhancementType);
-            const result = await this.model.generateContent(prompt);
-            const responseText = result.response.text();
-
-            // Parse the AI response
-            const enhancedContent = this.parseEnhancementResponse(responseText);
+            const response = await this.generateContent(prompt, { format: 'json' });
             
-            return enhancedContent;
-
+            return {
+                enhancedContent: response.enhancedContent || '',
+                improvements: response.improvements || [],
+                keywordsAdded: response.keywordsAdded || []
+            };
         } catch (error) {
             console.error('Content enhancement error:', error);
             throw new Error(`Failed to enhance content: ${error.message}`);
@@ -99,84 +168,32 @@ class AIService {
     }
 
     createEnhancementPrompt(section, content, jobDescription, enhancementType) {
-        let prompt = `Please enhance the following ${section} section for a resume:\n\nOriginal Content:\n${content}\n\n`;
+        let prompt = `Enhance this resume ${section} section professionally:\n\nOriginal:\n${content}\n\n`;
 
         if (jobDescription) {
-            prompt += `Job Description for Reference:\n${jobDescription}\n\n`;
+            prompt += `Job Description:\n${jobDescription}\n\n`;
         }
 
+        prompt += `Instructions:\n`;
         switch (enhancementType) {
             case 'ats-optimization':
-                prompt += `Enhancement Type: ATS Optimization
-Instructions:
-1. Optimize for Applicant Tracking Systems (ATS)
-2. Include relevant keywords that would match the job description
-3. Use action verbs and quantifiable achievements
-4. Ensure proper formatting for ATS parsing
-5. Maintain professional tone and accuracy`;
+                prompt += `- Optimize for ATS systems\n- Add relevant keywords\n- Use action verbs\n- Quantify achievements\n- Keep professional tone`;
                 break;
-
             case 'keyword-enhancement':
-                prompt += `Enhancement Type: Keyword Enhancement
-Instructions:
-1. Identify and incorporate industry-relevant keywords
-2. Ensure keywords flow naturally in the content
-3. Focus on technical skills and competencies
-4. Maintain readability while optimizing for search`;
+                prompt += `- Add industry keywords\n- Maintain natural flow\n- Focus on technical skills\n- Ensure readability`;
                 break;
-
-            default: // content-improvement
-                prompt += `Enhancement Type: Content Improvement
-Instructions:
-1. Improve clarity and impact of the content
-2. Use strong action verbs and specific achievements
-3. Quantify results where possible
-4. Ensure professional tone and proper grammar
-5. Make the content more compelling to recruiters`;
+            default:
+                prompt += `- Improve clarity\n- Strengthen action verbs\n- Add quantifiable results\n- Enhance professionalism`;
         }
 
-        prompt += `\n\nPlease provide:
-1. Enhanced version of the content
-2. List of improvements made
-3. Keywords added (if applicable)
-
-Format your response as JSON:
+        prompt += `\n\nReturn JSON exactly like this:
 {
-    "enhancedContent": "improved content here",
-    "improvements": ["list of improvements made"],
-    "keywordsAdded": ["list of keywords added"]
+    "enhancedContent": "enhanced text here",
+    "improvements": ["list", "of", "improvements"],
+    "keywordsAdded": ["list", "of", "keywords"]
 }`;
 
         return prompt;
-    }
-
-    parseEnhancementResponse(responseText) {
-        try {
-            // Try to extract JSON from the response
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                const parsed = JSON.parse(jsonMatch[0]);
-                return {
-                    enhancedContent: parsed.enhancedContent || responseText,
-                    improvements: parsed.improvements || [],
-                    keywordsAdded: parsed.keywordsAdded || []
-                };
-            } else {
-                // If no JSON found, return the text as enhanced content
-                return {
-                    enhancedContent: responseText.trim(),
-                    improvements: ['Content enhanced by AI'],
-                    keywordsAdded: []
-                };
-            }
-        } catch (error) {
-            console.warn('Failed to parse enhancement response as JSON:', error);
-            return {
-                enhancedContent: responseText.trim(),
-                improvements: ['Content enhanced by AI'],
-                keywordsAdded: []
-            };
-        }
     }
 
     async analyzeATSScore(resumeData, jobDescription) {
@@ -185,20 +202,20 @@ Format your response as JSON:
         }
 
         try {
-            const prompt = `Analyze the following resume for ATS (Applicant Tracking System) compatibility and scoring:
-
-Resume Data:
+            const prompt = `Analyze this resume for ATS compatibility:
+            
+Resume:
 ${JSON.stringify(resumeData, null, 2)}
 
 ${jobDescription ? `Job Description:\n${jobDescription}\n\n` : ''}
 
-Please provide an ATS analysis with:
-1. Overall ATS score (0-100)
-2. Breakdown by categories (keywords, formatting, sections, etc.)
-3. Specific suggestions for improvement
-4. Important keywords that should be included
+Return JSON with:
+- score (0-100)
+- breakdown (keywords, formatting, sections, content)
+- suggestions
+- keywords to add
 
-Format as JSON:
+Format:
 {
     "score": 85,
     "breakdown": {
@@ -207,20 +224,11 @@ Format as JSON:
         "sections": 85,
         "content": 80
     },
-    "suggestions": ["list of improvement suggestions"],
-    "keywords": ["important keywords to include"]
+    "suggestions": [],
+    "keywords": []
 }`;
 
-            const result = await this.model.generateContent(prompt);
-            const responseText = result.response.text();
-            
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('No valid JSON found in ATS analysis response');
-            }
-
-            return JSON.parse(jsonMatch[0]);
-
+            return await this.generateContent(prompt, { format: 'json' });
         } catch (error) {
             console.error('ATS analysis error:', error);
             throw new Error(`Failed to analyze ATS score: ${error.message}`);
@@ -233,27 +241,19 @@ Format as JSON:
         }
 
         try {
-            const prompt = `Extract important keywords, skills, and requirements from this job description:
-
+            const prompt = `Extract keywords from this job description:
+            
 ${jobDescription}
 
-Please categorize and return as JSON:
+Return JSON with categorized keywords:
 {
-    "keywords": ["general keywords"],
-    "skills": ["technical and soft skills"],
-    "requirements": ["specific requirements"]
+    "keywords": [],
+    "skills": [],
+    "requirements": [],
+    "actionVerbs": []
 }`;
 
-            const result = await this.model.generateContent(prompt);
-            const responseText = result.response.text();
-            
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('No valid JSON found in keyword extraction response');
-            }
-
-            return JSON.parse(jsonMatch[0]);
-
+            return await this.generateContent(prompt, { format: 'json' });
         } catch (error) {
             console.error('Keyword extraction error:', error);
             throw new Error(`Failed to extract keywords: ${error.message}`);
@@ -268,57 +268,21 @@ Please categorize and return as JSON:
         const { section, role, industry, experienceLevel } = options;
 
         try {
-            const prompt = `Generate content suggestions for a resume ${section} section:
+            const prompt = `Generate ${section} section suggestions for:
+- Role: ${role || 'General'}
+- Industry: ${industry || 'General'}
+- Level: ${experienceLevel || 'mid'}
 
-Role: ${role || 'General'}
-Industry: ${industry || 'General'}
-Experience Level: ${experienceLevel || 'mid'}
-
-Please provide 3-5 professional examples that would be appropriate for this ${section} section.
-
-Format as JSON array:
+Return JSON with suggestions array:
 {
-    "suggestions": [
-        "suggestion 1",
-        "suggestion 2",
-        "suggestion 3"
-    ]
+    "suggestions": []
 }`;
 
-            const result = await this.model.generateContent(prompt);
-            const responseText = result.response.text();
-            
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                // Fallback: parse as plain text
-                const lines = responseText.split('\n').filter(line => line.trim());
-                return { suggestions: lines };
-            }
-
-            const parsed = JSON.parse(jsonMatch[0]);
-            return parsed;
-
+            return await this.generateContent(prompt, { format: 'json' });
         } catch (error) {
             console.error('Content suggestion error:', error);
-            throw new Error(`Failed to generate content suggestions: ${error.message}`);
+            throw new Error(`Failed to generate suggestions: ${error.message}`);
         }
-    }
-
-    // Utility method to clean up AI responses
-    cleanResponse(text) {
-        return text
-            .replace(/```json/g, '')
-            .replace(/```/g, '')
-            .trim();
-    }
-
-    // Method to validate AI responses
-    validateResponse(response, expectedFields = []) {
-        if (!response || typeof response !== 'object') {
-            return false;
-        }
-
-        return expectedFields.every(field => response.hasOwnProperty(field));
     }
 }
 

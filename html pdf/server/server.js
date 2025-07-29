@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, '../')));
 // API Routes
 app.use('/api', uploadRoutes);
 app.use('/api', pdfRoutes);
-app.use('/api', aiRoutes);
+app.use('/api/gemini', aiRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -67,7 +67,12 @@ app.get('/api/health', (req, res) => {
 app.get('/api/version', (req, res) => {
     res.json({
         version: process.env.npm_package_version || '1.0.0',
-        features: ['resume-upload', 'ai-enhancement', 'pdf-generation', 'real-time-preview']
+        features: [
+            'resume-upload', 
+            'ai-enhancement', 
+            'pdf-generation',
+            'point-enhancement'
+        ]
     });
 });
 
