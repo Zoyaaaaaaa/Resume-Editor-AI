@@ -54,6 +54,7 @@ class AIService {
             for (let i = 0; i <= retries; i++) {
                 try {
                     const result = await this.model.generateContent(prompt);
+                    console.log("GENERATE FUNCTION INVOKED---> ",result);
                     const responseText = await result.response.text();
                     
                     if (format === 'json') {
@@ -169,7 +170,6 @@ Return data in this exact format:
 
     createEnhancementPrompt(section, content, jobDescription, enhancementType) {
         let prompt = `Enhance this resume ${section} section professionally:\n\nOriginal:\n${content}\n\n`;
-
         if (jobDescription) {
             prompt += `Job Description:\n${jobDescription}\n\n`;
         }
@@ -261,6 +261,7 @@ Return JSON with categorized keywords:
     }
 
     async generateContentSuggestions(options) {
+        console.log("INVOKED GENERATE CONTENT SUGGESTIONS ->>> ",options);
         if (!await this.isAvailable()) {
             throw new Error('AI service not available');
         }
