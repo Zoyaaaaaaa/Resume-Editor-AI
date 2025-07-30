@@ -748,13 +748,20 @@ class FormHandler {
             personalInfo: {},
             areasOfInterest: '',
             experience: [],
+            achievements: [],
             positionOfResponsibility: [],
             projects: [],
-            education: []
+            education: [],
+            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility']
         };
         
         this.initializeEventListeners();
         this.addInitialEntries();
+        
+        // Initialize section reordering after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            this.initializeSectionReordering();
+        }, 100);
     }
 
     initializeEventListeners() {
@@ -776,6 +783,10 @@ class FormHandler {
             this.addExperienceEntry();
         });
 
+        document.getElementById('addAchievement').addEventListener('click', () => {
+            this.addAchievementEntry();
+        });
+
         document.getElementById('addPosition').addEventListener('click', () => {
             this.addPositionEntry();
         });
@@ -786,6 +797,16 @@ class FormHandler {
 
         document.getElementById('addEducation').addEventListener('click', () => {
             this.addEducationEntry();
+        });
+
+        // Auto-generate interests button
+        document.getElementById('generateInterests').addEventListener('click', () => {
+            this.generateAreasOfInterest();
+        });
+
+        // Section reordering
+        document.getElementById('saveSectionOrder').addEventListener('click', () => {
+            this.saveSectionOrder();
         });
     }
 
@@ -928,6 +949,64 @@ class FormHandler {
             setTimeout(() => {
                 const processedPoints = this.processBulletPoints(data.bulletPoints, data.description);
                 this.addBulletPointsToEntry(entryId, processedPoints, 'experience');
+            }, 50);
+        }
+        
+        this.updateFormData();
+    }
+
+    addAchievementEntry(data = {}) {
+        const container = document.getElementById('achievementsContainer');
+        const entryId = 'ach_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
+        // Clean data for form fields
+        const cleanData = this.cleanEntryData(data);
+        
+        const entryHTML = `
+            <div class="entry-item" data-id="${entryId}">
+                <div class="entry-header">
+                    <span class="entry-title">Achievement</span>
+                    <div class="entry-actions">
+                        <button class="remove-entry" onclick="formHandler.removeEntry('${entryId}', 'achievements')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="entry-grid">
+                    <div class="form-group">
+                        <label>Achievement Title</label>
+                        <input type="text" name="title" value="${this.escapeHtml(cleanData.title || '')}" placeholder="e.g., Winner - National Hackathon">
+                    </div>
+                    <div class="form-group">
+                        <label>Organization/Institution</label>
+                        <input type="text" name="organization" value="${this.escapeHtml(cleanData.organization || '')}" placeholder="e.g., Ministry of Electronics & IT">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" name="date" value="${this.escapeHtml(cleanData.date || '')}" placeholder="e.g., March 2024">
+                    </div>
+                </div>
+                <div class="form-group bullet-points-group">
+                    <label>Achievement Details</label>
+                    <div class="point-enhancement-area">
+                        <small>Add details about your achievement:</small>
+                        <div class="bullet-points-container"></div>
+                        <button type="button" class="btn-add-point" style="margin-top: 10px; padding: 8px 12px; font-size: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Add Bullet Point
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', entryHTML);
+        this.attachEntryListeners(entryId, 'achievements');
+        
+        // Add bullet points if they exist in the original data
+        if (data.bulletPoints || data.description) {
+            setTimeout(() => {
+                const processedPoints = this.processBulletPoints(data.bulletPoints, data.description);
+                this.addBulletPointsToEntry(entryId, processedPoints, 'achievements');
             }, 50);
         }
         
@@ -1334,6 +1413,11 @@ class FormHandler {
             'position', 'company', 'location', 'dates'
         ]);
 
+        // Update achievements data
+        this.formData.achievements = this.getEntriesData('achievementsContainer', [
+            'title', 'organization', 'date'
+        ]);
+
         // Update position of responsibility data
         this.formData.positionOfResponsibility = this.getEntriesData('positionContainer', [
             'position', 'organization', 'institution', 'dates'
@@ -1403,6 +1487,7 @@ class FormHandler {
     addInitialEntries() {
         // Add one initial entry for each section
         this.addExperienceEntry();
+        this.addAchievementEntry();
         this.addPositionEntry();
         this.addProjectEntry();
         this.addEducationEntry();
@@ -1463,7 +1548,7 @@ class FormHandler {
             }
 
             // Clear existing entries
-            const containers = ['experienceContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
+            const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
             containers.forEach(containerId => {
                 const container = document.getElementById(containerId);
                 if (container) {
@@ -1480,6 +1565,17 @@ class FormHandler {
                 });
             } else {
                 this.addExperienceEntry();
+            }
+
+            // Add achievement entries
+            if (resumeData.achievements && resumeData.achievements.length > 0) {
+                resumeData.achievements.forEach(ach => {
+                    if (ach && (ach.title || ach.organization || (ach.bulletPoints && ach.bulletPoints.length > 0))) {
+                        this.addAchievementEntry(ach);
+                    }
+                });
+            } else {
+                this.addAchievementEntry();
             }
 
             // Add position entries
@@ -1619,9 +1715,11 @@ class FormHandler {
             personalInfo: {},
             areasOfInterest: '',
             experience: [],
+            achievements: [],
             positionOfResponsibility: [],
             projects: [],
-            education: []
+            education: [],
+            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility']
         };
         
         // Clear all inputs
@@ -1630,7 +1728,7 @@ class FormHandler {
         });
         
         // Clear all containers
-        const containers = ['experienceContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
+        const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
         containers.forEach(containerId => {
             const container = document.getElementById(containerId);
             if (container) {
@@ -1682,6 +1780,142 @@ class FormHandler {
         );
         
         return summary;
+    }
+
+    // Generate Areas of Interest using AI
+    async generateAreasOfInterest() {
+        const button = document.getElementById('generateInterests');
+        const originalText = button.innerText;
+        const roleSelect = document.getElementById('role');
+        const jobRole = roleSelect ? roleSelect.value : 'software';
+        
+        try {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            button.disabled = true;
+            
+            // Get current form data as context
+            const resumeData = this.getFormData();
+            
+            const response = await fetch('/api/gemini/generate-interests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    resumeData: resumeData,
+                    jobRole: jobRole
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to generate interests');
+            }
+            
+            const result = await response.json();
+            
+            // Update the areas of interest field
+            const areasInput = document.getElementById('areasOfInterest');
+            if (areasInput && result.areasOfInterest) {
+                areasInput.value = result.areasOfInterest;
+                this.formData.areasOfInterest = result.areasOfInterest;
+                areasInput.dispatchEvent(new Event('input', { bubbles: true }));
+                this.updatePreview();
+            }
+            
+            this.showMessage('Areas of Interest generated successfully!', 'success');
+            
+        } catch (error) {
+            console.error('Generate interests error:', error);
+            this.showMessage('Failed to generate areas of interest. Please try again.', 'error');
+        } finally {
+            button.innerText = originalText;
+            button.disabled = false;
+        }
+    }
+
+    // Save section order using drag and drop
+    saveSectionOrder() {
+        const sectionOrderContainer = document.getElementById('sectionOrderContainer');
+        if (!sectionOrderContainer) return;
+        
+        const sectionItems = sectionOrderContainer.querySelectorAll('.section-order-item');
+        const sectionOrder = Array.from(sectionItems).map(item => item.dataset.section);
+        
+        // Update local form data
+        this.formData.sectionOrder = sectionOrder;
+        
+        // Send to backend
+        fetch('/api/reorder-sections', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                sectionOrder: sectionOrder
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                this.showMessage('Section order saved successfully!', 'success');
+                console.log('New section order:', result.sectionOrder);
+                
+                // Update preview with new section order
+                this.updatePreview();
+            } else {
+                throw new Error(result.error || 'Failed to save section order');
+            }
+        })
+        .catch(error => {
+            console.error('Save section order error:', error);
+            this.showMessage('Failed to save section order. Please try again.', 'error');
+        });
+    }
+
+    // Initialize drag and drop for section reordering
+    initializeSectionReordering() {
+        const container = document.getElementById('sectionOrderContainer');
+        if (!container) return;
+        
+        let draggedElement = null;
+        
+        // Add drag event listeners to all section items
+        container.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('section-order-item')) {
+                draggedElement = e.target;
+                e.target.style.opacity = '0.5';
+            }
+        });
+        
+        container.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('section-order-item')) {
+                e.target.style.opacity = '';
+                draggedElement = null;
+            }
+        });
+        
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedElement && e.target.classList.contains('section-order-item') && e.target !== draggedElement) {
+                const rect = e.target.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                
+                if (e.clientY < midpoint) {
+                    container.insertBefore(draggedElement, e.target);
+                } else {
+                    container.insertBefore(draggedElement, e.target.nextSibling);
+                }
+            }
+        });
+        
+        // Make all section items draggable
+        container.querySelectorAll('.section-order-item').forEach(item => {
+            item.draggable = true;
+        });
     }
 }
 

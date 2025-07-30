@@ -59,9 +59,53 @@
                         </button>
                     </section>
 
+                    <!-- Section Reordering Controls -->
+                    <section class="form-section box">
+                        <h2>Section Order</h2>
+                        <div class="section-reorder-container">
+                            <p>Drag sections to reorder them:</p>
+                            <div id="sectionOrderContainer" class="section-order-list">
+                                <div class="section-order-item" data-section="areasOfInterest">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Areas of Interest</span>
+                                </div>
+                                <div class="section-order-item" data-section="education">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Education</span>
+                                </div>
+                                <div class="section-order-item" data-section="experience">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Professional Experience</span>
+                                </div>
+                                <div class="section-order-item" data-section="achievements">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Achievements</span>
+                                </div>
+                                <div class="section-order-item" data-section="projects">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Key Projects</span>
+                                </div>
+                                <div class="section-order-item" data-section="positionOfResponsibility">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Position of Responsibility</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="saveSectionOrder">
+                                <i class="fas fa-save"></i> Save Section Order
+                            </button>
+                        </div>
+                    </section>
+
                     <!-- Areas of Interest Section -->
                     <section class="form-section box">
-                        <h2>Areas of Interest</h2>
+                        <div class="section-header">
+                            <h2>Areas of Interest</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-secondary" id="generateInterests">
+                                    <i class="fas fa-magic"></i> Auto Generate
+                                </button>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="areasOfInterest">Areas of Interest</label>
                             <textarea id="areasOfInterest" name="areasOfInterest" rows="2" placeholder="List your areas of interest separated by | (pipe)"></textarea>
@@ -80,6 +124,21 @@
                         </div>
                         <div id="experienceContainer">
                             <!-- Experience entries will be added here -->
+                        </div>
+                    </section>
+
+                    <!-- Achievements Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Achievements</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addAchievement">
+                                    <i class="fas fa-plus"></i> Add Achievement
+                                </button>
+                            </div>
+                        </div>
+                        <div id="achievementsContainer">
+                            <!-- Achievement entries will be added here -->
                         </div>
                     </section>
 

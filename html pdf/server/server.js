@@ -9,6 +9,7 @@ require('dotenv').config();
 const uploadRoutes = require('./routes/upload');
 const pdfRoutes = require('./routes/pdf');
 const aiRoutes = require('./routes/ai');
+const reorderRoutes = require('./routes/reorder');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +54,7 @@ app.use(express.static(path.join(__dirname, '../')));
 app.use('/api', uploadRoutes);
 app.use('/api', pdfRoutes);
 app.use('/api/gemini', aiRoutes);
+app.use('/api', reorderRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

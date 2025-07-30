@@ -552,3 +552,115 @@ body {
     font-weight: bold;
     font-size: 11px;
 }
+
+/* Section Reordering Styles */
+.section-reorder-container {
+    padding: 1rem 0;
+}
+
+.section-order-list {
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0.5rem;
+    margin: 1rem 0;
+    max-width: 400px;
+}
+
+.section-order-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    cursor: move;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.section-order-item:hover {
+    background: #e9ecef;
+    border-color: #007AFF;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+}
+
+.section-order-item.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+.section-order-item i {
+    margin-right: 0.75rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.section-order-item span {
+    font-weight: 500;
+    color: #1d1d1f;
+    flex: 1;
+}
+
+/* Section Header Improvements */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Button Styles for New Actions */
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-secondary:disabled {
+    background: #c6c6c6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Auto-generate button specific styles */
+#generateInterests {
+    background: #28a745;
+}
+
+#generateInterests:hover {
+    background: #218838;
+}
+
+#saveSectionOrder {
+    background: #007AFF;
+    margin-top: 1rem;
+}
+
+#saveSectionOrder:hover {
+    background: #0056b3;
+}

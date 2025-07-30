@@ -582,7 +582,24 @@ class PDFGenerator {
     }
 
     generateHTML(data) {
-        const { personalInfo, areasOfInterest, experience, positionOfResponsibility, projects, education, technicalSkills, extraCurricular } = data;
+        const { personalInfo, areasOfInterest, experience, achievements, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+
+        // Default section order if none provided
+        const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility'];
+        const order = sectionOrder || defaultOrder;
+
+        // Section generators map
+        const sectionGenerators = {
+            areasOfInterest: () => areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '',
+            education: () => education?.length ? this.generateEducation(education) : '',
+            experience: () => experience?.length ? this.generateExperience(experience) : '',
+            achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
+            projects: () => projects?.length ? this.generateProjects(projects) : '',
+            positionOfResponsibility: () => positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''
+        };
+
+        // Generate sections in the specified order
+        const orderedSections = order.map(sectionName => sectionGenerators[sectionName] ? sectionGenerators[sectionName]() : '').join('');
 
         return `
 <!DOCTYPE html>
@@ -600,11 +617,7 @@ class PDFGenerator {
         ${this.generateHeader(personalInfo)}
     </div>
 
-    ${areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : ''}
-    ${education?.length ? this.generateEducation(education) : ''}
-    ${experience?.length ? this.generateExperience(experience) : ''}
-    ${positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''}
-    ${projects?.length ? this.generateProjects(projects) : ''}
+    ${orderedSections}
     ${technicalSkills?.length ? this.generateTechnicalSkills(technicalSkills) : ''}
     ${extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : ''}
 </body>
@@ -867,6 +880,30 @@ class PDFGenerator {
         `;
     }
 
+    generateAchievements(achievements) {
+        if (!achievements?.length) return '';
+
+        const achievementItems = achievements
+            .filter(ach => ach.title || ach.organization || ach.bulletPoints?.length)
+            .map(ach => {
+                const bullets = this.generateBulletPoints(ach.bulletPoints);
+                return `
+        <div class="subheader">
+            <div class="title">${this.escapeHtml(ach.title || '')}${ach.organization ? ` | ${this.escapeHtml(ach.organization)}` : ''}</div>
+            <div class="date">${this.escapeHtml(ach.date || '')}</div>
+        </div>
+        ${bullets ? `<ul>${bullets}</ul>` : ''}
+                `;
+            }).join('');
+
+        return `
+    <div class="section">
+        <div class="section-header">ACHIEVEMENTS</div>
+        ${achievementItems}
+    </div>
+        `;
+    }
+
     generateProjects(projects) {
         if (!projects?.length) return '';
 
@@ -939,7 +976,7 @@ class PDFGenerator {
 
         return `
     <div class="section">
-        <div class="section-header">ACHIEVEMENTS</div>
+        <div class="section-header">POSITION OF RESPONSIBILITY</div>
         ${positionItems}
     </div>
         `;
