@@ -132,7 +132,130 @@ class ResumeParser {
         throw new Error('AI parsing failed to extract meaningful data after all attempts');
     }
 
-    createStructuringPrompt(text, attempt = 1) {
+//     createStructuringPrompt(text, attempt = 1) {
+//         // Clean the text first to fix spacing issues
+//         const cleanedText = this.cleanExtractedText(text);
+        
+//         const basePrompt = `
+// You are an expert resume parser. Analyze the following resume text and extract ALL information into a structured JSON format.
+
+// CRITICAL INSTRUCTIONS:
+// - Fix any spacing issues in the text carefully - preserve technology names and proper nouns
+// - Ensure proper spacing between words and sentences without breaking compound words
+// - Only extract information that fits our template structure
+// - If Areas of Interest is missing you can return comma separate 3-4 areas of interest based on resume eg: Software Development, AI, Finance these are just rough examples
+// - Ignore images, graphics, or non-text elements
+// - Focus ONLY on: Personal Info, Experience, Projects, Education, Extra-curricular activities
+// - MUST return ONLY valid JSON without any markdown formatting
+// - Preserve technical terms, company names, and proper nouns exactly as they appear
+
+// Resume Text:
+// ${cleanedText}
+
+// Extract information for this EXACT JSON structure:
+// {
+//     "personalInfo": {
+//         "fullName": "full name from resume",
+//         "email": "email address",
+//         "phone": "phone number",
+//         "location": "current location/address"
+//     },
+//     "areasOfInterest": "areas of interest ",
+//     "experience": [
+//         {
+//             "position": "job title",
+//             "company": "company name", 
+//             "location": "work location",
+//             "dates": "employment period",
+//             "description": "detailed job responsibilities and achievements",
+//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//         }
+//     ],
+//     "achievements": [
+//         {
+//             "title": "achievement title",
+//             "organization": "organization/institution",
+//             "date": "achievement date",
+//             "description": "achievement description",
+//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//         }
+//     ],
+//     "projects": [
+//         {
+//             "title": "project name",
+//             "organization": "organization or course",
+//             "duration": "project timeline",
+//             "technologies": "technologies/tools used",
+//             "description": "project details and outcomes",
+//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//         }
+//     ],
+//     "education": [
+//         {
+//             "degree": "degree type",
+//             "field": "field of study",
+//             "institution": "university/school name",
+//             "duration": "study period",
+//             "grade": "GPA/grade",
+//             "details": "additional academic details",
+//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//         }
+//     ],
+//     "positionOfResponsibility": [
+//         {
+//             "position": "position/role name",
+//             "organization": "organization name",
+//             "institution": "institution name",
+//             "dates": "time period",
+//             "description": "position description",
+//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//         }
+//     ]
+// }`;
+
+//         if (attempt === 1) {
+//             return basePrompt + `
+
+// CRITICAL INSTRUCTIONS FOR TEMPLATE COMPLIANCE:
+// - Carefully fix spacing issues without breaking technology names or proper nouns
+// - Extract ONLY information that fits our 5 main sections
+// - For Experience: Include position, company, location, dates, description AND bulletPoints array
+// - For Projects: Include title, organization/course, duration, technologies, description AND bulletPoints array  
+// - For Education: Include degree, field, institution, duration, grade/GPA, details AND bulletPoints array
+// - For Position of Responsibility: Include position, organization, institution, dates, description AND bulletPoints array
+// - BULLET POINTS: Extract key achievements/responsibilities as separate array items
+// - If description has bullet points (•, -, *), extract each as separate bulletPoints array item
+// - If description is paragraph format, break into logical bullet points
+// - Keep description field for summary, use bulletPoints for detailed points
+// - PRESERVE: Technology names (JavaScript, TensorFlow, etc.), company names, proper nouns
+// - IGNORE: Images, charts, graphics, social media links, references
+// - SMART SPACING: Fix concatenated words but preserve compound technical terms
+// - Return ONLY the JSON object, no markdown or explanations`;
+//         }
+
+//         if (attempt === 2) {
+//             return basePrompt + `
+
+// RETRY INSTRUCTIONS:
+// - Previous attempt may have missed information
+// - Look more carefully for section headers like "Experience", "Projects", "Education"
+// - Extract partial information even if some fields are missing
+// - Focus on getting at least the main content from each section
+// - Be extra careful with spacing - don't break valid compound words
+// - Return ONLY valid JSON`;
+//         }
+
+//         return basePrompt + `
+
+// FINAL ATTEMPT:
+// - This is the last try - extract whatever information you can find
+// - Even incomplete information is better than empty fields
+// - Look for any work history, education, or project information
+// - Fill in available fields and leave others empty
+// - Preserve all technical terms and proper nouns exactly
+// - MUST return valid JSON format`;
+//     }
+createStructuringPrompt(text, attempt = 1) {
         // Clean the text first to fix spacing issues
         const cleanedText = this.cleanExtractedText(text);
         
@@ -167,8 +290,7 @@ Extract information for this EXACT JSON structure:
             "company": "company name", 
             "location": "work location",
             "dates": "employment period",
-            "description": "detailed job responsibilities and achievements",
-            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+            "description": "• First key responsibility or achievement\n• Second key responsibility or achievement\n• Third key responsibility or achievement"
         }
     ],
     "achievements": [
@@ -176,8 +298,7 @@ Extract information for this EXACT JSON structure:
             "title": "achievement title",
             "organization": "organization/institution",
             "date": "achievement date",
-            "description": "achievement description",
-            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+            "description": "• First key point about the achievement\n• Second key point about the achievement\n• Third key point about the achievement"
         }
     ],
     "projects": [
@@ -186,8 +307,7 @@ Extract information for this EXACT JSON structure:
             "organization": "organization or course",
             "duration": "project timeline",
             "technologies": "technologies/tools used",
-            "description": "project details and outcomes",
-            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+            "description": "• First key aspect of the project\n• Second key aspect of the project\n• Third key aspect of the project"
         }
     ],
     "education": [
@@ -198,7 +318,7 @@ Extract information for this EXACT JSON structure:
             "duration": "study period",
             "grade": "GPA/grade",
             "details": "additional academic details",
-            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+            "description": "• First key academic detail\n• Second key academic detail\n• Third key academic detail"
         }
     ],
     "positionOfResponsibility": [
@@ -207,8 +327,7 @@ Extract information for this EXACT JSON structure:
             "organization": "organization name",
             "institution": "institution name",
             "dates": "time period",
-            "description": "position description",
-            "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+            "description": "• First key responsibility\n• Second key responsibility\n• Third key responsibility"
         }
     ]
 }`;
@@ -219,18 +338,16 @@ Extract information for this EXACT JSON structure:
 CRITICAL INSTRUCTIONS FOR TEMPLATE COMPLIANCE:
 - Carefully fix spacing issues without breaking technology names or proper nouns
 - Extract ONLY information that fits our 5 main sections
-- For Experience: Include position, company, location, dates, description AND bulletPoints array
-- For Projects: Include title, organization/course, duration, technologies, description AND bulletPoints array  
-- For Education: Include degree, field, institution, duration, grade/GPA, details AND bulletPoints array
-- For Position of Responsibility: Include position, organization, institution, dates, description AND bulletPoints array
-- BULLET POINTS: Extract key achievements/responsibilities as separate array items
-- If description has bullet points (•, -, *), extract each as separate bulletPoints array item
-- If description is paragraph format, break into logical bullet points
-- Keep description field for summary, use bulletPoints for detailed points
+- For ALL SECTIONS: Format description as exactly 3 bullet points using "• " prefix
+- Each description must contain exactly 3 bullet points separated by newlines (\\n)
+- Combine all relevant information into these 3 bullet points per entry
+- If original has more than 3 points, consolidate into 3 comprehensive points
+- If original has fewer than 3 points, expand or create additional relevant points
 - PRESERVE: Technology names (JavaScript, TensorFlow, etc.), company names, proper nouns
 - IGNORE: Images, charts, graphics, social media links, references
 - SMART SPACING: Fix concatenated words but preserve compound technical terms
-- Return ONLY the JSON object, no markdown or explanations`;
+- Return ONLY the JSON object, no markdown or explanations
+- FORMAT: "• Point one\\n• Point two\\n• Point three" for every description field`;
         }
 
         if (attempt === 2) {
@@ -242,6 +359,7 @@ RETRY INSTRUCTIONS:
 - Extract partial information even if some fields are missing
 - Focus on getting at least the main content from each section
 - Be extra careful with spacing - don't break valid compound words
+- MUST format all descriptions as exactly 3 bullet points: "• Point 1\\n• Point 2\\n• Point 3"
 - Return ONLY valid JSON`;
         }
 
@@ -253,6 +371,7 @@ FINAL ATTEMPT:
 - Look for any work history, education, or project information
 - Fill in available fields and leave others empty
 - Preserve all technical terms and proper nouns exactly
+- MUST format all descriptions as exactly 3 bullet points with "• " prefix
 - MUST return valid JSON format`;
     }
 

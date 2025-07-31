@@ -112,65 +112,162 @@
                         </div>
                     </section>
 
-                    <!-- Professional Experience Section -->
-                    <section class="form-section box">
-                        <div class="section-header">
-                            <h2>Professional Experience</h2>
-                            <div class="section-actions">
-                                <button class="btn btn-add" id="addExperience">
-                                    <i class="fas fa-plus"></i> Add Experience
-                                </button>
-                            </div>
-                        </div>
-                        <div id="experienceContainer">
-                            <!-- Experience entries will be added here -->
-                        </div>
-                    </section>
+                    <!-- Experience Section -->
+<section class="form-section box">
+    <div class="section-header">
+        <h2>Experience</h2>
+        <div class="section-actions">
+            <button class="btn btn-add" id="addExperience">
+                <i class="fas fa-plus"></i> Add Experience
+            </button>
+        </div>
+    </div>
+    <div id="experienceContainer">
+        <div class="experience-entry">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="text" name="position" placeholder="Job Title">
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" name="company" placeholder="Company Name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="Work Location">
+                </div>
+                <div class="form-group">
+                    <label>Dates</label>
+                    <input type="text" name="dates" placeholder="Employment Period">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="6" placeholder="• First key responsibility or achievement&#10;• Second key responsibility or achievement&#10;• Third key responsibility or achievement"></textarea>
+            </div>
+        </div>
+    </div>
+</section>
 
-                    <!-- Achievements Section -->
-                    <section class="form-section box">
-                        <div class="section-header">
-                            <h2>Achievements</h2>
-                            <div class="section-actions">
-                                <button class="btn btn-add" id="addAchievement">
-                                    <i class="fas fa-plus"></i> Add Achievement
-                                </button>
-                            </div>
-                        </div>
-                        <div id="achievementsContainer">
-                            <!-- Achievement entries will be added here -->
-                        </div>
-                    </section>
+<!-- Achievements Section -->
+<section class="form-section box">
+    <div class="section-header">
+        <h2>Achievements</h2>
+        <div class="section-actions">
+            <button class="btn btn-add" id="addAchievement">
+                <i class="fas fa-plus"></i> Add Achievement
+            </button>
+        </div>
+    </div>
+    <div id="achievementsContainer">
+        <div class="achievement-entry">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Achievement Title">
+                </div>
+                <div class="form-group">
+                    <label>Organization</label>
+                    <input type="text" name="organization" placeholder="Organization/Institution">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="text" name="date" placeholder="Achievement Date">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="6" placeholder="• First key point about the achievement&#10;• Second key point about the achievement&#10;• Third key point about the achievement"></textarea>
+            </div>
+        </div>
+    </div>
+</section>
 
-                    <!-- Position of Responsibility Section -->
-                    <section class="form-section box">
-                        <div class="section-header">
-                            <h2>Position of Responsibility</h2>
-                            <div class="section-actions">
-                                <button class="btn btn-add" id="addPosition">
-                                    <i class="fas fa-plus"></i> Add Position
-                                </button>
-                            </div>
-                        </div>
-                        <div id="positionContainer">
-                            <!-- Position entries will be added here -->
-                        </div>
-                    </section>
+<!-- Position of Responsibility Section -->
+<section class="form-section box">
+    <div class="section-header">
+        <h2>Position of Responsibility</h2>
+        <div class="section-actions">
+            <button class="btn btn-add" id="addPosition">
+                <i class="fas fa-plus"></i> Add Position
+            </button>
+        </div>
+    </div>
+    <div id="positionContainer">
+        <div class="position-entry">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="text" name="position" placeholder="Position/Role Name">
+                </div>
+                <div class="form-group">
+                    <label>Organization</label>
+                    <input type="text" name="organization" placeholder="Organization Name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Institution</label>
+                    <input type="text" name="institution" placeholder="Institution Name">
+                </div>
+                <div class="form-group">
+                    <label>Dates</label>
+                    <input type="text" name="dates" placeholder="Time Period">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="6" placeholder="• First key responsibility&#10;• Second key responsibility&#10;• Third key responsibility"></textarea>
+            </div>
+        </div>
+    </div>
+</section>
 
-                    <!-- Key Projects Section -->
-                    <section class="form-section box">
-                        <div class="section-header">
-                            <h2>Key Projects</h2>
-                            <div class="section-actions">
-                                <button class="btn btn-add" id="addProject">
-                                    <i class="fas fa-plus"></i> Add Project
-                                </button>
-                            </div>
-                        </div>
-                        <div id="projectsContainer">
-                            <!-- Project entries will be added here -->
-                        </div>
-                    </section>
+<!-- Key Projects Section -->
+<section class="form-section box">
+    <div class="section-header">
+        <h2>Key Projects</h2>
+        <div class="section-actions">
+            <button class="btn btn-add" id="addProject">
+                <i class="fas fa-plus"></i> Add Project
+            </button>
+        </div>
+    </div>
+    <div id="projectsContainer">
+        <div class="project-entry">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Project Name">
+                </div>
+                <div class="form-group">
+                    <label>Organization</label>
+                    <input type="text" name="organization" placeholder="Organization or Course">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" name="duration" placeholder="Project Timeline">
+                </div>
+                <div class="form-group">
+                    <label>Technologies</label>
+                    <input type="text" name="technologies" placeholder="Technologies/Tools Used">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="6" placeholder="• First key aspect of the project&#10;• Second key aspect of the project&#10;• Third key aspect of the project"></textarea>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <!-- Education Section -->
+
 
                     <!-- Education Section -->
                     <section class="form-section box">

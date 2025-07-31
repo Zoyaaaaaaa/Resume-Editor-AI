@@ -239,226 +239,10 @@ router.post('/enhance-point',
             function generatePrompt(section, content, context, jobDescription, jobRole) {
                 const role = roleData[jobRole];
                 let prompt = '';
-
-//                 switch (section) {
-//                     case 'experience':
-//                         if (jobRole === 'software') {
-//                             prompt = `**Enhance this software/IT experience point** for maximum technical impact and professional presentation.
-
-// **Original point:** "${content}"
-// ${context ? `**Context/Role:** ${context}` : ''}
-// ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-// **TECHNICAL ENHANCEMENT REQUIREMENTS:**
-// - **Lead with powerful action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-// - **Incorporate relevant technical keywords:** ${role.keywords.slice(0, 6).join(', ')}
-// - **Highlight applicable technologies:** ${role.skills.slice(0, 8).join(', ')} (only if relevant to the original content)
-// - Follow **Action + Technology + Implementation + Impact** structure
-// - Emphasize technical problem-solving and solutions implemented
-// - **Include specific outcomes ONLY if mentioned** in original content or context
-// - Focus on technical contributions and their significance
-
-// **WORD RANGE REQUIREMENTS:**
-// - **Target: 10-20 words** for concise impact OR **40-50 words** for detailed description
-// - Prioritize clarity and professional impact over strict word limits
-// - Ensure content fits naturally within resume formatting
-
-// **QUALITY STANDARDS:**
-// - **Professional and impactful language**
-// - **NO fabricated numbers or metrics** unless present in original
-// - **Maintain complete truthfulness** to original meaning
-// - ATS-friendly technical terminology
-// - **Bold key technical terms** and achievements naturally
-
-// **Return ONLY the enhanced technical point - no explanations or character counts.**`;
-
-//                         } else if (jobRole === 'datascience') {
-//                             prompt = `**Enhance this data science experience point** emphasizing analytical expertise and measurable impact.
-
-// **Original point:** "${content}"
-// ${context ? `**Context/Role:** ${context}` : ''}
-// ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-// **DATA SCIENCE ENHANCEMENT REQUIREMENTS:**
-// - **Use analytical action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-// - **Include relevant ML/analytics keywords:** ${role.keywords.slice(0, 6).join(', ')}
-// - **Highlight applicable data science tools:** ${role.skills.slice(0, 8).join(', ')} (only if relevant)
-// - Follow **Action + Data/Model + Methodology + Impact** structure
-// - Emphasize analytical approach and insights delivered
-// - **Include metrics ONLY if mentioned** in original content
-// - Focus on data-driven problem solving and methodology
-
-// **WORD RANGE REQUIREMENTS:**
-// - **Target: 12-20 words** for concise impact OR **30-40 words** for detailed description
-// - Maintain natural flow and professional presentation
-
-// **QUALITY STANDARDS:**
-// - **NO fabricated accuracy percentages or performance metrics**
-// - Emphasize analytical methodology and approach
-// - **Bold key data science terms** and methodologies
-// - Professional analytical language
-
-// **Return ONLY the enhanced data science point.**`;
-
-//                         } else { // consulting
-//                             prompt = `**Enhance this consulting experience point** showcasing strategic thinking and client value delivery.
-
-// **Original point:** "${content}"
-// ${context ? `**Context/Role:** ${context}` : ''}
-// ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-// **CONSULTING ENHANCEMENT REQUIREMENTS:**
-// - **Use strategic action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-// - **Include business impact keywords:** ${role.keywords.slice(0, 6).join(', ')}
-// - **Highlight relevant consulting skills:** ${role.skills.slice(0, 6).join(', ')} (only if applicable)
-// - Follow **Action + Client/Business + Methodology + Value** structure
-// - Emphasize strategic solutions and problem-solving approach
-// - **Include business outcomes ONLY if mentioned** in original
-// - Focus on client value and strategic contributions
-
-// **WORD RANGE REQUIREMENTS:**
-// - **Target: 20-25 words** for concise impact OR **30-40 words** for detailed description
-
-// **QUALITY STANDARDS:**
-// - **NO fabricated cost savings or revenue figures**
-// - Professional business language with strategic focus
-// - **Bold key strategic terms** and methodologies
-
-// **Return ONLY the enhanced consulting point.**`;
-//                         }
-//                         break;
-
-//                     case 'projects':
-//                         if (jobRole === 'software') {
-//                             prompt = `**Enhance this software project description** highlighting technical implementation and outcomes.
-
-// **Original point:** "${content}"
-// ${context ? `**Project Context:** ${context}` : ''}
-// ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-// **PROJECT ENHANCEMENT FOCUS:**
-// - **Start with technical action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-// - **Showcase relevant technology stack:** ${role.skills.slice(0, 8).join(', ')} (only if applicable to project)
-// - **Highlight technical keywords:** ${role.keywords.slice(0, 4).join(', ')}
-// - Emphasize technical challenges addressed and solutions implemented
-// - **Include project outcomes ONLY if mentioned** in original content
-// - Focus on technical implementation and learning
-
-// **WORD RANGE:** **20-35 words** for comprehensive project description
-// **NO fabricated user numbers or performance metrics**
-// **Bold technical technologies** and key implementations
-
-// **Return ONLY the enhanced project description.**`;
-
-//                         } else if (jobRole === 'datascience') {
-//                             prompt = `**Enhance this data science project** showcasing analytical methodology and insights.
-
-// **Original point:** "${content}"
-// ${context ? `**Project Context:** ${context}` : ''}
-// ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-// **PROJECT ENHANCEMENT FOCUS:**
-// - **Use analytical action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-// - **Highlight relevant DS tools:** ${role.skills.slice(0, 8).join(', ')} (only if used in project)
-// - **Include analytical keywords:** ${role.keywords.slice(0, 4).join(', ')}
-// - Emphasize data sources, methodology, and analytical approach
-// - **Include project insights ONLY if mentioned** in original
-// - Focus on analytical workflow and learning outcomes
-
-// **WORD RANGE:** **20-35 words**
-// **NO fabricated accuracy metrics or model performance**
-// **Bold key analytical methods** and tools used
-
-// **Return ONLY the enhanced project description.**`;
-
-//                         } else { // consulting
-//                             prompt = `**Enhance this consulting project** emphasizing strategic approach and value delivered.
-
-// **Original point:** "${content}"
-// ${context ? `**Project Context:** ${context}` : ''}
-// ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-// **PROJECT ENHANCEMENT FOCUS:**
-// - **Lead with strategic action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-// - **Highlight relevant frameworks:** ${role.skills.slice(0, 6).join(', ')} (only if applicable)
-// - **Include business keywords:** ${role.keywords.slice(0, 4).join(', ')}
-// - Emphasize problem-solving approach and strategic methodology
-// - **Include project outcomes ONLY if mentioned** in original
-// - Focus on strategic thinking and client approach
-
-// **WORD RANGE:** **20-35 words**
-// **NO fabricated business impact figures**
-// **Bold strategic methodologies** and frameworks used
-
-// **Return ONLY the enhanced project description.**`;
-//                         }
-//                         break;
-
-//                     case 'education':
-//                         prompt = `**Enhance this education point** highlighting academic achievements and relevant foundation.
-
-// **Original point:** "${content}"
-// ${context ? `**Academic Context:** ${context}` : ''}
-
-// **EDUCATION ENHANCEMENT:**
-// - **Use achievement-focused verbs:** Completed, Achieved, Specialized, Graduated, Earned
-// - Highlight relevant coursework, academic projects, or honors **ONLY if mentioned**
-// - Include technical skills or methodologies learned **if applicable**
-// - Mention leadership roles or academic contributions **if present in original**
-
-// **WORD RANGE:** **15-30 words**
-// **NO fabricated GPA or academic honors**
-// **Bold degree type, institution,** or significant academic achievements
-
-// **Return ONLY the enhanced education point.**`;
-//                         break;
-
-//                     case 'areasOfInterest':
-//                         prompt = `**Transform this into 5 key professional interest domains** separated by pipe (|) symbols.
-
-// **Original content:** "${content}"
-// ${context ? `**Context:** ${context}` : ''}
-
-// **AREAS OF INTEREST FORMAT:**
-// - Create **5 broad professional domains** relevant to ${jobRole} career
-// - Use format: **Domain 1 | Domain 2 | Domain 3 | Domain 4 | Domain 5**
-// - **Bold key terms** within each domain
-// - Focus on: emerging technologies, methodologies, industry trends, research areas, professional development
-// - Ensure domains are **broad yet specific** to show professional curiosity
-// - Connect to current industry developments and career growth
-
-// **EXAMPLES:**
-// - Software: **Machine Learning** & AI | **Cloud Architecture** & DevOps | **Web3** & Blockchain | **Mobile Development** | **Cybersecurity** & Privacy
-// - Data Science: **Deep Learning** & Neural Networks | **Big Data** Analytics | **MLOps** & Production Systems | **Computer Vision** | **NLP** & Language Models
-// - Consulting: **Digital Transformation** | **Business Strategy** & Analytics | **Process Optimization** | **Change Management** | **Emerging Technologies**
-
-// **Return ONLY the 5 domains separated by pipe symbols.**`;
-//                         break;
-
-//                     case 'positionOfResponsibility':
-//                         prompt = `**Enhance this leadership position** showcasing management skills and organizational impact.
-
-// **Original point:** "${content}"
-// ${context ? `**Leadership Context:** ${context}` : ''}
-
-// **LEADERSHIP ENHANCEMENT:**
-// - **Use leadership verbs:** Led, Managed, Coordinated, Facilitated, Mentored, Organized
-// - Highlight scope of responsibility or initiatives managed **if mentioned**
-// - Include team impact or organizational contributions **ONLY if present** in original
-// - Show leadership approach and people development skills
-// - Emphasize collaboration and results delivery
-
-// **WORD RANGE:** **20-35 words**
-// **NO fabricated team sizes or performance metrics**
-// **Bold leadership role** and key responsibilities
-
-// **Return ONLY the enhanced leadership statement.**`;
-//                         break;
-//                 }
                 switch (section) {
     case 'experience':
         if (jobRole === 'software') {
-            prompt = `**Enhance this software/IT experience point** for maximum technical impact and professional presentation.
+            prompt = `**Create exactly 3 enhanced bullet points** from this software/IT experience for maximum technical impact.
 
 **Original point:** "${content}"
 ${context ? `**Context/Role:** ${context}` : ''}
@@ -474,7 +258,7 @@ ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
 - Focus on technical contributions and their significance
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** for concise bullet OR **180–190 characters** for detailed point
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize character space for impactful, clear, and professional results
 - Prioritize meaningful enhancement over strict limits
 
@@ -482,13 +266,13 @@ ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
 - **Professional and impactful language**
 - **NO fabricated numbers or metrics** unless present in original
 - **Maintain complete truthfulness** to original meaning
-- ATS-friendly technical terminology
 - **Bold key technical terms** and achievements naturally
+- **MUST return exactly 3 bullet points**
 
-**Return ONLY the enhanced technical point - no explanations or character counts.**`;
+**Return ONLY 3 enhanced technical bullet points - no explanations or character counts.**`;
 
         } else if (jobRole === 'datascience') {
-            prompt = `**Enhance this data science experience point** emphasizing analytical expertise and measurable impact.
+            prompt = `**Create exactly 3 enhanced bullet points** from this data science experience emphasizing analytical expertise.
 
 **Original point:** "${content}"
 ${context ? `**Context/Role:** ${context}` : ''}
@@ -504,19 +288,19 @@ ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
 - Focus on data-driven problem solving and methodology
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** for concise point OR **180–190 characters** for detailed point
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize character count for analytical impact
 
 **QUALITY STANDARDS:**
 - **NO fabricated accuracy percentages or performance metrics**
 - Emphasize analytical methodology and approach
 - **Bold key data science terms** and methodologies
-- Professional analytical language
+- **MUST return exactly 3 bullet points**
 
-**Return ONLY the enhanced data science point.**`;
+**Return ONLY 3 enhanced data science bullet points.**`;
 
         } else {
-            prompt = `**Enhance this consulting experience point** showcasing strategic thinking and client value delivery.
+            prompt = `**Create exactly 3 enhanced bullet points** from this consulting experience showcasing strategic thinking.
 
 **Original point:** "${content}"
 ${context ? `**Context/Role:** ${context}` : ''}
@@ -532,21 +316,22 @@ ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
 - Focus on client value and strategic contributions
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** for concise version OR **180–190 characters** for expanded version
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize characters for maximum clarity and strategic impact
 
 **QUALITY STANDARDS:**
 - **NO fabricated cost savings or revenue figures**
 - Professional business language with strategic focus
 - **Bold key strategic terms** and methodologies
+- **MUST return exactly 3 bullet points**
 
-**Return ONLY the enhanced consulting point.**`;
+**Return ONLY 3 enhanced consulting bullet points.**`;
         }
         break;
 
     case 'projects':
         if (jobRole === 'software') {
-            prompt = `**Enhance this software project description** highlighting technical implementation and outcomes.
+            prompt = `**Create exactly 3 enhanced bullet points** from this software project highlighting technical implementation.
 
 **Original point:** "${content}"
 ${context ? `**Project Context:** ${context}` : ''}
@@ -561,15 +346,17 @@ ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 - Focus on technical implementation and learning
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** or **180–190 characters**
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize space for rich technical expression
 - **NO fabricated user numbers or performance metrics**
 - **Bold technical technologies** and key implementations
 
-**Return ONLY the enhanced project description.**`;
+**MUST return exactly 3 bullet points.**
+
+**Return ONLY 3 enhanced project bullet points.**`;
 
         } else if (jobRole === 'datascience') {
-            prompt = `**Enhance this data science project** showcasing analytical methodology and insights.
+            prompt = `**Create exactly 3 enhanced bullet points** from this data science project showcasing analytical methodology.
 
 **Original point:** "${content}"
 ${context ? `**Project Context:** ${context}` : ''}
@@ -584,14 +371,16 @@ ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 - Focus on analytical workflow and learning outcomes
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** or **180–190 characters**
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize space for detailed insight without fabrication
 - **Bold key analytical methods** and tools used
 
-**Return ONLY the enhanced project description.**`;
+**MUST return exactly 3 bullet points.**
+
+**Return ONLY 3 enhanced project bullet points.**`;
 
         } else {
-            prompt = `**Enhance this consulting project** emphasizing strategic approach and value delivered.
+            prompt = `**Create exactly 3 enhanced bullet points** from this consulting project emphasizing strategic approach.
 
 **Original point:** "${content}"
 ${context ? `**Project Context:** ${context}` : ''}
@@ -606,17 +395,19 @@ ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 - Focus on strategic thinking and client approach
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** or **180–190 characters**
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - Fully utilize space for impactful, strategic content
 - **NO fabricated business impact figures**
 - **Bold strategic methodologies** and frameworks used
 
-**Return ONLY the enhanced project description.**`;
+**MUST return exactly 3 bullet points.**
+
+**Return ONLY 3 enhanced project bullet points.**`;
         }
         break;
 
     case 'education':
-        prompt = `**Enhance this education point** highlighting academic achievements and relevant foundation.
+        prompt = `**Create exactly 3 enhanced bullet points** from this education point highlighting academic achievements.
 
 **Original point:** "${content}"
 ${context ? `**Academic Context:** ${context}` : ''}
@@ -628,11 +419,13 @@ ${context ? `**Academic Context:** ${context}` : ''}
 - Mention leadership roles or academic contributions **if present in original**
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** or **180–190 characters**
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - No GPA, awards, or ranks should be fabricated
 - **Bold degree, institution, or honors** only if present
 
-**Return ONLY the enhanced education point.**`;
+**MUST return exactly 3 bullet points.**
+
+**Return ONLY 3 enhanced education bullet points.**`;
         break;
 
     case 'areasOfInterest':
@@ -653,7 +446,7 @@ ${context ? `**Context:** ${context}` : ''}
         break;
 
     case 'positionOfResponsibility':
-        prompt = `**Enhance this leadership position** showcasing management skills and organizational impact.
+        prompt = `**Create exactly 3 enhanced bullet points** from this leadership position showcasing management skills.
 
 **Original point:** "${content}"
 ${context ? `**Leadership Context:** ${context}` : ''}
@@ -666,11 +459,13 @@ ${context ? `**Leadership Context:** ${context}` : ''}
 - Emphasize collaboration and results delivery
 
 **CHARACTER LENGTH GUIDELINES:**
-- **Target: 87–95 characters** or **180–190 characters**
+- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
 - No fake team sizes, budgets, or results
 - **Bold leadership roles** and responsibilities
 
-**Return ONLY the enhanced leadership statement.**`;
+**MUST return exactly 3 bullet points.**
+
+**Return ONLY 3 enhanced leadership bullet points.**`;
         break;
 }
 

@@ -539,20 +539,41 @@ class PDFPreview {
     }
 
     generateBulletPoints(bulletPoints) {
-        if (bulletPoints && bulletPoints.length > 0) {
-            const validBullets = bulletPoints.filter(point => point && point.trim());
-            if (validBullets.length > 0) {
-                return validBullets
-                    .map(point => {
-                        // Format bullet points with strong tags for action verbs
-                        const formattedPoint = point.replace(/^(<strong>)?([A-Z][a-z]+[a-z]*)<\/strong>?\s*/i, 
-                            (match, p1, p2) => `<strong>${p2}</strong>`);
-                        return `<li>${formattedPoint}</li>`;
-                    })
-                    .join('');
-            }
+    if (bulletPoints && bulletPoints.length > 0) {
+        const validBullets = bulletPoints.filter(point => point && point.trim());
+        if (validBullets.length > 0) {
+            // Process each bullet point and split by bullet characters or periods followed by spaces
+            const allBullets = [];
+            
+            validBullets.forEach(point => {
+                // Split by bullet characters (•) or periods followed by spaces
+                let splitPoints = point.split(/[•·]/).filter(p => p.trim());
+                
+                // If no bullet characters found, try splitting by ". " (period followed by space)
+                if (splitPoints.length === 1) {
+                    splitPoints = point.split(/\.\s+/).filter(p => p.trim());
+                }
+                
+                // Add each split point to the array
+                splitPoints.forEach(splitPoint => {
+                    const trimmed = splitPoint.trim();
+                    if (trimmed) {
+                        allBullets.push(trimmed);
+                    }
+                });
+            });
+            
+            return allBullets
+                .map(point => {
+                    // Format bullet points with strong tags for action verbs
+                    const formattedPoint = point.replace(/^(<strong>)?([A-Z][a-z]+[a-z]*)<\/strong>?\s*/i, 
+                        (match, p1, p2) => `<strong>${p2}</strong> `);
+                    return `<li>${formattedPoint}</li>`;
+                })
+                .join('');
         }
-        return '';
+    }
+    return '';
     }
 
     escapeHtml(text) {
