@@ -270,15 +270,15 @@
 //         const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;
         
 //         const contactParts = [];
-//         if (email) contactParts.push(this.escapeHtml(email));
-//         if (phone) contactParts.push(this.escapeHtml(phone));
-//         if (linkedIn) contactParts.push(this.escapeHtml(linkedIn));
-//         if (location) contactParts.push(this.escapeHtml(location));
+//         if (email) contactParts.push(this.formatText(email));
+//         if (phone) contactParts.push(this.formatText(phone));
+//         if (linkedIn) contactParts.push(this.formatText(linkedIn));
+//         if (location) contactParts.push(this.formatText(location));
         
 //         const contactInfo = contactParts.length > 0 ? contactParts.join(' | ') : '[Email] | [Phone] | [LinkedIn] | [Location]';
         
 //         return `
-//             <div class="name">${this.escapeHtml(fullName)}</div>
+//             <div class="name">${this.formatText(fullName)}</div>
 //             <div class="contact-info">${contactInfo}</div>
 //         `;
 //     }
@@ -289,7 +289,7 @@
 //         return `
 //     <div class="section">
 //         <div class="section-header">AREAS OF INTEREST</div>
-//         <p class="areas-text">${this.escapeHtml(areasText)}</p>
+//         <p class="areas-text">${this.formatText(areasText)}</p>
 //     </div>
 //         `;
 //     }
@@ -302,13 +302,13 @@
 //             .map(edu => {
 //                 const bullets = this.generateBulletPoints(edu.bulletPoints);
 //                 const degreeText = edu.degree && edu.field ? 
-//                     `${this.escapeHtml(edu.degree)} | ${this.escapeHtml(edu.field)}` :
-//                     this.escapeHtml(edu.degree || '');
+//                     `${this.formatText(edu.degree)} | ${this.formatText(edu.field)}` :
+//                     this.formatText(edu.degree || '');
                     
 //                 return `
 //         <div class="subheader">
-//             <div class="title">${degreeText}${edu.institution ? ` | ${this.escapeHtml(edu.institution)}` : ''}</div>
-//             <div class="date">${this.escapeHtml(edu.duration || '')}</div>
+//             <div class="title">${degreeText}${edu.institution ? ` | ${this.formatText(edu.institution)}` : ''}</div>
+//             <div class="date">${this.formatText(edu.duration || '')}</div>
 //         </div>
 //         ${bullets ? `<ul>${bullets}</ul>` : ''}
 //                 `;
@@ -331,8 +331,8 @@
 //                 const bullets = this.generateBulletPoints(exp.bulletPoints);
 //                 return `
 //         <div class="subheader">
-//             <div class="title">${this.escapeHtml(exp.position || '')}${exp.company ? ` | ${this.escapeHtml(exp.company)}` : ''}</div>
-//             <div class="date">${this.escapeHtml(exp.duration || '')}</div>
+//             <div class="title">${this.formatText(exp.position || '')}${exp.company ? ` | ${this.formatText(exp.company)}` : ''}</div>
+//             <div class="date">${this.formatText(exp.duration || '')}</div>
 //         </div>
 //         ${bullets ? `<ul>${bullets}</ul>` : ''}
 //                 `;
@@ -354,16 +354,16 @@
 //             .map(proj => {
 //                 const bullets = this.generateBulletPoints(proj.bulletPoints);
 //                 const descriptionParts = [];
-//                 if (proj.technologies) descriptionParts.push(`<strong>${this.escapeHtml(proj.technologies)}</strong>`);
-//                 if (proj.organization) descriptionParts.push(`${this.escapeHtml(proj.organization)}`);
-//                 if (proj.type) descriptionParts.push(`${this.escapeHtml(proj.type)}`);
+//                 if (proj.technologies) descriptionParts.push(`<strong>${this.formatText(proj.technologies)}</strong>`);
+//                 if (proj.organization) descriptionParts.push(`${this.formatText(proj.organization)}`);
+//                 if (proj.type) descriptionParts.push(`${this.formatText(proj.type)}`);
                 
 //                 const description = descriptionParts.join(' | ');
                 
 //                 return `
 //         <div class="project">
-//             <div class="project-title">${this.escapeHtml(proj.title || '')}</div>
-//             <p class="project-description">${description} <span class="date">${this.escapeHtml(proj.duration || '')}</span></p>
+//             <div class="project-title">${this.formatText(proj.title || '')}</div>
+//             <p class="project-description">${description} <span class="date">${this.formatText(proj.duration || '')}</span></p>
 //             ${bullets ? `<ul>${bullets}</ul>` : ''}
 //         </div>
 //                 `;
@@ -385,9 +385,9 @@
         
 //         skills.forEach(skill => {
 //             if (skill.category === 'language') {
-//                 languages.push(this.escapeHtml(skill.name));
+//                 languages.push(this.formatText(skill.name));
 //             } else {
-//                 tools.push(this.escapeHtml(skill.name));
+//                 tools.push(this.formatText(skill.name));
 //             }
 //         });
 
@@ -409,8 +409,8 @@
 //                 const bullets = this.generateBulletPoints(pos.bulletPoints);
 //                 return `
 //         <div class="subheader">
-//             <div class="title">${this.escapeHtml(pos.position || '')}${pos.organization ? ` | ${this.escapeHtml(pos.organization)}` : ''}</div>
-//             <div class="date">${this.escapeHtml(pos.duration || '')}</div>
+//             <div class="title">${this.formatText(pos.position || '')}${pos.organization ? ` | ${this.formatText(pos.organization)}` : ''}</div>
+//             <div class="date">${this.formatText(pos.duration || '')}</div>
 //         </div>
 //         ${bullets ? `<ul>${bullets}</ul>` : ''}
 //                 `;
@@ -441,14 +441,14 @@
 //             .map(([category, items]) => {
 //                 const itemList = items
 //                     .map(item => {
-//                         const date = item.date ? `<span style="font-style: italic; float: right;">${this.escapeHtml(item.date)}</span>` : '';
-//                         return `<li><strong>${this.escapeHtml(item.action || '')}</strong> ${this.escapeHtml(item.description || '')} ${date}</li>`;
+//                         const date = item.date ? `<span style="font-style: italic; float: right;">${this.formatText(item.date)}</span>` : '';
+//                         return `<li><strong>${this.formatText(item.action || '')}</strong> ${this.formatText(item.description || '')} ${date}</li>`;
 //                     })
 //                     .join('');
                 
 //                 return `
 //         <div class="extra-item">
-//             <div class="extra-category">${this.escapeHtml(category)}</div>
+//             <div class="extra-category">${this.formatText(category)}</div>
 //             <div class="extra-content">
 //                 <ul>${itemList}</ul>
 //             </div>
@@ -674,7 +674,7 @@ class PDFGenerator {
         margin-top: 2px;
         margin-bottom: 1px;
         text-transform: uppercase;
-        border-left: 3px solid #2c3e50;
+        // border-left: 3px solid #2c3e50;
     }
     
     .section {
@@ -804,15 +804,15 @@ class PDFGenerator {
         const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;
         
         const contactParts = [];
-        if (email) contactParts.push(this.escapeHtml(email));
-        if (phone) contactParts.push(this.escapeHtml(phone));
-        if (linkedIn) contactParts.push(this.escapeHtml(linkedIn));
-        if (location) contactParts.push(this.escapeHtml(location));
+        if (email) contactParts.push(this.formatText(email));
+        if (phone) contactParts.push(this.formatText(phone));
+        if (linkedIn) contactParts.push(this.formatText(linkedIn));
+        if (location) contactParts.push(this.formatText(location));
         
         const contactInfo = contactParts.length > 0 ? contactParts.join(' | ') : '[Email] | [Phone] | [LinkedIn] | [Location]';
         
         return `
-            <div class="name">${this.escapeHtml(fullName)}</div>
+            <div class="name">${this.formatText(fullName)}</div>
             <div class="contact-info">${contactInfo}</div>
         `;
     }
@@ -823,7 +823,7 @@ class PDFGenerator {
         return `
     <div class="section">
         <div class="section-header">SUMMARY</div>
-        <p class="areas-text">${this.escapeHtml(areasText)}</p>
+        <p class="areas-text">${this.formatText(areasText)}</p>
     </div>
         `;
     }
@@ -836,13 +836,13 @@ class PDFGenerator {
             .map(edu => {
                 const bullets = this.generateBulletPoints(edu.bulletPoints);
                 const degreeText = edu.degree && edu.field ? 
-                    `${this.escapeHtml(edu.degree)} | ${this.escapeHtml(edu.field)}` :
-                    this.escapeHtml(edu.degree || '');
+                    `${this.formatText(edu.degree)} | ${this.formatText(edu.field)}` :
+                    this.formatText(edu.degree || '');
                     
                 return `
         <div class="subheader">
-            <div class="title">${degreeText}${edu.institution ? ` | ${this.escapeHtml(edu.institution)}` : ''}</div>
-            <div class="date">${this.escapeHtml(edu.duration || '')}</div>
+            <div class="title">${degreeText}${edu.institution ? ` | ${this.formatText(edu.institution)}` : ''}</div>
+            <div class="date">${this.formatText(edu.duration || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -865,8 +865,8 @@ class PDFGenerator {
                 const bullets = this.generateBulletPoints(exp.bulletPoints);
                 return `
         <div class="subheader">
-            <div class="title">${this.escapeHtml(exp.position || '')}${exp.company ? ` | ${this.escapeHtml(exp.company)}` : ''}</div>
-            <div class="date">${this.escapeHtml(exp.duration || '')}</div>
+            <div class="title">${this.formatText(exp.position || '')}${exp.company ? ` | ${this.formatText(exp.company)}` : ''}</div>
+            <div class="date">${this.formatText(exp.duration || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -889,8 +889,8 @@ class PDFGenerator {
                 const bullets = this.generateBulletPoints(ach.bulletPoints);
                 return `
         <div class="subheader">
-            <div class="title">${this.escapeHtml(ach.title || '')}${ach.organization ? ` | ${this.escapeHtml(ach.organization)}` : ''}</div>
-            <div class="date">${this.escapeHtml(ach.date || '')}</div>
+            <div class="title">${this.formatText(ach.title || '')}${ach.organization ? ` | ${this.formatText(ach.organization)}` : ''}</div>
+            <div class="date">${this.formatText(ach.date || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -912,16 +912,16 @@ class PDFGenerator {
             .map(proj => {
                 const bullets = this.generateBulletPoints(proj.bulletPoints);
                 const descriptionParts = [];
-                if (proj.technologies) descriptionParts.push(`<strong>${this.escapeHtml(proj.technologies)}</strong>`);
-                if (proj.organization) descriptionParts.push(`${this.escapeHtml(proj.organization)}`);
-                if (proj.type) descriptionParts.push(`${this.escapeHtml(proj.type)}`);
+                if (proj.technologies) descriptionParts.push(`<strong>${this.formatText(proj.technologies)}</strong>`);
+                if (proj.organization) descriptionParts.push(`${this.formatText(proj.organization)}`);
+                if (proj.type) descriptionParts.push(`${this.formatText(proj.type)}`);
                 
                 const description = descriptionParts.join(' | ');
                 
                 return `
         <div class="project">
-            <div class="project-title">${this.escapeHtml(proj.title || '')}</div>
-            <p class="project-description">${description} <span class="date">${this.escapeHtml(proj.duration || '')}</span></p>
+            <div class="project-title">${this.formatText(proj.title || '')}</div>
+            <p class="project-description">${description} <span class="date">${this.formatText(proj.duration || '')}</span></p>
             ${bullets ? `<ul>${bullets}</ul>` : ''}
         </div>
                 `;
@@ -943,9 +943,9 @@ class PDFGenerator {
         
         skills.forEach(skill => {
             if (skill.category === 'language') {
-                languages.push(this.escapeHtml(skill.name));
+                languages.push(this.formatText(skill.name));
             } else {
-                tools.push(this.escapeHtml(skill.name));
+                tools.push(this.formatText(skill.name));
             }
         });
 
@@ -967,8 +967,8 @@ class PDFGenerator {
                 const bullets = this.generateBulletPoints(pos.bulletPoints);
                 return `
         <div class="subheader">
-            <div class="title">${this.escapeHtml(pos.position || '')}${pos.organization ? ` | ${this.escapeHtml(pos.organization)}` : ''}</div>
-            <div class="date">${this.escapeHtml(pos.duration || '')}</div>
+            <div class="title">${this.formatText(pos.position || '')}${pos.organization ? ` | ${this.formatText(pos.organization)}` : ''}</div>
+            <div class="date">${this.formatText(pos.duration || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -999,14 +999,14 @@ class PDFGenerator {
             .map(([category, items]) => {
                 const itemList = items
                     .map(item => {
-                        const date = item.date ? `<span style="font-style: italic; float: right;">${this.escapeHtml(item.date)}</span>` : '';
-                        return `<li>${this.escapeHtml(item.description || '')} ${date}</li>`;
+                        const date = item.date ? `<span style="font-style: italic; float: right;">${this.formatText(item.date)}</span>` : '';
+                        return `<li>${this.formatText(item.description || '')} ${date}</li>`;
                     })
                     .join('');
                 
                 return `
         <div class="extra-item">
-            <div class="extra-category">${this.escapeHtml(category)}</div>
+            <div class="extra-category">${this.formatText(category)}</div>
             <div class="extra-content">
                 <ul>${itemList}</ul>
             </div>
@@ -1027,11 +1027,31 @@ class PDFGenerator {
         if (bulletPoints && bulletPoints.length > 0) {
             const validBullets = bulletPoints.filter(point => point && point.trim());
             if (validBullets.length > 0) {
-                return validBullets
+                // Process each bullet point and split by bullet characters or periods followed by spaces
+                const allBullets = [];
+                
+                validBullets.forEach(point => {
+                    // Split by bullet characters (•) or periods followed by spaces
+                    let splitPoints = point.split(/[•·]/).filter(p => p.trim());
+                    
+                    // If no bullet characters found, try splitting by ". " (period followed by space)
+                    if (splitPoints.length === 1) {
+                        splitPoints = point.split(/\.\s+/).filter(p => p.trim());
+                    }
+                    
+                    // Add each split point to the array
+                    splitPoints.forEach(splitPoint => {
+                        const trimmed = splitPoint.trim();
+                        if (trimmed) {
+                            allBullets.push(trimmed);
+                        }
+                    });
+                });
+                
+                return allBullets
                     .map(point => {
-                        // Format bullet points with strong tags for action verbs
-                        const formattedPoint = point.replace(/^(<strong>)?([A-Z][a-z]+[a-z]*)<\/strong>?\s*/i, 
-                            (match, p1, p2) => `<strong>${p2}</strong>`);
+                        // Apply markdown formatting to bullet points
+                        const formattedPoint = this.formatText(point);
                         return `<li>${formattedPoint}</li>`;
                     })
                     .join('');
@@ -1040,14 +1060,29 @@ class PDFGenerator {
         return '';
     }
 
-    escapeHtml(text) {
+    // Format text with markdown-style formatting and HTML escaping
+    formatText(text) {
         if (!text) return '';
-        return text.toString()
+        
+        // First escape HTML entities for security
+        let escaped = text.toString()
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+        
+        // Then apply markdown formatting
+        return escaped
+            // Handle bold text: **text** -> <strong>text</strong>
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // Handle italic text: __text__ -> <em>text</em>
+            .replace(/__(.*?)__/g, '<em>$1</em>');
+    }
+
+    // Legacy method for backward compatibility
+    escapeHtml(text) {
+        return this.formatText(text);
     }
 
     async closeBrowser() {
