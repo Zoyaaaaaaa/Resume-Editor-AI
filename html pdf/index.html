@@ -20,10 +20,10 @@
                     <i class="fas fa-download"></i> Download PDF
                 </button>
                 <label for="role">Select Role:</label>
-                <select id="role" >
-                <option value="software">Software/IT</option>
-                <option value="datascience">Data Science</option>
-                <option value="consulting">Consulting</option>
+                <select id="role">
+                    <option value="software">Software/IT</option>
+                    <option value="datascience">Data Science</option>
+                    <option value="consulting">Consulting</option>
                 </select>
             </div>
         </header>
@@ -59,37 +59,72 @@
                         </button>
                     </section>
 
+                    <!-- Role-Based Suggestions -->
+                    <section class="form-section box" id="roleSuggestions">
+                        <h2>Section Recommendations</h2>
+                        <div id="roleInfo">
+                            <h4 id="roleTitle">Software/IT Resume</h4>
+                            <p id="roleDescription">For software and IT roles, emphasize technical skills, relevant projects, and professional experience.</p>
+                            <div id="suggestionLegend">
+                                <small>
+                                    <span style="color: #155724;">🟢 Highly Recommended</span> |
+                                    <span style="color: #856404;">🟡 Recommended</span> |
+                                    <span style="color: #721c24;">🔴 Optional</span>
+                                </small>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Section Reordering Controls -->
                     <section class="form-section box">
                         <h2>Section Order</h2>
                         <div class="section-reorder-container">
-                            <p>Drag sections to reorder them:</p>
+                            <p>Drag sections to reorder them (suggested order based on selected role):</p>
                             <div id="sectionOrderContainer" class="section-order-list">
-                                <div class="section-order-item" data-section="areasOfInterest">
-                                    <i class="fas fa-grip-vertical"></i>
-                                    <span>Areas of Interest</span>
-                                </div>
-                                <div class="section-order-item" data-section="education">
-                                    <i class="fas fa-grip-vertical"></i>
-                                    <span>Education</span>
-                                </div>
                                 <div class="section-order-item" data-section="experience">
                                     <i class="fas fa-grip-vertical"></i>
                                     <span>Professional Experience</span>
+                                    <small id="experience-suggestion" style="margin-left: 10px; color: #155724;">🟢 Highly Recommended</small>
                                 </div>
-                                <div class="section-order-item" data-section="achievements">
+                                <div class="section-order-item" data-section="skills">
                                     <i class="fas fa-grip-vertical"></i>
-                                    <span>Achievements</span>
+                                    <span>Skills</span>
+                                    <small id="skills-suggestion" style="margin-left: 10px; color: #155724;">🟢 Highly Recommended</small>
                                 </div>
                                 <div class="section-order-item" data-section="projects">
                                     <i class="fas fa-grip-vertical"></i>
                                     <span>Key Projects</span>
+                                    <small id="projects-suggestion" style="margin-left: 10px; color: #155724;">🟢 Highly Recommended</small>
+                                </div>
+                                <div class="section-order-item" data-section="education">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Education</span>
+                                    <small id="education-suggestion" style="margin-left: 10px; color: #856404;">🟡 Recommended</small>
+                                </div>
+                                <div class="section-order-item" data-section="achievements">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Achievements</span>
+                                    <small id="achievements-suggestion" style="margin-left: 10px; color: #856404;">🟡 Recommended</small>
+                                </div>
+                                <div class="section-order-item" data-section="areasOfInterest">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Areas of Interest</span>
+                                    <small id="areasOfInterest-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
                                 </div>
                                 <div class="section-order-item" data-section="positionOfResponsibility">
                                     <i class="fas fa-grip-vertical"></i>
                                     <span>Position of Responsibility</span>
+                                    <small id="positionOfResponsibility-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
+                                </div>
+                                <div class="section-order-item" data-section="publications">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Publications</span>
+                                    <small id="publications-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
                                 </div>
                             </div>
+                            <button class="btn btn-primary" id="applySuggestedOrder">
+                                <i class="fas fa-magic"></i> Apply Suggested Order
+                            </button>
                             <button class="btn btn-primary" id="saveSectionOrder">
                                 <i class="fas fa-save"></i> Save Section Order
                             </button>
@@ -112,162 +147,231 @@
                         </div>
                     </section>
 
+                    <!--SKILLS-->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Skills</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-secondary" id="generateTechnicalSkills">
+                                    <i class="fas fa-magic"></i> Auto Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="skills">Skills</label>
+                            <textarea id="skills" name="skills" rows="2" placeholder="List your skills separated by | (pipe)"></textarea>
+                        </div>
+                    </section>
+
                     <!-- Experience Section -->
-<section class="form-section box">
-    <div class="section-header">
-        <h2>Experience</h2>
-        <div class="section-actions">
-            <button class="btn btn-add" id="addExperience">
-                <i class="fas fa-plus"></i> Add Experience
-            </button>
-        </div>
-    </div>
-    <div id="experienceContainer">
-        <div class="experience-entry">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Position</label>
-                    <input type="text" name="position" placeholder="Job Title">
-                </div>
-                <div class="form-group">
-                    <label>Company</label>
-                    <input type="text" name="company" placeholder="Company Name">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" name="location" placeholder="Work Location">
-                </div>
-                <div class="form-group">
-                    <label>Dates</label>
-                    <input type="text" name="dates" placeholder="Employment Period">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="6" placeholder="• First key responsibility or achievement&#10;• Second key responsibility or achievement&#10;• Third key responsibility or achievement"></textarea>
-            </div>
-        </div>
-    </div>
-</section>
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Experience</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addExperience">
+                                    <i class="fas fa-plus"></i> Add Experience
+                                </button>
+                            </div>
+                        </div>
+                        <div id="experienceContainer">
+                            <div class="experience-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Position</label>
+                                        <input type="text" name="position" placeholder="Job Title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Company</label>
+                                        <input type="text" name="company" placeholder="Company Name">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Location</label>
+                                        <input type="text" name="location" placeholder="Work Location">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Dates</label>
+                                        <input type="text" name="dates" placeholder="Employment Period">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="6" placeholder="• First key responsibility or achievement&#10;• Second key responsibility or achievement&#10;• Third key responsibility or achievement"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-<!-- Achievements Section -->
-<section class="form-section box">
-    <div class="section-header">
-        <h2>Achievements</h2>
-        <div class="section-actions">
-            <button class="btn btn-add" id="addAchievement">
-                <i class="fas fa-plus"></i> Add Achievement
-            </button>
-        </div>
-    </div>
-    <div id="achievementsContainer">
-        <div class="achievement-entry">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" placeholder="Achievement Title">
-                </div>
-                <div class="form-group">
-                    <label>Organization</label>
-                    <input type="text" name="organization" placeholder="Organization/Institution">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input type="text" name="date" placeholder="Achievement Date">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="6" placeholder="• First key point about the achievement&#10;• Second key point about the achievement&#10;• Third key point about the achievement"></textarea>
-            </div>
-        </div>
-    </div>
-</section>
+                    <!-- Achievements Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Achievements</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addAchievement">
+                                    <i class="fas fa-plus"></i> Add Achievement
+                                </button>
+                            </div>
+                        </div>
+                        <div id="achievementsContainer">
+                            <div class="achievement-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" name="title" placeholder="Achievement Title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Organization</label>
+                                        <input type="text" name="organization" placeholder="Organization/Institution">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="text" name="date" placeholder="Achievement Date">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="6" placeholder="• First key point about the achievement&#10;• Second key point about the achievement&#10;• Third key point about the achievement"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-<!-- Position of Responsibility Section -->
-<section class="form-section box">
-    <div class="section-header">
-        <h2>Position of Responsibility</h2>
-        <div class="section-actions">
-            <button class="btn btn-add" id="addPosition">
-                <i class="fas fa-plus"></i> Add Position
-            </button>
-        </div>
-    </div>
-    <div id="positionContainer">
-        <div class="position-entry">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Position</label>
-                    <input type="text" name="position" placeholder="Position/Role Name">
-                </div>
-                <div class="form-group">
-                    <label>Organization</label>
-                    <input type="text" name="organization" placeholder="Organization Name">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Institution</label>
-                    <input type="text" name="institution" placeholder="Institution Name">
-                </div>
-                <div class="form-group">
-                    <label>Dates</label>
-                    <input type="text" name="dates" placeholder="Time Period">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="6" placeholder="• First key responsibility&#10;• Second key responsibility&#10;• Third key responsibility"></textarea>
-            </div>
-        </div>
-    </div>
-</section>
+                    <!-- Position of Responsibility Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Position of Responsibility</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addPosition">
+                                    <i class="fas fa-plus"></i> Add Position
+                                </button>
+                            </div>
+                        </div>
+                        <div id="positionContainer">
+                            <div class="position-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Position</label>
+                                        <input type="text" name="position" placeholder="Position/Role Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Organization</label>
+                                        <input type="text" name="organization" placeholder="Organization Name">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Institution</label>
+                                        <input type="text" name="institution" placeholder="Institution Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Dates</label>
+                                        <input type="text" name="dates" placeholder="Time Period">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="6" placeholder="• First key responsibility&#10;• Second key responsibility&#10;• Third key responsibility"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-<!-- Key Projects Section -->
-<section class="form-section box">
-    <div class="section-header">
-        <h2>Key Projects</h2>
-        <div class="section-actions">
-            <button class="btn btn-add" id="addProject">
-                <i class="fas fa-plus"></i> Add Project
-            </button>
-        </div>
-    </div>
-    <div id="projectsContainer">
-        <div class="project-entry">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" placeholder="Project Name">
-                </div>
-                <div class="form-group">
-                    <label>Organization</label>
-                    <input type="text" name="organization" placeholder="Organization or Course">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Duration</label>
-                    <input type="text" name="duration" placeholder="Project Timeline">
-                </div>
-                <div class="form-group">
-                    <label>Technologies</label>
-                    <input type="text" name="technologies" placeholder="Technologies/Tools Used">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="6" placeholder="• First key aspect of the project&#10;• Second key aspect of the project&#10;• Third key aspect of the project"></textarea>
-            </div>
-        </div>
-    </div>
-</section>
+                    <!-- Key Projects Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Key Projects</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addProject">
+                                    <i class="fas fa-plus"></i> Add Project
+                                </button>
+                            </div>
+                        </div>
+                        <div id="projectsContainer">
+                            <div class="project-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" name="title" placeholder="Project Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Organization</label>
+                                        <input type="text" name="organization" placeholder="Organization or Course">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Duration</label>
+                                        <input type="text" name="duration" placeholder="Project Timeline">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Technologies</label>
+                                        <input type="text" name="technologies" placeholder="Technologies/Tools Used">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="6" placeholder="• First key aspect of the project&#10;• Second key aspect of the project&#10;• Third key aspect of the project"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-        <!-- Education Section -->
-
+                    <!-- Publications Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Publications</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addPublication">
+                                    <i class="fas fa-plus"></i> Add Publication
+                                </button>
+                            </div>
+                        </div>
+                        <div id="publicationsContainer">
+                            <div class="publication-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" name="title" placeholder="Publication Title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Journal/Conference</label>
+                                        <input type="text" name="journal" placeholder="Journal or Conference Name">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Authors</label>
+                                        <input type="text" name="authors" placeholder="List of authors (comma separated)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date</label>
+                                        <input type="text" name="date" placeholder="Publication Date">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>DOI/URL</label>
+                                        <input type="text" name="doi" placeholder="DOI or URL">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select name="status">
+                                            <option value="">Select status</option>
+                                            <option value="Published">Published</option>
+                                            <option value="Submitted">Submitted</option>
+                                            <option value="In Review">In Review</option>
+                                            <option value="In Preparation">In Preparation</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="4" placeholder="Brief description of the publication"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
                     <!-- Education Section -->
                     <section class="form-section box">
@@ -330,5 +434,118 @@
     <script src="js/app.js"></script>
     <script src="js/formHandler.js"></script>
     <script src="js/pdfPreview.js"></script>
+    
+    <script>
+        // Role-based section recommendations
+        const roleRecommendations = {
+            software: {
+                title: "Software/IT Resume",
+                description: "For software and IT roles, emphasize technical skills, relevant projects, and professional experience.",
+                order: ["experience", "skills", "projects", "education", "achievements", "areasOfInterest", "positionOfResponsibility", "publications"],
+                priorities: {
+                    experience: "highly-recommended",
+                    skills: "highly-recommended", 
+                    projects: "highly-recommended",
+                    education: "recommended",
+                    achievements: "recommended",
+                    areasOfInterest: "optional",
+                    positionOfResponsibility: "optional",
+                    publications: "optional"
+                }
+            },
+            datascience: {
+                title: "Data Science Resume",
+                description: "For data science roles, highlight technical skills, relevant projects, publications, and analytical experience.",
+                order: ["experience", "skills", "projects", "education", "publications", "achievements", "areasOfInterest", "positionOfResponsibility"],
+                priorities: {
+                    experience: "highly-recommended",
+                    skills: "highly-recommended",
+                    projects: "highly-recommended", 
+                    education: "highly-recommended",
+                    publications: "highly-recommended",
+                    achievements: "recommended",
+                    areasOfInterest: "optional",
+                    positionOfResponsibility: "optional"
+                }
+            },
+            consulting: {
+                title: "Consulting Resume",
+                description: "For consulting roles, emphasize leadership experience, achievements, and positions of responsibility.",
+                order: ["experience", "positionOfResponsibility", "achievements", "education", "skills", "areasOfInterest", "projects", "publications"],
+                priorities: {
+                    experience: "highly-recommended",
+                    positionOfResponsibility: "highly-recommended",
+                    achievements: "highly-recommended",
+                    education: "highly-recommended",
+                    skills: "recommended",
+                    areasOfInterest: "recommended",
+                    projects: "optional",
+                    publications: "optional"
+                }
+            }
+        };
+
+        // Function to update role recommendations
+        function updateRoleRecommendations() {
+            const selectedRole = document.getElementById('role').value;
+            const recommendation = roleRecommendations[selectedRole];
+            
+            // Update role info
+            document.getElementById('roleTitle').textContent = recommendation.title;
+            document.getElementById('roleDescription').textContent = recommendation.description;
+            
+            // Update section priorities
+            Object.keys(recommendation.priorities).forEach(section => {
+                const suggestionElement = document.getElementById(`${section}-suggestion`);
+                if (suggestionElement) {
+                    const priority = recommendation.priorities[section];
+                    let badge, color;
+                    
+                    switch(priority) {
+                        case 'highly-recommended':
+                            badge = '🟢 Highly Recommended';
+                            color = '#155724';
+                            break;
+                        case 'recommended':
+                            badge = '🟡 Recommended';
+                            color = '#856404';
+                            break;
+                        case 'optional':
+                            badge = '🔴 Optional';
+                            color = '#721c24';
+                            break;
+                    }
+                    
+                    suggestionElement.textContent = badge;
+                    suggestionElement.style.color = color;
+                }
+            });
+        }
+
+        // Function to apply suggested section order
+        function applySuggestedOrder() {
+            const selectedRole = document.getElementById('role').value;
+            const recommendation = roleRecommendations[selectedRole];
+            const container = document.getElementById('sectionOrderContainer');
+            
+            // Reorder sections based on recommendation
+            const orderedElements = recommendation.order.map(sectionName => {
+                return container.querySelector(`[data-section="${sectionName}"]`);
+            }).filter(el => el !== null);
+            
+            // Clear container and append in new order
+            container.innerHTML = '';
+            orderedElements.forEach(element => {
+                container.appendChild(element);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('role').addEventListener('change', updateRoleRecommendations);
+        document.getElementById('applySuggestedOrder').addEventListener('click', applySuggestedOrder);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', updateRoleRecommendations);
+    </script>
 </body>
 </html>

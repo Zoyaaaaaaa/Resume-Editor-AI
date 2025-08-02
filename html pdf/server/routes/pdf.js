@@ -12,7 +12,9 @@ const validateResumeData = [
     body('personalInfo.phone').optional().isString().trim().isLength({ max: 20 }),
     body('personalInfo.location').optional().isString().trim().isLength({ max: 100 }),
     body('areasOfInterest').optional().isString().trim().isLength({ max: 500 }),
+    body('skills').optional().isString().trim().isLength({ max: 500 }),
     body('experience').optional().isArray(),
+    body('publications').optional().isArray(),
     body('projects').optional().isArray(),
     body('education').optional().isArray(),
     body('extracurricular').optional().isArray()

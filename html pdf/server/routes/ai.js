@@ -25,26 +25,26 @@ const checkAIService = async (req, res, next) => {
 // Validation middleware for AI enhancement
 const validateEnhancementRequest = [
     body('section').isString().isIn([
-        'experience', 
-        'projects', 
-        'education', 
-        'extracurricular', 
-        'skills', 
+        'experience',
+        'projects',
+        'education',
+        'extracurricular',
+        'skills',
         'summary'
     ]),
     body('content').isString().trim().isLength({ min: 10, max: 5000 }),
     body('jobDescription').optional().isString().trim().isLength({ max: 10000 }),
     body('enhancementType').optional().isString().isIn([
-        'ats-optimization', 
-        'content-improvement', 
+        'ats-optimization',
+        'content-improvement',
         'keyword-enhancement'
     ])
 ];
 
 // AI Enhancement endpoint
-router.post('/enhance', 
+router.post('/enhance',
     checkAIService,
-    validateEnhancementRequest, 
+    validateEnhancementRequest,
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -57,7 +57,6 @@ router.post('/enhance',
             }
 
             const { section, content, jobDescription, enhancementType = 'content-improvement' } = req.body;
-
             const enhancedContent = await aiService.enhanceContent({
                 section,
                 content,
@@ -73,7 +72,6 @@ router.post('/enhance',
                 enhancementType,
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             next(error);
         }
@@ -81,12 +79,12 @@ router.post('/enhance',
 );
 
 // ATS Score Analysis endpoint
-router.post('/ats-score', 
+router.post('/ats-score',
     checkAIService,
     [
         body('resumeData').isObject(),
         body('jobDescription').optional().isString().trim().isLength({ max: 10000 })
-    ], 
+    ],
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -106,7 +104,6 @@ router.post('/ats-score',
                 ...analysis,
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             next(error);
         }
@@ -114,11 +111,11 @@ router.post('/ats-score',
 );
 
 // Keyword extraction endpoint
-router.post('/extract-keywords', 
+router.post('/extract-keywords',
     checkAIService,
     [
         body('jobDescription').isString().trim().isLength({ min: 50, max: 10000 })
-    ], 
+    ],
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -138,7 +135,6 @@ router.post('/extract-keywords',
                 ...keywords,
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             next(error);
         }
@@ -146,14 +142,14 @@ router.post('/extract-keywords',
 );
 
 // Content suggestions endpoint
-router.post('/suggest-content', 
+router.post('/suggest-content',
     checkAIService,
     [
         body('section').isString().isIn(['experience', 'projects', 'skills', 'summary']),
         body('role').optional().isString().trim().isLength({ max: 100 }),
         body('industry').optional().isString().trim().isLength({ max: 50 }),
         body('experienceLevel').optional().isString().isIn(['entry', 'mid', 'senior', 'executive'])
-    ], 
+    ],
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -179,25 +175,22 @@ router.post('/suggest-content',
                 ...suggestions,
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             next(error);
         }
     }
 );
 
-
-
-
-router.post('/enhance-point', 
+// Point enhancement endpoint
+router.post('/enhance-point',
     checkAIService,
     [
         body('section').isString().isIn(['experience', 'projects', 'education', 'areasOfInterest', 'positionOfResponsibility']),
         body('content').isString().trim().isLength({ min: 1, max: 1000 }),
         body('context').optional().isString().trim().isLength({ max: 2000 }),
         body('jobDescription').optional().isString().trim().isLength({ max: 5000 }),
-        body('jobRole').optional().isString().isIn(['software', 'datascience', 'consulting']).default('software')
-    ], 
+        body('role').optional().isString().isIn(['software', 'datascience', 'consulting']).default('software')
+    ],
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -209,14 +202,13 @@ router.post('/enhance-point',
                 });
             }
 
-            const { section, content, context, jobDescription, jobRole = 'software' } = req.body;
-            console.log("SECTIONS:->>> ", section);
-            console.log("CONTENT:->>> ", content);
-            console.log("CONTEXT:->>> ", context);
-            console.log("JOB DESCRIPTION:->>> ", jobDescription);
-            console.log("JOB ROLE:->>> ", jobRole);
+            const { section, content, context, jobDescription, role = 'software' } = req.body;
+            console.log("SECTION: ", section);
+            console.log("CONTENT: ", content);
+            console.log("CONTEXT: ", context);
+            console.log("JOB DESCRIPTION: ", jobDescription);
+            console.log("ROLE: ", role);
 
-            // Role-specific data
             const roleData = {
                 software: {
                     actionVerbs: ['Developed', 'Implemented', 'Designed', 'Architected', 'Optimized', 'Enhanced', 'Built', 'Deployed', 'Integrated', 'Debugged', 'Maintained', 'Scaled'],
@@ -235,274 +227,146 @@ router.post('/enhance-point',
                 }
             };
 
-            // Generate role and section-specific prompt with improved flexibility
-            function generatePrompt(section, content, context, jobDescription, jobRole) {
-                const role = roleData[jobRole];
+            function generatePrompt(section, content, context, jobDescription, role, enhancementCount = 1) {
+                const roleInfo = roleData[role];
                 let prompt = '';
+
+                const warning = enhancementCount > 2
+                    ? `ENHANCEMENT #${enhancementCount}: Previous attempts may have quality issues. Focus on IMPACT framework and avoid repetition.\n\n`
+                    : '';
+
                 switch (section) {
-    case 'experience':
-        if (jobRole === 'software') {
-            prompt = `**Create exactly 3 enhanced bullet points** from this software/IT experience for maximum technical impact.
+                    case 'experience':
+                        prompt = `${warning}**Create exactly 3 IMPACTFUL bullet points** from this ${role} experience using the WHAT-HOW-EFFECT framework.
 
 **Original point:** "${content}"
 ${context ? `**Context/Role:** ${context}` : ''}
 ${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
 
-**TECHNICAL ENHANCEMENT REQUIREMENTS:**
-- **Lead with powerful action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-- **Incorporate relevant technical keywords:** ${role.keywords.slice(0, 6).join(', ')}
-- **Highlight applicable technologies:** ${role.skills.slice(0, 8).join(', ')} (only if relevant to the original content)
-- Follow **Action + Technology + Implementation + Impact** structure
-- Emphasize technical problem-solving and solutions implemented
-- **Include specific outcomes ONLY if mentioned** in original content or context
-- Focus on technical contributions and their significance
+**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
+Each bullet point MUST follow: **WHAT (Action) + HOW (Method/Technology) + EFFECT (Result/Impact)**
 
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize character space for impactful, clear, and professional results
-- Prioritize meaningful enhancement over strict limits
+**WHAT**: Clear action verb describing what you did
+**HOW**: Specific method, technology, or approach used (ONLY from original content)
+**EFFECT**: Measurable outcome, learning, or impact achieved
 
-**QUALITY STANDARDS:**
-- **Professional and impactful language**
-- **NO fabricated numbers or metrics** unless present in original
-- **Maintain complete truthfulness** to original meaning
-- **Bold key technical terms** and achievements naturally
-- **MUST return exactly 3 bullet points**
+**TECHNOLOGY GUARDRAILS:**
+- ONLY use technologies/frameworks EXPLICITLY mentioned in original content
+- NEVER fabricate or add technologies not present in original text
+- NO invented metrics or performance numbers
 
-**Return ONLY 3 enhanced technical bullet points - no explanations or character counts.**`;
+**QUALITY CONTROLS:**
+- **Character count**: 79-85 characters (primary) OR 160-170 characters if needed
+- **No orphan words**: Ensure complete phrases
+- **No repetition**: Each bullet unique
+- **Action verbs**: ${roleInfo.actionVerbs.slice(0, 8).join(', ')}
+- **Technical keywords**: ${roleInfo.keywords.slice(0, 6).join(', ')}
 
-        } else if (jobRole === 'datascience') {
-            prompt = `**Create exactly 3 enhanced bullet points** from this data science experience emphasizing analytical expertise.
+**RETURN FORMAT:**
+Return EXACTLY 3 bullet points, each following WHAT-HOW-EFFECT. NO explanations or additional text.`;
+                        break;
 
-**Original point:** "${content}"
-${context ? `**Context/Role:** ${context}` : ''}
-${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-**DATA SCIENCE ENHANCEMENT REQUIREMENTS:**
-- **Use analytical action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-- **Include relevant ML/analytics keywords:** ${role.keywords.slice(0, 6).join(', ')}
-- **Highlight applicable data science tools:** ${role.skills.slice(0, 8).join(', ')} (only if relevant)
-- Follow **Action + Data/Model + Methodology + Impact** structure
-- Emphasize analytical approach and insights delivered
-- **Include metrics ONLY if mentioned** in original content
-- Focus on data-driven problem solving and methodology
-
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize character count for analytical impact
-
-**QUALITY STANDARDS:**
-- **NO fabricated accuracy percentages or performance metrics**
-- Emphasize analytical methodology and approach
-- **Bold key data science terms** and methodologies
-- **MUST return exactly 3 bullet points**
-
-**Return ONLY 3 enhanced data science bullet points.**`;
-
-        } else {
-            prompt = `**Create exactly 3 enhanced bullet points** from this consulting experience showcasing strategic thinking.
-
-**Original point:** "${content}"
-${context ? `**Context/Role:** ${context}` : ''}
-${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-**CONSULTING ENHANCEMENT REQUIREMENTS:**
-- **Use strategic action verbs:** ${role.actionVerbs.slice(0, 8).join(', ')}
-- **Include business impact keywords:** ${role.keywords.slice(0, 6).join(', ')}
-- **Highlight relevant consulting skills:** ${role.skills.slice(0, 6).join(', ')} (only if applicable)
-- Follow **Action + Client/Business + Methodology + Value** structure
-- Emphasize strategic solutions and problem-solving approach
-- **Include business outcomes ONLY if mentioned** in original
-- Focus on client value and strategic contributions
-
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize characters for maximum clarity and strategic impact
-
-**QUALITY STANDARDS:**
-- **NO fabricated cost savings or revenue figures**
-- Professional business language with strategic focus
-- **Bold key strategic terms** and methodologies
-- **MUST return exactly 3 bullet points**
-
-**Return ONLY 3 enhanced consulting bullet points.**`;
-        }
-        break;
-
-    case 'projects':
-        if (jobRole === 'software') {
-            prompt = `**Create exactly 3 enhanced bullet points** from this software project highlighting technical implementation.
+                    case 'projects':
+                        prompt = `${warning}**Create exactly 3 IMPACTFUL bullet points** from this ${role} project using the WHAT-HOW-EFFECT framework.
 
 **Original point:** "${content}"
 ${context ? `**Project Context:** ${context}` : ''}
 ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 
-**PROJECT ENHANCEMENT FOCUS:**
-- **Start with technical action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-- **Showcase relevant technology stack:** ${role.skills.slice(0, 8).join(', ')} (only if applicable to project)
-- **Highlight technical keywords:** ${role.keywords.slice(0, 4).join(', ')}
-- Emphasize technical challenges addressed and solutions implemented
-- **Include project outcomes ONLY if mentioned** in original content
-- Focus on technical implementation and learning
+**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
+Each bullet point MUST follow: **WHAT (Development) + HOW (Technology) + EFFECT (Outcome)**
 
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize space for rich technical expression
-- **NO fabricated user numbers or performance metrics**
-- **Bold technical technologies** and key implementations
+**WHAT**: Technical development action or feature implemented
+**HOW**: Specific technology or implementation approach (ONLY from original)
+**EFFECT**: Technical outcome or learning achieved
 
-**MUST return exactly 3 bullet points.**
+**PROJECT GUARDRAILS:**
+- ONLY use technologies/frameworks EXPLICITLY mentioned
+- NEVER fabricate metrics or user numbers
 
-**Return ONLY 3 enhanced project bullet points.**`;
+**QUALITY CONTROLS:**
+- **Character count**: 79-85 characters (primary) OR 160-170 characters if needed
+- **Technical verbs**: ${roleInfo.actionVerbs.slice(0, 6).join(', ')}
+- **Tech keywords**: ${roleInfo.keywords.slice(0, 4).join(', ')}
 
-        } else if (jobRole === 'datascience') {
-            prompt = `**Create exactly 3 enhanced bullet points** from this data science project showcasing analytical methodology.
+**RETURN FORMAT:**
+Return EXACTLY 3 bullet points. NO explanations or additional text.`;
+                        break;
 
-**Original point:** "${content}"
-${context ? `**Project Context:** ${context}` : ''}
-${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-**PROJECT ENHANCEMENT FOCUS:**
-- **Use analytical action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-- **Highlight relevant DS tools:** ${role.skills.slice(0, 8).join(', ')} (only if used in project)
-- **Include analytical keywords:** ${role.keywords.slice(0, 4).join(', ')}
-- Emphasize data sources, methodology, and analytical approach
-- **Include project insights ONLY if mentioned** in original
-- Focus on analytical workflow and learning outcomes
-
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize space for detailed insight without fabrication
-- **Bold key analytical methods** and tools used
-
-**MUST return exactly 3 bullet points.**
-
-**Return ONLY 3 enhanced project bullet points.**`;
-
-        } else {
-            prompt = `**Create exactly 3 enhanced bullet points** from this consulting project emphasizing strategic approach.
-
-**Original point:** "${content}"
-${context ? `**Project Context:** ${context}` : ''}
-${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-**PROJECT ENHANCEMENT FOCUS:**
-- **Lead with strategic action verbs:** ${role.actionVerbs.slice(0, 6).join(', ')}
-- **Highlight relevant frameworks:** ${role.skills.slice(0, 6).join(', ')} (only if applicable)
-- **Include business keywords:** ${role.keywords.slice(0, 4).join(', ')}
-- Emphasize problem-solving approach and strategic methodology
-- **Include project outcomes ONLY if mentioned** in original
-- Focus on strategic thinking and client approach
-
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- Fully utilize space for impactful, strategic content
-- **NO fabricated business impact figures**
-- **Bold strategic methodologies** and frameworks used
-
-**MUST return exactly 3 bullet points.**
-
-**Return ONLY 3 enhanced project bullet points.**`;
-        }
-        break;
-
-    case 'education':
-        prompt = `**Create exactly 3 enhanced bullet points** from this education point highlighting academic achievements.
+                    case 'education':
+                        prompt = `${warning}**Create exactly 1 SINGLE-LINE description** from this education entry.
 
 **Original point:** "${content}"
 ${context ? `**Academic Context:** ${context}` : ''}
 
-**EDUCATION ENHANCEMENT:**
-- **Use achievement-focused verbs:** Completed, Achieved, Specialized, Graduated, Earned
-- Highlight relevant coursework, academic projects, or honors **ONLY if mentioned**
-- Include technical skills or methodologies learned **if applicable**
-- Mention leadership roles or academic contributions **if present in original**
+**REQUIREMENTS:**
+- Single continuous line (max 120 chars)
+- NO line breaks or bullets
 
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- No GPA, awards, or ranks should be fabricated
-- **Bold degree, institution, or honors** only if present
+**RETURN FORMAT:**
+Return EXACTLY 1 single-line description. NO additional text.`;
+                        break;
 
-**MUST return exactly 3 bullet points.**
-
-**Return ONLY 3 enhanced education bullet points.**`;
-        break;
-
-    case 'areasOfInterest':
-        prompt = `**Transform this into 5 key professional interest domains** separated by pipe (|) symbols.
+                    case 'areasOfInterest':
+                        prompt = `${warning}**Transform this into 5 professional interest domains** separated by |.
 
 **Original content:** "${content}"
-${context ? `**Context:** ${context}` : ''}
 
-**AREAS OF INTEREST FORMAT:**
-- Create **5 broad professional domains** relevant to ${jobRole} career
-- Use format: **Domain 1 | Domain 2 | Domain 3 | Domain 4 | Domain 5**
-- **Bold key terms** within each domain
-- Focus on: emerging technologies, methodologies, industry trends, research areas, professional development
-- Ensure domains are **broad yet specific** to show professional curiosity
-- Connect to current industry developments and career growth
+**REQUIREMENTS:**
+- 5 distinct domains relevant to ${role}
+- 2-4 words each, separated by |
+- Bold key terms
 
-**Return ONLY the 5 domains separated by pipe symbols.**`;
-        break;
+**RETURN FORMAT:**
+Return ONLY the pipe-separated domains.`;
+                        break;
 
-    case 'positionOfResponsibility':
-        prompt = `**Create exactly 3 enhanced bullet points** from this leadership position showcasing management skills.
+                    case 'positionOfResponsibility':
+                        prompt = `${warning}**Create exactly 3 IMPACTFUL bullet points** from this leadership position.
 
 **Original point:** "${content}"
 ${context ? `**Leadership Context:** ${context}` : ''}
 
-**LEADERSHIP ENHANCEMENT:**
-- **Use leadership verbs:** Led, Managed, Coordinated, Facilitated, Mentored, Organized
-- Highlight scope of responsibility or initiatives managed **if mentioned**
-- Include team impact or organizational contributions **ONLY if present** in original
-- Show leadership approach and people development skills
-- Emphasize collaboration and results delivery
+**CRITICAL IMPACT FRAMEWORK:**
+WHAT + HOW + EFFECT
 
-**CHARACTER LENGTH GUIDELINES:**
-- **Target: 83–90 characters** for each bullet point (up to 99 characters allowed)
-- No fake team sizes, budgets, or results
-- **Bold leadership roles** and responsibilities
+**QUALITY CONTROLS:**
+- 79-85 chars primary OR 160-170 chars detailed
+- Leadership verbs: Led, Managed, Coordinated, Facilitated, Mentored
 
-**MUST return exactly 3 bullet points.**
-
-**Return ONLY 3 enhanced leadership bullet points.**`;
-        break;
-}
-
+**RETURN FORMAT:**
+Return EXACTLY 3 bullet points. NO additional text.`;
+                        break;
+                }
 
                 return prompt;
             }
 
-            const prompt = generatePrompt(section, content, context, jobDescription, jobRole);
-            console.log("GENERATED PROMPT:->>> ", prompt);
-
-            const enhancedContent = await aiService.generateContent(prompt);
-            console.log("ENHANCED CONTENT-->>", enhancedContent);
-            
-            const cleanedContent = enhancedContent
+            const prompt = generatePrompt(section, content, context, jobDescription, role);
+            const enhancedRaw = await aiService.generateContent(prompt);
+            const cleaned = enhancedRaw
                 .trim()
-                .replace(/^[•\-\*]\s*/, '') // Remove bullet points at start
-                .replace(/\n[•\-\*]\s*/g, '\n') // Remove bullet points from new lines
-                .replace(/^\d+\.\s*/, '') // Remove numbered lists
+                .replace(/^[•\-\*]\s*/, '')
+                .replace(/\n[•\-\*]\s*/g, '\n')
+                .replace(/^\d+\.\s*/, '')
                 .trim();
 
             res.json({
                 success: true,
                 originalContent: content,
-                enhancedContent: cleanedContent,
+                enhancedContent: cleaned,
                 section,
-                jobRole,
+                role,
                 improvements: {
-                    addedMetrics: cleanedContent.includes('%') || /\d+/.test(cleanedContent),
+                    addedMetrics: /\d+/.test(cleaned),
                     improvedActionVerbs: true,
-                    addedTechnicalSkills: roleData[jobRole].skills.some(skill => 
-                        cleanedContent.toLowerCase().includes(skill.toLowerCase())
+                    addedTechnicalSkills: roleData[role].skills.some(s =>
+                        cleaned.toLowerCase().includes(s.toLowerCase())
                     ),
                     enhancementType: 'role-specific-improvement'
                 },
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             console.error('Point enhancement error:', error);
             next(error);
@@ -511,12 +375,12 @@ ${context ? `**Leadership Context:** ${context}` : ''}
 );
 
 // Generate Areas of Interest endpoint
-router.post('/generate-interests', 
+router.post('/generate-interests',
     checkAIService,
     [
         body('resumeData').isObject().withMessage('resumeData must be an object'),
-        body('jobRole').optional().isString().isIn(['software', 'datascience', 'consulting']).default('software')
-    ], 
+        body('role').optional().isString().isIn(['software', 'datascience', 'consulting']).default('software')
+    ],
     async (req, res, next) => {
         try {
             const errors = validationResult(req);
@@ -528,9 +392,8 @@ router.post('/generate-interests',
                 });
             }
 
-            const { resumeData, jobRole = 'software' } = req.body;
+            const { resumeData, role = 'software' } = req.body;
 
-            // Create a summary of the resume for context
             const resumeSummary = {
                 experience: resumeData.experience?.map(exp => ({
                     position: exp.position,
@@ -549,7 +412,7 @@ router.post('/generate-interests',
                 })) || []
             };
 
-            const prompt = `Based on the following resume information, generate appropriate "Areas of Interest" for a ${jobRole} professional.
+            const prompt = `Based on the following resume information, generate appropriate "Areas of Interest" for a ${role} professional.
 
 Resume Summary:
 Experience: ${JSON.stringify(resumeSummary.experience, null, 2)}
@@ -557,30 +420,26 @@ Projects: ${JSON.stringify(resumeSummary.projects, null, 2)}
 Education: ${JSON.stringify(resumeSummary.education, null, 2)}
 
 REQUIREMENTS:
-- Generate 4-6 relevant areas of interest based on the resume content
-- Focus on current industry trends and emerging technologies relevant to ${jobRole}
-- Make interests specific and professional (not generic)
-- Connect interests to career growth and industry evolution
-- Format as a single line separated by | (pipe) character
-- Keep each interest concise (2-4 words)
+- Generate 4-6 relevant areas of interest separated by |
+- Focus on industry trends for ${role}
+- Single line pipe-separated string
 
-EXAMPLES for ${jobRole}:
-${jobRole === 'software' ? 'Cloud Architecture | Machine Learning | DevOps Automation | Microservices | Blockchain Technology | Edge Computing' : 
-  jobRole === 'datascience' ? 'Deep Learning | MLOps | Computer Vision | Natural Language Processing | Big Data Analytics | AI Ethics' :
-  'Digital Transformation | Strategic Analytics | Process Automation | Innovation Management | Sustainable Business | Market Intelligence'}
+EXAMPLES:
+${role === 'software'
+                    ? 'Cloud Architecture | Machine Learning | DevOps Automation | Microservices | Edge Computing'
+                    : role === 'datascience'
+                        ? 'Deep Learning | MLOps | Computer Vision | Natural Language Processing | Big Data Analytics'
+                        : 'Digital Transformation | Strategic Analytics | Process Automation | Innovation Management'}`;
 
-Return ONLY the pipe-separated areas of interest string, no additional text or formatting.`;
-
-            const generatedInterests = await aiService.generateContent(prompt);
-            const cleanedInterests = generatedInterests.trim().replace(/^["""']|["""']$/g, '');
+            const generated = await aiService.generateContent(prompt);
+            const cleanedInterests = generated.trim().replace(/^["']|["']$/g, '');
 
             res.json({
                 success: true,
                 areasOfInterest: cleanedInterests,
-                jobRole,
+                role,
                 timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             console.error('Generate interests error:', error);
             next(error);
@@ -607,7 +466,6 @@ router.get('/status', async (req, res, next) => {
             timestamp: new Date().toISOString(),
             details: status.available ? undefined : status.reason
         });
-
     } catch (error) {
         next(error);
     }
@@ -617,14 +475,14 @@ router.get('/status', async (req, res, next) => {
 router.use((err, req, res, next) => {
     console.error('AI route error:', err);
 
-    const statusCode = err.message.includes('API_KEY') ? 503 : 
-                      err.message.includes('quota') || err.message.includes('rate limit') ? 429 : 
-                      500;
+    const statusCode = err.message.includes('API_KEY') ? 503 :
+        err.message.includes('quota') || err.message.includes('rate limit') ? 429 : 500;
 
     res.status(statusCode).json({
         success: false,
-        error: statusCode === 503 ? 'AI service unavailable' : 
-               statusCode === 429 ? 'Rate limit exceeded' : 'AI service error',
+        error: statusCode === 503 ? 'AI service unavailable'
+            : statusCode === 429 ? 'Rate limit exceeded'
+                : 'AI service error',
         message: err.message,
         statusCode,
         timestamp: new Date().toISOString()

@@ -36,6 +36,7 @@ class ResumeEditorApp {
             const section = btn.getAttribute('data-section');
             this.handleAIEnhancement(section, btn);
         });
+        document.getElementById('role')?.value || 'software';
 
         // These button listeners are now handled by FormHandler
         // No need for box navigation since we removed the box system
@@ -158,14 +159,13 @@ class ResumeEditorApp {
         }
     }
 
-
-
     showLoading(msg='Loading...') {
         this.isLoading=true;
         const o = document.getElementById('loadingOverlay');
         o.querySelector('p').textContent=msg;
         o.style.display='flex';
     }
+
     hideLoading() {
         this.isLoading=false;
         document.getElementById('loadingOverlay').style.display='none';
@@ -184,7 +184,7 @@ class ResumeEditorApp {
     showSuccess(t,d=3000){return this.showMessage(t,'success',d);}    
     showError(t,d=5000){return this.showMessage(t,'error',d);}    
     showInfo(t,d=3000){return this.showMessage(t,'info',d);}    
-
+ 
     // async handleAIEnhancement(section, button) {
     //     const origHTML = button.innerHTML;
     //     const origDisabled = button.disabled;
@@ -195,23 +195,27 @@ class ResumeEditorApp {
     //         const content = this.getSectionContent(section);
     //         if (!content.trim()) { this.showError('No content to enhance.'); return; }
     //         const jobDesc = document.getElementById('jobDescription')?.value || '';
-    //         const res = await fetch('/api/gemini/enhance',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ section, content, jobDescription: jobDesc, enhancementType:'content-improvement' }) });
-    //         if(!res.ok) {
+    //         const res = await fetch('/api/gemini/enhance', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ section, content, jobDescription: jobDesc, enhancementType: 'content-improvement',role })
+    //         });
+    //         if (!res.ok) {
     //             let errMsg;
-    //             try{ errMsg=(await res.json()).message; }catch{ errMsg=await res.text(); }
+    //             try { errMsg = (await res.json()).message; } catch { errMsg = await res.text(); }
     //             console.error(`Enhance API error (${res.status}):`, errMsg);
-    //             throw new Error(errMsg||'Enhancement failed');
+    //             throw new Error(errMsg || 'Enhancement failed');
     //         }
     //         const result = await res.json();
     //         console.log('Enhance result:', result);
     //         const { enhancedContent, improvements, keywordsAdded } = result.enhancedContent || {};
     //         this.applyEnhancedContent(section, { text: enhancedContent, improvements, keywordsAdded });
     //         let msg = 'Content enhanced successfully!';
-    //         if(improvements?.length) msg+= '<br><strong>Improvements:</strong><br>• '+improvements.join('<br>• ');
-    //         if(keywordsAdded?.length) msg+= '<br><strong>Keywords added:</strong><br>• '+keywordsAdded.join('<br>• ');
-    //         this.showSuccess(msg,8000);
-    //         if(window.pdfPreview) this.refreshPreview();
-    //     } catch(err) {
+    //         if (improvements?.length) msg += '<br><strong>Improvements:</strong><br>• ' + improvements.join('<br>• ');
+    //         if (keywordsAdded?.length) msg += '<br><strong>Keywords added:</strong><br>• ' + keywordsAdded.join('<br>• ');
+    //         this.showSuccess(msg, 8000);
+    //         if (window.pdfPreview) this.refreshPreview();
+    //     } catch (err) {
     //         console.error('AI Enhancement error:', err);
     //         this.showError(`Enhancement failed: ${err.message}`);
     //     } finally {
@@ -220,46 +224,59 @@ class ResumeEditorApp {
     //         this.hideLoading();
     //     }
     // }
-    
     async handleAIEnhancement(section, button) {
-        const origHTML = button.innerHTML;
-        const origDisabled = button.disabled;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
-        button.disabled = true;
-        this.showLoading('Enhancing content with AI...');
-        try {
-            const content = this.getSectionContent(section);
-            if (!content.trim()) { this.showError('No content to enhance.'); return; }
-            const jobDesc = document.getElementById('jobDescription')?.value || '';
-            const res = await fetch('/api/gemini/enhance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ section, content, jobDescription: jobDesc, enhancementType: 'content-improvement' })
-            });
-            if (!res.ok) {
-                let errMsg;
-                try { errMsg = (await res.json()).message; } catch { errMsg = await res.text(); }
-                console.error(`Enhance API error (${res.status}):`, errMsg);
-                throw new Error(errMsg || 'Enhancement failed');
-            }
-            const result = await res.json();
-            console.log('Enhance result:', result);
-            const { enhancedContent, improvements, keywordsAdded } = result.enhancedContent || {};
-            this.applyEnhancedContent(section, { text: enhancedContent, improvements, keywordsAdded });
-            let msg = 'Content enhanced successfully!';
-            if (improvements?.length) msg += '<br><strong>Improvements:</strong><br>• ' + improvements.join('<br>• ');
-            if (keywordsAdded?.length) msg += '<br><strong>Keywords added:</strong><br>• ' + keywordsAdded.join('<br>• ');
-            this.showSuccess(msg, 8000);
-            if (window.pdfPreview) this.refreshPreview();
-        } catch (err) {
-            console.error('AI Enhancement error:', err);
-            this.showError(`Enhancement failed: ${err.message}`);
-        } finally {
-            button.innerHTML = origHTML;
-            button.disabled = origDisabled;
-            this.hideLoading();
+    const origHTML = button.innerHTML;
+    const origDisabled = button.disabled;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+    button.disabled = true;
+    this.showLoading('Enhancing content with AI...');
+    try {
+        const content = this.getSectionContent(section);
+        if (!content.trim()) { this.showError('No content to enhance.'); return; }
+
+        const jobDesc = document.getElementById('jobDescription')?.value || '';
+        const selectedRole = document.getElementById('role')?.value || 'software';
+        console.log(selectedRole);
+
+        const res = await fetch('/api/gemini/enhance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                section,
+                content,
+                jobDescription: jobDesc,
+                enhancementType: 'content-improvement',
+                role: selectedRole
+            })
+        });
+
+        if (!res.ok) {
+            let errMsg;
+            try { errMsg = (await res.json()).message; } catch { errMsg = await res.text(); }
+            console.error(`Enhance API error (${res.status}):`, errMsg);
+            throw new Error(errMsg || 'Enhancement failed');
         }
+
+        const result = await res.json();
+        const { enhancedContent, improvements, keywordsAdded } = result.enhancedContent || {};
+        this.applyEnhancedContent(section, { text: enhancedContent, improvements, keywordsAdded });
+
+        let msg = 'Content enhanced successfully!';
+        if (improvements?.length) msg += '<br><strong>Improvements:</strong><br>• ' + improvements.join('<br>• ');
+        if (keywordsAdded?.length) msg += '<br><strong>Keywords added:</strong><br>• ' + keywordsAdded.join('<br>• ');
+        this.showSuccess(msg, 8000);
+        if (window.pdfPreview) this.refreshPreview();
+    } catch (err) {
+        console.error('AI Enhancement error:', err);
+        this.showError(`Enhancement failed: ${err.message}`);
+    } finally {
+        button.innerHTML = origHTML;
+        button.disabled = origDisabled;
+        this.hideLoading();
     }
+}
+
+    
     getSectionContent(section) {
         try {
             const container = document.getElementById(`${section}Container`);

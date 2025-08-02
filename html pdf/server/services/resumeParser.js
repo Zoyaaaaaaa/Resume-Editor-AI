@@ -133,246 +133,321 @@ class ResumeParser {
     }
 
 //     createStructuringPrompt(text, attempt = 1) {
-//         // Clean the text first to fix spacing issues
-//         const cleanedText = this.cleanExtractedText(text);
-        
-//         const basePrompt = `
-// You are an expert resume parser. Analyze the following resume text and extract ALL information into a structured JSON format.
+//     // Clean the text first to fix spacing issues
+//     const cleanedText = this.cleanExtractedText(text);
 
-// CRITICAL INSTRUCTIONS:
-// - Fix any spacing issues in the text carefully - preserve technology names and proper nouns
-// - Ensure proper spacing between words and sentences without breaking compound words
-// - Only extract information that fits our template structure
-// - If Areas of Interest is missing you can return comma separate 3-4 areas of interest based on resume eg: Software Development, AI, Finance these are just rough examples
-// - Ignore images, graphics, or non-text elements
-// - Focus ONLY on: Personal Info, Experience, Projects, Education, Extra-curricular activities
-// - MUST return ONLY valid JSON without any markdown formatting
-// - Preserve technical terms, company names, and proper nouns exactly as they appear
+//     const basePrompt = `
+// You are an expert resume parser with strict quality controls. Analyze the following resume text and extract ALL information into structured JSON format.
+
+// **QUALITY CONTROL CHECKLIST:**
+//    Fix spacing issues carefully - preserve technology names and proper nouns  
+//    Ensure proper word spacing without breaking compound words  
+//    Validate email format (no spaces): user@domain.com  
+//    Sort dates chronologically (most recent first)  
+//    Avoid orphan words - complete phrases only  
+//    No repeated content within same sections  
+//    Convert periods used as line breaks to proper formatting  
+//    CRITICAL FORMATTING: Keep "U.S." as "US", preserve numbers exactly "9.20" stays "9.20"   for all number percentiles and percentages make sure of it
+//    Replace "Indian Institute of Technology Bombay" with "IIT Bombay"  
+
+// **EDUCATION FORMAT STRICTLY ENFORCED:**
+// - Format in ONE LINE ONLY: "GPA: X.XX | Location"
+// - Example: "Mumbai, India"
+// - description: STRICTLY SINGLE academic achievement or highlight (MAX 120 characters, no bullets)
+// -Example:
+//   "University of California, Los Angeles, CA
+//    Master of Science in Electrical Engineering| GPA: 3.82/4.0"
+
+// **CRITICAL IMPACT FRAMEWORK:**
+// For Experience, Projects, and Position of Responsibility descriptions:
+// - MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure
+// - WHAT: Action/work performed  
+// - HOW: Method/technology/approach used  
+// - EFFECT: Result/impact/learning achieved  
 
 // Resume Text:
 // ${cleanedText}
 
-// Extract information for this EXACT JSON structure:
+// **EXACT JSON STRUCTURE REQUIRED:**
 // {
 //     "personalInfo": {
 //         "fullName": "full name from resume",
-//         "email": "email address",
-//         "phone": "phone number",
-//         "location": "current location/address"
+//         "email": "email@domain.com (validate format - no spaces)",
+//         "phone": "phone number", 
+//         "location": "current location (convert U.S. to US, preserve number formatting)"
 //     },
-//     "areasOfInterest": "areas of interest ",
+//     "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content)",
 //     "experience": [
 //         {
 //             "position": "job title",
-//             "company": "company name", 
-//             "location": "work location",
-//             "dates": "employment period",
-//             "description": "detailed job responsibilities and achievements",
-//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//             "company": "company name",
+//             "location": "work location", 
+//             "dates": "employment period (sorted chronologically)",
+//             "description": "• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result"
 //         }
 //     ],
 //     "achievements": [
 //         {
 //             "title": "achievement title",
-//             "organization": "organization/institution",
-//             "date": "achievement date",
-//             "description": "achievement description",
-//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//             "organization": "organization name",
+//             "date": "achievement date (sorted chronologically)", 
+//             "description": "SINGLE-LINE description only (no bullet points, max 120 characters, highlight impact or recognition)"
 //         }
 //     ],
 //     "projects": [
 //         {
 //             "title": "project name",
 //             "organization": "organization or course",
-//             "duration": "project timeline",
+//             "duration": "project timeline (sorted chronologically)",
 //             "technologies": "technologies/tools used",
-//             "description": "project details and outcomes",
-//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//             "description": "• WHAT developed + HOW technology + EFFECT outcome\\n• WHAT implemented + HOW approach + EFFECT learning\\n• WHAT achieved + HOW method + EFFECT result"
 //         }
 //     ],
-//     "education": [
+//      "education": [
 //         {
-//             "degree": "degree type",
-//             "field": "field of study",
-//             "institution": "university/school name",
-//             "duration": "study period",
-//             "grade": "GPA/grade",
-//             "details": "additional academic details",
-//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//             "degree": "Bachelor of Engineering",
+//             "field": "Computer Engineering", 
+//             "institution": "D. Y. Patil Institute of Engineering, Pune",
+//             "duration": "06/2021-Present",
+//             "grade": "GPA: 9",
+//             "location": "Raisamand, Rajasthan",
 //         }
-//     ],
+//     ]
 //     "positionOfResponsibility": [
 //         {
 //             "position": "position/role name",
 //             "organization": "organization name",
-//             "institution": "institution name",
-//             "dates": "time period",
-//             "description": "position description",
-//             "bulletPoints": ["bullet point 1", "bullet point 2", "bullet point 3"]
+//             "institution": "institution name", 
+//             "dates": "time period (sorted chronologically)",
+//             "description": "• WHAT led + HOW approach + EFFECT impact\\n• WHAT managed + HOW method + EFFECT outcome\\n• WHAT coordinated + HOW strategy + EFFECT result"
 //         }
 //     ]
 // }`;
 
-//         if (attempt === 1) {
-//             return basePrompt + `
-
-// CRITICAL INSTRUCTIONS FOR TEMPLATE COMPLIANCE:
-// - Carefully fix spacing issues without breaking technology names or proper nouns
-// - Extract ONLY information that fits our 5 main sections
-// - For Experience: Include position, company, location, dates, description AND bulletPoints array
-// - For Projects: Include title, organization/course, duration, technologies, description AND bulletPoints array  
-// - For Education: Include degree, field, institution, duration, grade/GPA, details AND bulletPoints array
-// - For Position of Responsibility: Include position, organization, institution, dates, description AND bulletPoints array
-// - BULLET POINTS: Extract key achievements/responsibilities as separate array items
-// - If description has bullet points (•, -, *), extract each as separate bulletPoints array item
-// - If description is paragraph format, break into logical bullet points
-// - Keep description field for summary, use bulletPoints for detailed points
-// - PRESERVE: Technology names (JavaScript, TensorFlow, etc.), company names, proper nouns
-// - IGNORE: Images, charts, graphics, social media links, references
-// - SMART SPACING: Fix concatenated words but preserve compound technical terms
-// - Return ONLY the JSON object, no markdown or explanations`;
-//         }
-
-//         if (attempt === 2) {
-//             return basePrompt + `
-
-// RETRY INSTRUCTIONS:
-// - Previous attempt may have missed information
-// - Look more carefully for section headers like "Experience", "Projects", "Education"
-// - Extract partial information even if some fields are missing
-// - Focus on getting at least the main content from each section
-// - Be extra careful with spacing - don't break valid compound words
-// - Return ONLY valid JSON`;
-//         }
-
+//     if (attempt === 1) {
 //         return basePrompt + `
 
-// FINAL ATTEMPT:
-// - This is the last try - extract whatever information you can find
-// - Even incomplete information is better than empty fields
-// - Look for any work history, education, or project information
-// - Fill in available fields and leave others empty
-// - Preserve all technical terms and proper nouns exactly
-// - MUST return valid JSON format`;
+// **FIRST ATTEMPT REQUIREMENTS:**
+// - Apply ALL quality controls from checklist  
+// - Implement IMPACT framework (WHAT-HOW-EFFECT) for Experience/Projects/Leadership bullet points ONLY  
+// - Format Experience/Projects/Leadership as exactly 3 bullet points using "• " prefix  
+// - Education: STRICTLY ONE LINE format (see EDUCATION FORMAT above)  
+// - Achievements: SINGLE LINE with strong impact focus  
+// - Sort all dates chronologically (most recent first)  
+// - Validate email format strictly  
+// - Convert "U.S." to "US", preserve number formats exactly (9.20 stays 9.20)  
+// - Preserve technical terms exactly as written  
+// - Fix spacing issues without breaking compound words  
+// - Return ONLY valid JSON, no markdown or explanations  
+// - Ensure no content repetition within sections`;
+//     }
+
+//     if (attempt === 2) {
+//         return basePrompt + `
+
+// **RETRY INSTRUCTIONS (Attempt ${attempt}):**
+// - Previous attempt failed quality controls  
+// - MANDATORY: Apply IMPACT framework to ALL bullet point descriptions  
+// - Double-check date sorting (chronological order)  
+// - Verify email format has no spaces  
+// - Ensure no repeated sentences in same sections  
+// - Fix any orphan words or incomplete phrases  
+// - MUST use exactly 3 bullet points for Experience/Projects/Leadership  
+// - Education must be in ONE LINE format exactly  
+// - Achievements must be one impactful line, max 120 characters  
+// - Return ONLY valid JSON format`;
+//     }
+
+//     return basePrompt + `
+
+// **FINAL ATTEMPT (${attempt}):**
+// - Extract available information even if incomplete  
+// - CRITICAL: Apply IMPACT framework wherever possible  
+// - Ensure proper date sorting and email validation  
+// - Fix all spacing and formatting issues  
+// - Eliminate any content repetition  
+// - Use "IIT Bombay" format consistently  
+// - Preserve technical terms and proper nouns  
+// - Enforce ONE LINE format for education & achievements  
+// - Return valid JSON with available information  
+// - Apply quality controls to maximum extent possible`;
 //     }
 createStructuringPrompt(text, attempt = 1) {
-        // Clean the text first to fix spacing issues
-        const cleanedText = this.cleanExtractedText(text);
-        
-        const basePrompt = `
-You are an expert resume parser. Analyze the following resume text and extract ALL information into a structured JSON format.
+    // Clean the text first to fix spacing issues
+    const cleanedText = this.cleanExtractedText(text);
 
-CRITICAL INSTRUCTIONS:
-- Fix any spacing issues in the text carefully - preserve technology names and proper nouns
-- Ensure proper spacing between words and sentences without breaking compound words
-- Only extract information that fits our template structure
-- If Areas of Interest is missing you can return comma separate 3-4 areas of interest based on resume eg: Software Development, AI, Finance these are just rough examples
-- Ignore images, graphics, or non-text elements
-- Focus ONLY on: Personal Info, Experience, Projects, Education, Extra-curricular activities
-- MUST return ONLY valid JSON without any markdown formatting
-- Preserve technical terms, company names, and proper nouns exactly as they appear
+    const basePrompt = `
+You are an expert resume parser with strict quality controls. Analyze the following resume text and extract ALL information into structured JSON format.
+
+**QUALITY CONTROL CHECKLIST:**
+   Fix spacing issues carefully - preserve technology names and proper nouns  
+   Ensure proper word spacing without breaking compound words  
+   Validate email format (no spaces): user@domain.com  
+   Sort dates chronologically (most recent first)  
+   Avoid orphan words - complete phrases only  
+   No repeated content within same sections  
+   Convert periods used as line breaks to proper formatting  
+   CRITICAL FORMATTING: Keep "U.S." as "US", preserve numbers exactly "9.20" stays "9.20"   for all number percentiles and percentages make sure of it
+   Replace "Indian Institute of Technology Bombay" with "IIT Bombay"  
+
+**EDUCATION FORMAT STRICTLY ENFORCED:**
+- Format in ONE LINE ONLY: "GPA: X.XX | Location"
+- Example: "Mumbai, India"
+- description: STRICTLY SINGLE academic achievement or highlight (MAX 120 characters, no bullets)
+-Example:
+  "University of California, Los Angeles, CA
+   Master of Science in Electrical Engineering| GPA: 3.82/4.0"
+
+**ACHIEVEMENTS FORMAT:**
+- Awards, recognitions, competitions, certifications, honors
+- SINGLE LINE description only (no bullet points, max 120 characters)
+- Focus on the recognition/award itself and its significance
+
+**PUBLICATIONS FORMAT:**
+- Research papers, journal articles, conference papers, patents
+- Include all authors, highlight if first/corresponding author
+- SINGLE LINE description focusing on research contribution (max 120 characters)
+- Sort by publication date (most recent first)
+
+**POSITION OF RESPONSIBILITY FORMAT:**
+- Leadership roles, committee positions, organizational responsibilities
+- EXACTLY 2 bullet points using "• " prefix
+- Each bullet follows WHAT-HOW-EFFECT structure
+
+**CRITICAL IMPACT FRAMEWORK:**
+For Experience, Projects, and Position of Responsibility descriptions:
+- MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure
+- WHAT: Action/work performed  
+- HOW: Method/technology/approach used  
+- EFFECT: Result/impact/learning achieved  
 
 Resume Text:
 ${cleanedText}
 
-Extract information for this EXACT JSON structure:
+**EXACT JSON STRUCTURE REQUIRED:**
 {
     "personalInfo": {
         "fullName": "full name from resume",
-        "email": "email address",
-        "phone": "phone number",
-        "location": "current location/address"
+        "email": "email@domain.com (validate format - no spaces)",
+        "phone": "phone number", 
+        "location": "current location (convert U.S. to US, preserve number formatting)"
     },
-    "areasOfInterest": "areas of interest ",
+    "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content)",
+    "skills": "comma-separated skills(if missing, infer 3-4 from resume content)",
     "experience": [
         {
             "position": "job title",
-            "company": "company name", 
-            "location": "work location",
-            "dates": "employment period",
-            "description": "• First key responsibility or achievement\n• Second key responsibility or achievement\n• Third key responsibility or achievement"
+            "company": "company name",
+            "location": "work location", 
+            "dates": "employment period (sorted chronologically)",
+            "description": "• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result"
         }
     ],
     "achievements": [
         {
-            "title": "achievement title",
-            "organization": "organization/institution",
-            "date": "achievement date",
-            "description": "• First key point about the achievement\n• Second key point about the achievement\n• Third key point about the achievement"
+            "title": "achievement/award title",
+            "organization": "awarding organization",
+            "date": "achievement date (sorted chronologically)", 
+            "description": "SINGLE-LINE description highlighting the recognition and its significance (no bullet points, max 120 characters)"
+        }
+    ],
+    "publications": [
+        {
+            "title": "publication title",
+            "authors": "author names (highlight if first author or corresponding author)",
+            "journal": "journal/conference name",
+            "date": "publication date (sorted chronologically)",
+            "doi": "DOI or link if available",
+            "description": "Brief description of research contribution or impact (max 120 characters, single line)"
         }
     ],
     "projects": [
         {
             "title": "project name",
             "organization": "organization or course",
-            "duration": "project timeline",
+            "duration": "project timeline (sorted chronologically)",
             "technologies": "technologies/tools used",
-            "description": "• First key aspect of the project\n• Second key aspect of the project\n• Third key aspect of the project"
+            "description": "• WHAT developed + HOW technology + EFFECT outcome\\n• WHAT implemented + HOW approach + EFFECT learning\\n• WHAT achieved + HOW method + EFFECT result"
         }
     ],
-    "education": [
+     "education": [
         {
-            "degree": "degree type",
-            "field": "field of study",
-            "institution": "university/school name",
-            "duration": "study period",
-            "grade": "GPA/grade",
-            "details": "additional academic details",
-            "description": "• First key academic detail\n• Second key academic detail\n• Third key academic detail"
+            "degree": "Bachelor of Engineering",
+            "field": "Computer Engineering", 
+            "institution": "D. Y. Patil Institute of Engineering, Pune",
+            "duration": "06/2021-Present",
+            "grade": "GPA: 9",
+            "location": "Raisamand, Rajasthan",
         }
-    ],
+    ]
     "positionOfResponsibility": [
         {
-            "position": "position/role name",
+            "position": "leadership position/role name",
             "organization": "organization name",
-            "institution": "institution name",
-            "dates": "time period",
-            "description": "• First key responsibility\n• Second key responsibility\n• Third key responsibility"
+            "institution": "institution name", 
+            "dates": "time period (sorted chronologically)",
+            "description": "• WHAT led/managed + HOW approach/method + EFFECT impact/outcome\\n• WHAT coordinated/organized + HOW strategy/technique + EFFECT result/learning"
         }
     ]
 }`;
 
-        if (attempt === 1) {
-            return basePrompt + `
-
-CRITICAL INSTRUCTIONS FOR TEMPLATE COMPLIANCE:
-- Carefully fix spacing issues without breaking technology names or proper nouns
-- Extract ONLY information that fits our 5 main sections
-- For ALL SECTIONS: Format description as exactly 3 bullet points using "• " prefix
-- Each description must contain exactly 3 bullet points separated by newlines (\\n)
-- Combine all relevant information into these 3 bullet points per entry
-- If original has more than 3 points, consolidate into 3 comprehensive points
-- If original has fewer than 3 points, expand or create additional relevant points
-- PRESERVE: Technology names (JavaScript, TensorFlow, etc.), company names, proper nouns
-- IGNORE: Images, charts, graphics, social media links, references
-- SMART SPACING: Fix concatenated words but preserve compound technical terms
-- Return ONLY the JSON object, no markdown or explanations
-- FORMAT: "• Point one\\n• Point two\\n• Point three" for every description field`;
-        }
-
-        if (attempt === 2) {
-            return basePrompt + `
-
-RETRY INSTRUCTIONS:
-- Previous attempt may have missed information
-- Look more carefully for section headers like "Experience", "Projects", "Education"
-- Extract partial information even if some fields are missing
-- Focus on getting at least the main content from each section
-- Be extra careful with spacing - don't break valid compound words
-- MUST format all descriptions as exactly 3 bullet points: "• Point 1\\n• Point 2\\n• Point 3"
-- Return ONLY valid JSON`;
-        }
-
+    if (attempt === 1) {
         return basePrompt + `
 
-FINAL ATTEMPT:
-- This is the last try - extract whatever information you can find
-- Even incomplete information is better than empty fields
-- Look for any work history, education, or project information
-- Fill in available fields and leave others empty
-- Preserve all technical terms and proper nouns exactly
-- MUST format all descriptions as exactly 3 bullet points with "• " prefix
-- MUST return valid JSON format`;
+**FIRST ATTEMPT REQUIREMENTS:**
+- Apply ALL quality controls from checklist  
+- Implement IMPACT framework (WHAT-HOW-EFFECT) for Experience/Projects/Position of Responsibility bullet points ONLY  
+- Format Experience/Projects as exactly 3 bullet points using "• " prefix  
+- Format Position of Responsibility as exactly 2 bullet points using "• " prefix  
+- Education: STRICTLY ONE LINE format (see EDUCATION FORMAT above)  
+- Achievements: SINGLE LINE with recognition/award focus (NO bullet points)  
+- Publications: SINGLE LINE with research contribution focus (NO bullet points), include all authors  
+- Sort all dates chronologically (most recent first)  
+- Validate email format strictly  
+- Convert "U.S." to "US", preserve number formats exactly (9.20 stays 9.20)  
+- Preserve technical terms exactly as written  
+- Fix spacing issues without breaking compound words  
+- Return ONLY valid JSON, no markdown or explanations  
+- Ensure no content repetition within sections  
+- Include publications section only if publications are found in resume`;
+    }
+
+    if (attempt === 2) {
+        return basePrompt + `
+
+**RETRY INSTRUCTIONS (Attempt ${attempt}):**
+- Previous attempt failed quality controls  
+- MANDATORY: Apply IMPACT framework to Experience/Projects/Position of Responsibility bullet points  
+- Achievements are awards/recognitions - NO bullet points, single line only  
+- Publications are research papers - NO bullet points, single line with research focus  
+- Position of Responsibility gets EXACTLY 2 bullet points with WHAT-HOW-EFFECT  
+- Double-check date sorting (chronological order)  
+- Verify email format has no spaces  
+- Ensure no repeated sentences in same sections  
+- Fix any orphan words or incomplete phrases  
+- Experience/Projects: 3 bullets, Position of Responsibility: 2 bullets, Achievements/Publications: single line  
+- Education must be in ONE LINE format exactly  
+- Include publications only if found in resume  
+- Return ONLY valid JSON format`;
+    }
+
+    return basePrompt + `
+
+**FINAL ATTEMPT (${attempt}):**
+- Extract available information even if incomplete  
+- CRITICAL: Apply IMPACT framework to Experience/Projects/Position of Responsibility only  
+- Achievements are single-line recognitions/awards (no bullets)  
+- Publications are single-line research contributions (no bullets)  
+- Position of Responsibility gets exactly 2 detailed bullet points  
+- Ensure proper date sorting and email validation  
+- Fix all spacing and formatting issues  
+- Eliminate any content repetition  
+- Use "IIT Bombay" format consistently  
+- Preserve technical terms and proper nouns  
+- Enforce correct formatting: Experience/Projects (3 bullets), Position of Responsibility (2 bullets), Achievements/Publications (single line)  
+- Include publications section only if publications exist in resume  
+- Return valid JSON with available information  
+- Apply quality controls to maximum extent possible`;
     }
 
     hasMeaningfulData(data) {
@@ -420,7 +495,9 @@ FINAL ATTEMPT:
             achievements: [],
             projects: [],
             education: [],
-            positionOfResponsibility: []
+            positionOfResponsibility: [],
+            publications:[],
+            skills:[],
         };
 
         // Merge with defaults to ensure all fields exist
@@ -439,7 +516,7 @@ FINAL ATTEMPT:
             
             // Handle areas of interest (convert null to empty string)
             result.areasOfInterest = data.areasOfInterest || '';
-            
+            result.areasOfInterest = data.skills || '';
             // Handle arrays - filter out entries with null/undefined values
             result.experience = Array.isArray(data.experience) ? 
                 data.experience.filter(item => item && typeof item === 'object') : [];
@@ -451,12 +528,16 @@ FINAL ATTEMPT:
                 data.education.filter(item => item && typeof item === 'object') : [];
             result.positionOfResponsibility = Array.isArray(data.positionOfResponsibility) ? 
                 data.positionOfResponsibility.filter(item => item && typeof item === 'object') : [];
+            result.publications = Array.isArray(data.skills) ? 
+                data.publications.filter(item => item && typeof item === 'object') : [];
+            
                 
             // Clean up null values and fix text in array items
             result.experience = result.experience.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.achievements = result.achievements.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.projects = result.projects.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.education = result.education.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
+            result.publications = result.publications.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.positionOfResponsibility = result.positionOfResponsibility.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
         }
 
@@ -484,27 +565,109 @@ FINAL ATTEMPT:
         return cleaned;
     }
     
+    extractBulletPointsFromDescription(description) {
+        if (!description) return [];
+        
+        const bullets = [];
+        
+        // Enhanced bullet detection with number preservation
+        const lines = description.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        
+        // First check for explicit bullet points
+        const bulletMarkers = ['•', '*', '-', '+', '‣', '→'];
+        const numberedMarkers = /^\d+[\.\)]\s+/;
+        
+        for (const line of lines) {
+            // Check for bullet markers
+            if (bulletMarkers.some(marker => line.startsWith(marker))) {
+                const cleaned = line.substring(1).trim();
+                if (cleaned.length > 5) {
+                    bullets.push(cleaned);
+                }
+                continue;
+            }
+            
+            // Check for numbered lists
+            if (numberedMarkers.test(line)) {
+                const cleaned = line.replace(numberedMarkers, '').trim();
+                if (cleaned.length > 5) {
+                    bullets.push(cleaned);
+                }
+                continue;
+            }
+            
+            // Check for action verbs at start of line
+            const actionVerbs = ['Developed', 'Created', 'Implemented', 'Designed', 'Led', 
+                               'Built', 'Managed', 'Achieved', 'Improved', 'Increased'];
+            if (actionVerbs.some(verb => line.startsWith(verb))) {
+                bullets.push(line);
+                continue;
+            }
+        }
+        
+        // If we found bullets with markers, return them
+        if (bullets.length > 0) {
+            return bullets;
+        }
+        
+        // Fallback: Split by sentences that contain action verbs
+        const sentences = description.split(/(?<=[.!?])\s+/)
+            .map(s => s.trim())
+            .filter(s => s.length > 10);
+            
+        if (sentences.length > 1) {
+            const actionPhrases = ['using', 'with', 'by', 'resulting in', 'leading to'];
+            
+            for (const sentence of sentences) {
+                const hasActionVerb = actionVerbs.some(verb => 
+                    sentence.startsWith(verb) || 
+                    sentence.includes(` ${verb.toLowerCase()} `)
+                );
+                
+                const hasActionPhrase = actionPhrases.some(phrase => 
+                    sentence.toLowerCase().includes(phrase)
+                );
+                
+                if (hasActionVerb || hasActionPhrase) {
+                    bullets.push(sentence);
+                }
+            }
+            
+            if (bullets.length > 0) {
+                return bullets;
+            }
+        }
+        
+        // Final fallback: Split by line breaks
+        if (lines.length > 1) {
+            return lines.filter(line => line.length > 10);
+        }
+        
+        // If all else fails, return the entire description as one bullet
+        return [description.trim()];
+    }
+
     processEntryWithBulletPoints(entry) {
         // Ensure bulletPoints is an array
         if (!entry.bulletPoints) {
             entry.bulletPoints = [];
         }
         
-        // ALWAYS convert description to bullet points, regardless of existing bullet points
+        // Enhanced bullet point extraction with number preservation
         if (entry.description && entry.description.trim()) {
             const extractedBullets = this.extractBulletPointsFromDescription(entry.description);
             if (extractedBullets.length > 0) {
-                // Add extracted bullets to existing bullet points (if any)
                 entry.bulletPoints = [...entry.bulletPoints, ...extractedBullets];
             } else {
                 // If no bullets extracted, treat entire description as one bullet point
                 entry.bulletPoints.push(entry.description.trim());
             }
-            // ALWAYS clear description since everything goes to bullet points
             entry.description = '';
         }
         
-        // Also check details field (for education) and convert to bullet points
+        // Enhanced education details handling
         if (entry.details && entry.details.trim()) {
             const extractedBullets = this.extractBulletPointsFromDescription(entry.details);
             if (extractedBullets.length > 0) {
@@ -512,105 +675,54 @@ FINAL ATTEMPT:
             } else {
                 entry.bulletPoints.push(entry.details.trim());
             }
-            // Clear details field
             entry.details = '';
         }
         
-        // Clean and deduplicate bullet points
+        // Enhanced bullet point cleaning with number preservation
         if (Array.isArray(entry.bulletPoints)) {
             entry.bulletPoints = entry.bulletPoints
                 .filter(point => point && typeof point === 'string' && point.trim())
-                .map(point => this.fixTextSpacing(point.replace(/^[•\-\*]\s*/, '').trim()))
-                .filter((point, index, arr) => arr.indexOf(point) === index) // Remove duplicates
-                .filter(point => point.length > 3); // Remove very short points
+                .map(point => {
+                    // Preserve numbers like 9.20 exactly
+                    return point.replace(/^[•\-\*]\s*/, '').trim()
+                        .replace(/(\d+\.\d+)/g, match => {
+                            // If the number is followed by a space or punctuation, preserve it
+                            return match;
+                        });
+                })
+                .filter((point, index, arr) => {
+                    // Remove duplicates while preserving case for numbers
+                    const lowerPoint = point.toLowerCase();
+                    return arr.findIndex(p => p.toLowerCase() === lowerPoint) === index;
+                })
+                .filter(point => point.length > 3);
+        }
+        
+        // Enhanced education formatting
+        if (entry.education) {
+            entry.education = entry.education.map(edu => {
+                if (edu.institution && edu.location) {
+                    // Format: "University Name, State/Country | GPA: X.XX"
+                    const locationParts = edu.location.split(',');
+                    const shortLocation = locationParts.length > 1 
+                        ? `${locationParts[0].trim()}, ${locationParts[1].trim()}`
+                        : edu.location;
+                    
+                    let gradeInfo = '';
+                    if (edu.grade) {
+                        // Preserve exact grade format (9.20 stays 9.20)
+                        gradeInfo = edu.grade.includes('GPA') 
+                            ? edu.grade 
+                            : `GPA: ${edu.grade}`;
+                    }
+                    
+                    edu.formatted = `${edu.institution}, ${shortLocation}${gradeInfo ? ` | ${gradeInfo}` : ''}`;
+                }
+                return edu;
+            });
         }
         
         return entry;
-    }
-    
-    extractBulletPointsFromDescription(description) {
-        if (!description) return [];
-        
-        const bullets = [];
-        
-        // Strategy 1: Look for existing bullet point markers
-        const bulletLines = description.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.match(/^[•\-\*\+]\s+/));
-        
-        if (bulletLines.length > 0) {
-            bulletLines.forEach(line => {
-                const cleaned = line.replace(/^[•\-\*\+]\s+/, '').trim();
-                if (cleaned.length > 5) {
-                    bullets.push(cleaned);
-                }
-            });
-            return bullets;
-        }
-        
-        // Strategy 2: Look for numbered lists
-        const numberedLines = description.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.match(/^\d+[\.\)]\s+/));
-        
-        if (numberedLines.length > 0) {
-            numberedLines.forEach(line => {
-                const cleaned = line.replace(/^\d+[\.\)]\s+/, '').trim();
-                if (cleaned.length > 5) {
-                    bullets.push(cleaned);
-                }
-            });
-            return bullets;
-        }
-        
-        // Strategy 3: Split by common action verbs or sentence patterns
-        const actionVerbs = ['Developed', 'Created', 'Implemented', 'Managed', 'Led', 'Built', 'Designed', 'Executed', 'Analyzed', 'Optimized', 'Automated', 'Streamlined', 'Delivered', 'Achieved', 'Collaborated', 'Coordinated', 'Established', 'Enhanced', 'Improved', 'Maintained', 'Researched', 'Conducted', 'Performed', 'Supervised', 'Trained', 'Organized', 'Planned', 'Initiated', 'Supported', 'Assisted'];
-        
-        // Try to split by sentences that start with action verbs
-        const sentences = description.split(/[\.!?]+/)
-            .map(s => s.trim())
-            .filter(s => s.length > 10);
-            
-        if (sentences.length > 1) {
-            sentences.forEach(sentence => {
-                // Check if sentence starts with action verb or has action patterns
-                const startsWithAction = actionVerbs.some(verb => 
-                    sentence.startsWith(verb) || sentence.includes(' ' + verb.toLowerCase() + ' ')
-                );
-                
-                if (startsWithAction || sentence.length > 20) {
-                    bullets.push(sentence.trim());
-                }
-            });
-            
-            if (bullets.length > 0) {
-                return bullets;
-            }
-        }
-        
-        // Strategy 4: Split by line breaks if they exist
-        const lines = description.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 10);
-            
-        if (lines.length > 1) {
-            return lines;
-        }
-        
-        // Strategy 5: If all else fails, try to break long descriptions intelligently
-        if (description.length > 100) {
-            // Split by common separators
-            const parts = description.split(/[;,]\s+/)
-                .map(part => part.trim())
-                .filter(part => part.length > 15);
-                
-            if (parts.length > 1) {
-                return parts;
-            }
-        }
-        
-        // If no good splits found, return the entire description as one bullet
-        return [description.trim()];
     }
     
     fixTextSpacing(text) {
@@ -714,7 +826,6 @@ FINAL ATTEMPT:
         return result;
     }
 
-    // Helper method to clean and validate extracted text
     cleanExtractedText(text) {
         if (!text) return '';
         
@@ -771,296 +882,3 @@ FINAL ATTEMPT:
 }
 
 module.exports = ResumeParser;
-
-// const pdf = require('pdf-parse');
-// const mammoth = require('mammoth');
-// const fs = require('fs').promises;
-// const AIService = require('./aiService');
-
-// class ResumeParser {
-//     constructor() {
-//         this.aiService = new AIService();
-//         this.preserveWords = new Set([
-//             'JavaScript', 'TypeScript', 'PowerBI', 'PowerPoint', 'GitHub', 'GitLab',
-//             'TensorFlow', 'PyTorch', 'OpenCV', 'MongoDB', 'PostgreSQL', 'MySQL',
-//             'ReactJS', 'NodeJS', 'AngularJS', 'VueJS', 'NextJS', 'ExpressJS',
-//             'RESTful', 'GraphQL', 'WebSocket', 'WebSockets', 'jQuery', 'Bootstrap',
-//             'Tailwind', 'Firebase', 'Supabase', 'Vercel', 'Netlify', 'Heroku',
-//             'AWS', 'GCP', 'Azure', 'Docker', 'Kubernetes', 'Jenkins', 'Redis',
-//             'Elasticsearch', 'RabbitMQ', 'Kafka', 'Nginx', 'Apache', 'Linux'
-//         ]);
-//     }
-
-//     async parseResume(filePath, mimeType) {
-//         try {
-//             let extractedText = await this.extractTextFromFile(filePath, mimeType);
-//             const structuredData = await this.structureWithAI(extractedText);
-//             return this.validateAndCleanStructuredData(structuredData);
-//         } catch (error) {
-//             console.error('Resume parsing error:', error);
-//             throw new Error(`Failed to parse resume: ${error.message}`);
-//         }
-//     }
-
-//     async extractTextFromFile(filePath, mimeType) {
-//         switch (mimeType) {
-//             case 'application/pdf':
-//                 return this.parsePDF(filePath);
-//             case 'application/msword':
-//             case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-//                 return this.parseWord(filePath);
-//             default:
-//                 throw new Error('Unsupported file type');
-//         }
-//     }
-
-//     async parsePDF(filePath) {
-//         const dataBuffer = await fs.readFile(filePath);
-//         const data = await pdf(dataBuffer);
-//         return data.text;
-//     }
-
-//     async parseWord(filePath) {
-//         const result = await mammoth.extractRawText({ path: filePath });
-//         return result.value;
-//     }
-
-//     async structureWithAI(extractedText) {
-//         const maxAttempts = 3;
-//         let attempts = 0;
-        
-//         while (attempts < maxAttempts) {
-//             attempts++;
-//             try {
-//                 const prompt = this.createStructuringPrompt(extractedText, attempts);
-//                 const structuredData = await this.aiService.structureResumeData(prompt);
-                
-//                 if (this.hasMeaningfulData(structuredData)) {
-//                     console.log('AI parsing successful on attempt', attempts);
-//                     return structuredData;
-//                 }
-                
-//                 if (attempts === maxAttempts) {
-//                     throw new Error('AI parsing failed to extract meaningful data');
-//                 }
-                
-//                 await new Promise(resolve => setTimeout(resolve, 1000));
-//             } catch (error) {
-//                 console.error(`AI parsing attempt ${attempts} failed:`, error);
-//                 if (attempts === maxAttempts) throw error;
-//             }
-//         }
-//     }
-
-//     createStructuringPrompt(text, attempt = 1) {
-//         const cleanedText = this.cleanExtractedText(text);
-        
-//         const basePrompt = `Extract resume information into this exact JSON format:
-// {
-//     "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "" },
-//     "areasOfInterest": "",
-//     "experience": [{
-//         "position": "", "company": "", "location": "", "dates": "",
-//         "bulletPoints": []  // ALL details should go here, no description field
-//     }],
-//     "projects": [{
-//         "title": "", "organization": "", "duration": "", "technologies": "",
-//         "bulletPoints": []  // ALL details should go here
-//     }],
-//     "education": [{
-//         "degree": "", "field": "", "institution": "", "duration": "", "grade": "",
-//         "bulletPoints": []  // ALL details should go here
-//     }],
-//     "positionOfResponsibility": [{
-//         "position": "", "organization": "", "institution": "", "dates": "",
-//         "bulletPoints": []  // ALL details should go here
-//     }]
-// }
-
-// CRITICAL RULES:
-// 1. Put ALL details in bulletPoints arrays, never in description fields
-// 2. Never duplicate information between fields
-// 3. Split long descriptions into logical bullet points
-// 4. Preserve technical terms exactly
-// 5. Return ONLY valid JSON
-
-// Resume Text:
-// ${cleanedText}`;
-
-//         if (attempt > 1) {
-//             return basePrompt + `\n\nRETRY INSTRUCTIONS:
-// - Previous attempt had duplicates or missing information
-// - Focus on putting ALL details in bulletPoints arrays
-// - Never put the same information in multiple fields
-// - Split long paragraphs into separate bullet points`;
-//         }
-//         return basePrompt;
-//     }
-
-//     validateAndCleanStructuredData(data) {
-//         const defaultStructure = {
-//             personalInfo: { fullName: '', email: '', phone: '', location: '' },
-//             areasOfInterest: '',
-//             experience: [],
-//             projects: [],
-//             education: [],
-//             positionOfResponsibility: []
-//         };
-
-//         // Merge with defaults
-//         const result = JSON.parse(JSON.stringify(defaultStructure));
-        
-//         if (data && typeof data === 'object') {
-//             // Handle personal info
-//             if (data.personalInfo) {
-//                 Object.keys(result.personalInfo).forEach(key => {
-//                     result.personalInfo[key] = data.personalInfo[key] || '';
-//                 });
-//             }
-            
-//             // Handle areas of interest
-//             result.areasOfInterest = data.areasOfInterest || '';
-            
-//             // Process all array sections with bullet points
-//             ['experience', 'projects', 'education', 'positionOfResponsibility'].forEach(section => {
-//                 if (Array.isArray(data[section])) {
-//                     result[section] = data[section]
-//                         .filter(item => item && typeof item === 'object')
-//                         .map(item => this.cleanEntry(item));
-//                 }
-//             });
-//         }
-
-//         return result;
-//     }
-
-//     cleanEntry(entry) {
-//         const cleaned = {};
-        
-//         // Copy all non-bullet point fields
-//         Object.keys(entry).forEach(key => {
-//             if (key !== 'bulletPoints' && key !== 'description' && key !== 'details') {
-//                 cleaned[key] = this.cleanText(entry[key] || '');
-//             }
-//         });
-        
-//         // Process bullet points - combine all possible sources
-//         let bulletPoints = [];
-        
-//         // Add bulletPoints array if it exists
-//         if (Array.isArray(entry.bulletPoints)) {
-//             bulletPoints = bulletPoints.concat(entry.bulletPoints);
-//         }
-        
-//         // Convert description to bullet points if it exists
-//         if (entry.description) {
-//             bulletPoints = bulletPoints.concat(this.extractBulletPoints(entry.description));
-//         }
-        
-//         // Convert details to bullet points if it exists (for education)
-//         if (entry.details) {
-//             bulletPoints = bulletPoints.concat(this.extractBulletPoints(entry.details));
-//         }
-        
-//         // Clean and deduplicate bullet points
-//         cleaned.bulletPoints = bulletPoints
-//             .filter(point => point && typeof point === 'string')
-//             .map(point => this.cleanText(point))
-//             .filter(point => point.length > 5)  // Remove very short points
-//             .filter((point, index, arr) => {    // Remove duplicates
-//                 const normalized = point.toLowerCase().trim();
-//                 return arr.findIndex(p => p.toLowerCase().trim() === normalized) === index;
-//             });
-
-//         return cleaned;
-//     }
-
-//     extractBulletPoints(text) {
-//         if (!text) return [];
-        
-//         // If text contains bullet characters, split by them
-//         if (/[•\-\*\+]/.test(text)) {
-//             return text.split(/[•\-\*\+]/)
-//                 .map(point => point.trim())
-//                 .filter(point => point.length > 0);
-//         }
-        
-//         // If text contains numbers like 1. 2. etc, split by them
-//         if (/\d\.\s/.test(text)) {
-//             return text.split(/\d\.\s/)
-//                 .map(point => point.trim())
-//                 .filter(point => point.length > 0);
-//         }
-        
-//         // Split by newlines if they exist
-//         const lines = text.split('\n')
-//             .map(line => line.trim())
-//             .filter(line => line.length > 0);
-            
-//         if (lines.length > 1) return lines;
-        
-//         // Try to split by sentences
-//         const sentences = text.split(/[.!?]\s+/)
-//             .map(sentence => sentence.trim())
-//             .filter(sentence => sentence.length > 0);
-            
-//         return sentences.length > 1 ? sentences : [text];
-//     }
-
-//     cleanText(text) {
-//         if (!text) return '';
-        
-//         // Fix common spacing issues but preserve technical terms
-//         let result = text.toString();
-        
-//         // Preserve known technical terms
-//         this.preserveWords.forEach(term => {
-//             const regex = new RegExp(`\\b${term}\\b`, 'gi');
-//             result = result.replace(regex, match => `__${match.toUpperCase()}__`);
-//         });
-        
-//         // Fix general spacing issues
-//         result = result
-//             .replace(/([a-z])([A-Z])/g, '$1 $2')
-//             .replace(/([a-zA-Z])(\d)/g, '$1 $2')
-//             .replace(/(\d)([a-zA-Z])/g, '$1 $2')
-//             .replace(/\s+/g, ' ')
-//             .trim();
-            
-//         // Restore preserved terms
-//         this.preserveWords.forEach(term => {
-//             result = result.replace(new RegExp(`__${term.toUpperCase()}__`, 'g'), term);
-//         });
-        
-//         return result;
-//     }
-
-//     cleanExtractedText(text) {
-//         if (!text) return '';
-        
-//         return text
-//             .replace(/\r\n/g, '\n')
-//             .replace(/\s+/g, ' ')
-//             .replace(/([a-z])([A-Z])/g, (match, p1, p2) => {
-//                 const context = match.toLowerCase();
-//                 return this.preserveWords.has(context) ? match : `${p1} ${p2}`;
-//             })
-//             .trim();
-//     }
-
-//     hasMeaningfulData(data) {
-//         if (!data) return false;
-        
-//         // Check for basic personal info
-//         const hasPersonalInfo = data.personalInfo && 
-//             (data.personalInfo.fullName || data.personalInfo.email || data.personalInfo.phone);
-            
-//         // Check for at least one substantial section
-//         const hasContent = ['experience', 'projects', 'education', 'positionOfResponsibility']
-//             .some(section => data[section] && data[section].length > 0);
-            
-//         return hasPersonalInfo && hasContent;
-//     }
-// }
-
-// module.exports = ResumeParser;
