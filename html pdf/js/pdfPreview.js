@@ -919,7 +919,7 @@ class PDFPreview {
     }
 
     generateResumeHTML(data) {
-        const { personalInfo, areasOfInterest, skills, experience, achievements, publications, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+        const { personalInfo, areasOfInterest, skills, skillsData, experience, achievements, publications, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
 
         // Default section order if none provided
         const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'publications', 'projects', 'positionOfResponsibility'];
@@ -928,7 +928,7 @@ class PDFPreview {
         // Section generators map
         const sectionGenerators = {
             areasOfInterest: () => areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '',
-            skills: () => skills ? this.generateSkills(skills) : '',
+            skills: () => (skillsData || skills) ? this.generateSkills(skills, skillsData) : '',
             education: () => education?.length ? this.generateEducation(education) : '',
             experience: () => experience?.length ? this.generateExperience(experience) : '',
             achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
@@ -1150,18 +1150,81 @@ class PDFPreview {
 //         </div>
 //     `;
 //     }
-    generateSkills(skillsString) {
-        if (!skillsString?.trim()) return '';
+    generateSkills(skillsString, skillsData) {
+        let categories = {
+            'Languages': [],
+            'Frameworks': [],
+            'Developer Tools': []
+        };
 
-        // Split skills by comma or pipe and clean them up
-        const skillsArray = skillsString.split(/[,|]/).map(skill => skill.trim()).filter(skill => skill);
-        
-        if (!skillsArray.length) return '';
+        // If we have structured data, use it directly
+        if (skillsData && (skillsData.languages || skillsData.frameworks || skillsData.developerTools)) {
+            if (skillsData.languages) {
+                categories['Languages'] = skillsData.languages.split(/[,|]/).map(s => s.trim()).filter(s => s);
+            }
+            if (skillsData.frameworks) {
+                categories['Frameworks'] = skillsData.frameworks.split(/[,|]/).map(s => s.trim()).filter(s => s);
+            }
+            if (skillsData.developerTools) {
+                categories['Developer Tools'] = skillsData.developerTools.split(/[,|]/).map(s => s.trim()).filter(s => s);
+            }
+        } else if (skillsString?.trim()) {
+            // Fallback to old automatic categorization
+            const skillsArray = skillsString.split(/[,|]/).map(skill => skill.trim()).filter(skill => skill);
+            
+            if (!skillsArray.length) return '';
+
+            // Keywords for categorization
+            const languageKeywords = [
+                'javascript', 'java', 'python', 'c++', 'c/c++', 'sql', 'mysql', 'html/css', 'html', 'css', 
+                'php', 'ruby', 'go', 'rust', 'typescript', 'c#', 'swift', 'kotlin', 'scala', 'r', 'matlab'
+            ];
+            
+            const frameworkKeywords = [
+                'react', 'vue', 'angular', 'node.js', 'nodejs', 'express', 'django', 'flask', 'spring', 
+                'rails', 'laravel', 'bootstrap', 'tailwind', 'jquery', 'nextjs', 'nuxt', 'grails',
+                'djangorest', 'rest framework', 'fastapi', 'gin'
+            ];
+            
+            const toolKeywords = [
+                'git', 'docker', 'vs code', 'visual studio', 'pycharm', 'intellij', 'eclipse', 'xcode',
+                'postman', 'figma', 'sketch', 'photoshop', 'illustrator', 'kubernetes', 'jenkins', 
+                'travis', 'circleci', 'aws', 'azure', 'gcp', 'heroku', 'vercel', 'netlify'
+            ];
+
+            // Categorize each skill
+            skillsArray.forEach(skill => {
+                const skillLower = skill.toLowerCase();
+                
+                if (languageKeywords.some(keyword => skillLower.includes(keyword))) {
+                    categories['Languages'].push(skill);
+                } else if (frameworkKeywords.some(keyword => skillLower.includes(keyword))) {
+                    categories['Frameworks'].push(skill);
+                } else if (toolKeywords.some(keyword => skillLower.includes(keyword))) {
+                    categories['Developer Tools'].push(skill);
+                } else {
+                    // Default to Languages if unsure
+                    categories['Languages'].push(skill);
+                }
+            });
+        } else {
+            return '';
+        }
+
+        // Generate HTML for each category
+        let html = '';
+        Object.entries(categories).forEach(([category, skills]) => {
+            if (skills.length > 0) {
+                html += `<p><strong>${category}:</strong> ${skills.join(', ')}</p>`;
+            }
+        });
+
+        if (!html) return '';
 
         return `
             <div class="section">
                 <div class="section-header">SKILLS</div>
-                <p>${skillsArray.join(' • ')}</p>
+                ${html}
             </div>
         `;
     }

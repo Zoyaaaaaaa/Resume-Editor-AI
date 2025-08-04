@@ -314,6 +314,11 @@ You are an expert resume parser with strict quality controls. Analyze the follow
 - EXACTLY 2 bullet points using "• " prefix
 - Each bullet follows WHAT-HOW-EFFECT structure
 
+**SKILLS CATEGORIZATION RULES:**
+- Languages: Programming languages (JavaScript, Python, Java, C++), markup/query languages (HTML, CSS, SQL), scripting languages (PHP, TypeScript)
+- Frameworks: Web frameworks (React, Angular, Vue), backend frameworks (Node.js, Django, Spring), CSS frameworks (Bootstrap, Tailwind)
+- Developer Tools: Version control (Git), IDEs (VS Code, PyCharm, IntelliJ), deployment (Docker, AWS, Azure), databases (MongoDB, PostgreSQL), testing tools (Jest, Postman)
+
 **CRITICAL IMPACT FRAMEWORK:**
 For Experience, Projects, and Position of Responsibility descriptions:
 - MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure
@@ -333,7 +338,11 @@ ${cleanedText}
         "location": "current location (convert U.S. to US, preserve number formatting)"
     },
     "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content)",
-    "skills": "comma-separated skills(if missing, infer 3-4 from resume content)",
+    "skillsData": {
+        "languages": "programming languages and markup/query languages like JavaScript, Python, Java, C++, SQL, HTML/CSS, PHP, TypeScript, Go, Rust (comma-separated)",
+        "frameworks": "frameworks, libraries, and platforms like React, Node.js, Django, Flask, Spring, Bootstrap, Angular, Vue, Express, Rails (comma-separated)", 
+        "developerTools": "development tools, IDEs, and platforms like Git, Docker, VS Code, PyCharm, IntelliJ, Postman, AWS, Azure, Jenkins, Kubernetes (comma-separated)"
+    },
     "experience": [
         {
             "position": "job title",
@@ -396,6 +405,8 @@ ${cleanedText}
 
 **FIRST ATTEMPT REQUIREMENTS:**
 - Apply ALL quality controls from checklist  
+- CRITICAL: Properly categorize ALL skills using SKILLS CATEGORIZATION RULES above
+- Extract skills from experience, projects, and explicit skills sections
 - Implement IMPACT framework (WHAT-HOW-EFFECT) for Experience/Projects/Position of Responsibility bullet points ONLY  
 - Format Experience/Projects as exactly 3 bullet points using "• " prefix  
 - Format Position of Responsibility as exactly 2 bullet points using "• " prefix  
@@ -491,6 +502,11 @@ ${cleanedText}
                 location: ''
             },
             areasOfInterest: '',
+            skillsData: {
+                languages: '',
+                frameworks: '',
+                developerTools: ''
+            },
             skills: '',
             experience: [],
             achievements: [],
@@ -516,7 +532,24 @@ ${cleanedText}
             
             // Handle areas of interest and skills (convert null to empty string)
             result.areasOfInterest = data.areasOfInterest || '';
-            result.skills = data.skills || '';
+            
+            // Handle structured skills data
+            if (data.skillsData && typeof data.skillsData === 'object') {
+                result.skillsData = {
+                    languages: data.skillsData.languages || '',
+                    frameworks: data.skillsData.frameworks || '',
+                    developerTools: data.skillsData.developerTools || ''
+                };
+                
+                // Create backward compatible skills string
+                const allSkills = [];
+                if (result.skillsData.languages) allSkills.push(result.skillsData.languages);
+                if (result.skillsData.frameworks) allSkills.push(result.skillsData.frameworks);
+                if (result.skillsData.developerTools) allSkills.push(result.skillsData.developerTools);
+                result.skills = allSkills.join(', ');
+            } else {
+                result.skills = data.skills || '';
+            }
             // Handle arrays - filter out entries with null/undefined values
             result.experience = Array.isArray(data.experience) ? 
                 data.experience.filter(item => item && typeof item === 'object') : [];

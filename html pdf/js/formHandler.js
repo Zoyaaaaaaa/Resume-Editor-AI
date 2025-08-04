@@ -37,6 +37,19 @@ class FormHandler {
             this.updatePreview();
         });
 
+        // Skills fields listeners
+        document.getElementById('languages').addEventListener('input', () => {
+            this.updateFormData();
+        });
+        
+        document.getElementById('frameworks').addEventListener('input', () => {
+            this.updateFormData();
+        });
+        
+        document.getElementById('developerTools').addEventListener('input', () => {
+            this.updateFormData();
+        });
+
         // Add section buttons
         document.getElementById('addExperience').addEventListener('click', () => {
             this.addExperienceEntry();
@@ -778,10 +791,25 @@ class FormHandler {
         this.formData.education = this.getEntriesData('educationContainer', [
             'degree', 'field', 'institution', 'duration', 'grade'
         ]);
-          const skillsInput = document.getElementById('skills');
-        if (skillsInput) {
-            this.formData.skills = skillsInput.value.trim();
-        }
+        // Collect skills from three separate fields
+        const languagesInput = document.getElementById('languages');
+        const frameworksInput = document.getElementById('frameworks');
+        const developerToolsInput = document.getElementById('developerTools');
+        
+        const skillsData = {
+            languages: languagesInput ? languagesInput.value.trim() : '',
+            frameworks: frameworksInput ? frameworksInput.value.trim() : '',
+            developerTools: developerToolsInput ? developerToolsInput.value.trim() : ''
+        };
+        
+        this.formData.skillsData = skillsData;
+        
+        // For backward compatibility, also create a combined skills string
+        const allSkills = [];
+        if (skillsData.languages) allSkills.push(skillsData.languages);
+        if (skillsData.frameworks) allSkills.push(skillsData.frameworks);
+        if (skillsData.developerTools) allSkills.push(skillsData.developerTools);
+        this.formData.skills = allSkills.join(', ');
         
 
         // Update publications data
@@ -791,6 +819,69 @@ class FormHandler {
 
 
         this.updatePreview();
+    }
+
+    autoCategorizeSkills(skillsString) {
+        if (!skillsString) return;
+        
+        const skillsArray = skillsString.split(/[,|]/).map(s => s.trim()).filter(s => s);
+        
+        const categories = {
+            languages: [],
+            frameworks: [],
+            developerTools: []
+        };
+
+        // Keywords for categorization
+        const languageKeywords = [
+            'javascript', 'java', 'python', 'c++', 'c/c++', 'sql', 'mysql', 'html/css', 'html', 'css', 
+            'php', 'ruby', 'go', 'rust', 'typescript', 'c#', 'swift', 'kotlin', 'scala', 'r', 'matlab'
+        ];
+        
+        const frameworkKeywords = [
+            'react', 'vue', 'angular', 'node.js', 'nodejs', 'express', 'django', 'flask', 'spring', 
+            'rails', 'laravel', 'bootstrap', 'tailwind', 'jquery', 'nextjs', 'nuxt', 'grails',
+            'djangorest', 'rest framework', 'fastapi', 'gin'
+        ];
+        
+        const toolKeywords = [
+            'git', 'docker', 'vs code', 'visual studio', 'pycharm', 'intellij', 'eclipse', 'xcode',
+            'postman', 'figma', 'sketch', 'photoshop', 'illustrator', 'kubernetes', 'jenkins', 
+            'travis', 'circleci', 'aws', 'azure', 'gcp', 'heroku', 'vercel', 'netlify'
+        ];
+
+        // Categorize each skill
+        skillsArray.forEach(skill => {
+            const skillLower = skill.toLowerCase();
+            
+            if (languageKeywords.some(keyword => skillLower.includes(keyword))) {
+                categories.languages.push(skill);
+            } else if (frameworkKeywords.some(keyword => skillLower.includes(keyword))) {
+                categories.frameworks.push(skill);
+            } else if (toolKeywords.some(keyword => skillLower.includes(keyword))) {
+                categories.developerTools.push(skill);
+            } else {
+                // Default to languages if unsure
+                categories.languages.push(skill);
+            }
+        });
+
+        // Populate the form fields
+        const languagesInput = document.getElementById('languages');
+        const frameworksInput = document.getElementById('frameworks');
+        const developerToolsInput = document.getElementById('developerTools');
+        
+        if (languagesInput) languagesInput.value = categories.languages.join(', ');
+        if (frameworksInput) frameworksInput.value = categories.frameworks.join(', ');
+        if (developerToolsInput) developerToolsInput.value = categories.developerTools.join(', ');
+        
+        // Update form data
+        this.formData.skillsData = {
+            languages: categories.languages.join(', '),
+            frameworks: categories.frameworks.join(', '),
+            developerTools: categories.developerTools.join(', ')
+        };
+        this.formData.skills = skillsString;
     }
 
     getEntriesData(containerId, fields) {
@@ -968,10 +1059,27 @@ class FormHandler {
                 this.addEducationEntry();
             }
 
-            const skillsInput = document.getElementById('skills');
-            if (skillsInput && resumeData.skills) {
-                skillsInput.value = resumeData.skills;
-                this.formData.skills = resumeData.skills;
+            // Load skills data into separate fields
+            if (resumeData.skillsData) {
+                const languagesInput = document.getElementById('languages');
+                const frameworksInput = document.getElementById('frameworks');
+                const developerToolsInput = document.getElementById('developerTools');
+                
+                if (languagesInput && resumeData.skillsData.languages) {
+                    languagesInput.value = resumeData.skillsData.languages;
+                }
+                if (frameworksInput && resumeData.skillsData.frameworks) {
+                    frameworksInput.value = resumeData.skillsData.frameworks;
+                }
+                if (developerToolsInput && resumeData.skillsData.developerTools) {
+                    developerToolsInput.value = resumeData.skillsData.developerTools;
+                }
+                
+                this.formData.skillsData = resumeData.skillsData;
+                this.formData.skills = resumeData.skills || '';
+            } else if (resumeData.skills) {
+                // Fallback: if only old-format skills available, try to auto-categorize
+                this.autoCategorizeSkills(resumeData.skills);
             }
 
             // Add publication entries
