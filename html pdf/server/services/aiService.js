@@ -8,9 +8,9 @@ class AIService {
         
         if (this.genAI) {
             this.model = this.genAI.getGenerativeModel({ 
-                model: 'gemini-1.5-flash',
+                model: 'gemini-2.5-flash',
                 generationConfig: {
-                    temperature: 0.7,
+                    temperature: 0.6,
                     topP: 0.9,
                     topK: 40
                 }

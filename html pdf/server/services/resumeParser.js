@@ -272,47 +272,264 @@ class ResumeParser {
 // - Return valid JSON with available information  
 // - Apply quality controls to maximum extent possible`;
 //     }
-createStructuringPrompt(text, attempt = 1) {
+// createStructuringPrompt(text, attempt = 1) {
+//     // Clean the text first to fix spacing issues
+//     const cleanedText = this.cleanExtractedText(text);
+
+//     const basePrompt = `
+// You are an expert resume parser with strict quality controls. Analyze the following resume text and extract ALL information into structured JSON format.
+
+// **QUALITY CONTROL CHECKLIST:**
+//    Fix spacing issues carefully - preserve technology names and proper nouns  
+//    Ensure proper word spacing without breaking compound words  
+//    Validate email format (no spaces): user@domain.com  
+//    Sort dates chronologically (most recent first)  
+//    Avoid orphan words - complete phrases only  
+//    No repeated content within same sections  
+//    Convert periods used as line breaks to proper formatting  
+//    CRITICAL FORMATTING: Keep "U.S." as "US", preserve numbers exactly "9.20" stays "9.20"   for all number percentiles and percentages make sure of it
+//    Replace "Indian Institute of Technology Bombay" with "IIT Bombay"  
+
+// **EDUCATION FORMAT STRICTLY ENFORCED:**
+// - Format in ONE LINE ONLY: "GPA: X.XX | Location"
+// - Example: "Mumbai, India"
+// - description: STRICTLY SINGLE academic achievement or highlight (MAX 120 characters, no bullets)
+// -Example:
+//   "University of California, Los Angeles, CA
+//    Master of Science in Electrical Engineering| GPA: 3.82/4.0"
+
+// **ACHIEVEMENTS FORMAT:**
+// - Awards, recognitions, competitions, certifications, honors
+// - SINGLE LINE description only (no bullet points, max 120 characters)
+// - Focus on the recognition/award itself and its significance
+
+// **PUBLICATIONS FORMAT:**
+// - Research papers, journal articles, conference papers, patents
+// - Include all authors, highlight if first/corresponding author
+// - SINGLE LINE description focusing on research contribution (max 120 characters)
+// - Sort by publication date (most recent first)
+
+// **POSITION OF RESPONSIBILITY FORMAT:**
+// - Leadership roles, committee positions, organizational responsibilities
+// - EXACTLY 2 bullet points using "• " prefix
+// - Each bullet follows WHAT-HOW-EFFECT structure
+
+// **SKILLS CATEGORIZATION RULES:**
+// - Languages: Programming languages (JavaScript, Python, Java, C++), markup/query languages (HTML, CSS, SQL), scripting languages (PHP, TypeScript)
+// - Frameworks: Web frameworks (React, Angular, Vue), backend frameworks (Node.js, Django, Spring), CSS frameworks (Bootstrap, Tailwind)
+// - Developer Tools: Version control (Git), IDEs (VS Code, PyCharm, IntelliJ), deployment (Docker, AWS, Azure), databases (MongoDB, PostgreSQL), testing tools (Jest, Postman)
+
+// **CRITICAL IMPACT FRAMEWORK:**
+// For Experience, Projects, and Position of Responsibility descriptions:
+// - MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure
+// - WHAT: Action/work performed  
+// - HOW: Method/technology/approach used  
+// - EFFECT: Result/impact/learning achieved  
+
+// Resume Text:
+// ${cleanedText}
+
+// **EXACT JSON STRUCTURE REQUIRED:**
+// {
+//     "personalInfo": {
+//         "fullName": "full name from resume",
+//         "email": "email@domain.com (validate format - no spaces)",
+//         "phone": "phone number", 
+//         "location": "current location (convert U.S. to US, preserve number formatting)"
+//     },
+//     "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content)",
+//     "skillsData": {
+//         "languages": "programming languages and markup/query languages like JavaScript, Python, Java, C++, SQL, HTML/CSS, PHP, TypeScript, Go, Rust (comma-separated)",
+//         "frameworks": "frameworks, libraries, and platforms like React, Node.js, Django, Flask, Spring, Bootstrap, Angular, Vue, Express, Rails (comma-separated)", 
+//         "developerTools": "development tools, IDEs, and platforms like Git, Docker, VS Code, PyCharm, IntelliJ, Postman, AWS, Azure, Jenkins, Kubernetes (comma-separated)"
+//     },
+//     "experience": [
+//         {
+//             "position": "job title",
+//             "company": "company name",
+//             "location": "work location", 
+//             "dates": "employment period (sorted chronologically)",
+//             "description": "• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result"
+//         }
+//     ],
+//     "achievements": [
+//         {
+//             "title": "achievement/award title",
+//             "organization": "awarding organization",
+//             "date": "achievement date (sorted chronologically)", 
+//             "description": "SINGLE-LINE description highlighting the recognition and its significance (no bullet points, max 120 characters)"
+//         }
+//     ],
+//     "publications": [
+//         {
+//             "title": "publication title",
+//             "authors": "author names (highlight if first author or corresponding author)",
+//             "journal": "journal/conference name",
+//             "date": "publication date (sorted chronologically)",
+//             "doi": "DOI or link if available",
+//             "description": "Brief description of research contribution or impact (max 120 characters, single line)"
+//         }
+//     ],
+//     "projects": [
+//         {
+//             "title": "project name",
+//             "organization": "organization or course",
+//             "duration": "project timeline (sorted chronologically)",
+//             "technologies": "technologies/tools used",
+//             "description": "• WHAT developed + HOW technology + EFFECT outcome\\n• WHAT implemented + HOW approach + EFFECT learning\\n• WHAT achieved + HOW method + EFFECT result"
+//         }
+//     ],
+//      "education": [
+//         {
+//             "degree": "Bachelor of Engineering",
+//             "field": "Computer Engineering", 
+//             "institution": "D. Y. Patil Institute of Engineering, Pune",
+//             "duration": "06/2021-Present",
+//             "grade": "GPA: 9",
+//             "location": "Raisamand, Rajasthan",
+//         }
+//     ]
+//     "positionOfResponsibility": [
+//         {
+//             "position": "leadership position/role name",
+//             "organization": "organization name",
+//             "institution": "institution name", 
+//             "dates": "time period (sorted chronologically)",
+//             "description": "• WHAT led/managed + HOW approach/method + EFFECT impact/outcome\\n• WHAT coordinated/organized + HOW strategy/technique + EFFECT result/learning"
+//         }
+//     ]
+// }`;
+
+//     if (attempt === 1) {
+//         return basePrompt + `
+
+// **FIRST ATTEMPT REQUIREMENTS:**
+// - Apply ALL quality controls from checklist  
+// - CRITICAL: Properly categorize ALL skills using SKILLS CATEGORIZATION RULES above
+// - Extract skills from experience, projects, and explicit skills sections
+// - Implement IMPACT framework (WHAT-HOW-EFFECT) for Experience/Projects/Position of Responsibility bullet points ONLY  
+// - Format Experience/Projects as exactly 3 bullet points using "• " prefix  
+// - Format Position of Responsibility as exactly 2 bullet points using "• " prefix  
+// - Education: STRICTLY ONE LINE format (see EDUCATION FORMAT above)  
+// - Achievements: SINGLE LINE with recognition/award focus (NO bullet points)  
+// - Publications: SINGLE LINE with research contribution focus (NO bullet points), include all authors  
+// - Sort all dates chronologically (most recent first)  
+// - Validate email format strictly  
+// - Convert "U.S." to "US", preserve number formats exactly (9.20 stays 9.20)  
+// - Preserve technical terms exactly as written  
+// - Fix spacing issues without breaking compound words  
+// - Return ONLY valid JSON, no markdown or explanations  
+// - Ensure no content repetition within sections  
+// - Include publications section only if publications are found in resume`;
+//     }
+
+//     if (attempt === 2) {
+//         return basePrompt + `
+
+// **RETRY INSTRUCTIONS (Attempt ${attempt}):**
+// - Previous attempt failed quality controls  
+// - MANDATORY: Apply IMPACT framework to Experience/Projects/Position of Responsibility bullet points  
+// - Achievements are awards/recognitions - NO bullet points, single line only  
+// - Publications are research papers - NO bullet points, single line with research focus  
+// - Position of Responsibility gets EXACTLY 2 bullet points with WHAT-HOW-EFFECT  
+// - Double-check date sorting (chronological order)  
+// - Verify email format has no spaces  
+// - Ensure no repeated sentences in same sections  
+// - Fix any orphan words or incomplete phrases  
+// - Experience/Projects: 3 bullets, Position of Responsibility: 2 bullets, Achievements/Publications: single line  
+// - Education must be in ONE LINE format exactly  
+// - Include publications only if found in resume  
+// - Return ONLY valid JSON format`;
+//     }
+
+//     return basePrompt + `
+
+// **FINAL ATTEMPT (${attempt}):**
+// - Extract available information even if incomplete  
+// - CRITICAL: Apply IMPACT framework to Experience/Projects/Position of Responsibility only  
+// - Achievements are single-line recognitions/awards (no bullets)  
+// - Publications are single-line research contributions (no bullets)  
+// - Position of Responsibility gets exactly 2 detailed bullet points  
+// - Ensure proper date sorting and email validation  
+// - Fix all spacing and formatting issues  
+// - Eliminate any content repetition  
+// - Use "IIT Bombay" format consistently  
+// - Preserve technical terms and proper nouns  
+// - Enforce correct formatting: Experience/Projects (3 bullets), Position of Responsibility (2 bullets), Achievements/Publications (single line)  
+// - Include publications section only if publications exist in resume  
+// - Return valid JSON with available information  
+// - Apply quality controls to maximum extent possible`;
+//     }
+createStructuringPrompt(text, attempt = 1, role = 'software', jobDescription = '') {
     // Clean the text first to fix spacing issues
     const cleanedText = this.cleanExtractedText(text);
 
-    const basePrompt = `
-You are an expert resume parser with strict quality controls. Analyze the following resume text and extract ALL information into structured JSON format.
+    // Role-specific data similar to generatePrompt
+    const roleData = {
+        software: {
+            actionVerbs: ['Developed', 'Built', 'Implemented', 'Designed', 'Architected', 'Optimized', 'Deployed', 'Engineered', 'Created', 'Integrated'],
+            keywords: ['scalable', 'performance', 'architecture', 'full-stack', 'microservices', 'API', 'database', 'cloud'],
+            skills: ['JavaScript', 'Python', 'React', 'Node.js', 'AWS', 'Docker', 'MongoDB', 'PostgreSQL', 'Git', 'Jenkins']
+        },
+        datascience: {
+            actionVerbs: ['Analyzed', 'Modeled', 'Predicted', 'Visualized', 'Extracted', 'Processed', 'Trained', 'Evaluated', 'Discovered', 'Researched'],
+            keywords: ['machine learning', 'statistical analysis', 'data pipeline', 'predictive modeling', 'insights', 'algorithms'],
+            skills: ['Python', 'R', 'TensorFlow', 'PyTorch', 'Pandas', 'Scikit-learn', 'SQL', 'Tableau', 'Jupyter', 'Apache Spark']
+        },
+        consulting: {
+            actionVerbs: ['Advised', 'Strategized', 'Consulted', 'Facilitated', 'Delivered', 'Recommended', 'Analyzed', 'Optimized'],
+            keywords: ['strategy', 'business transformation', 'stakeholder management', 'process improvement', 'client solutions'],
+            skills: ['Strategic Planning', 'Business Analysis', 'Project Management', 'Stakeholder Management', 'Process Optimization', 'Change Management']
+        }
+    };
+
+    const roleInfo = roleData[role] || roleData.software;
+    const warning = attempt > 2 ? `ENHANCEMENT #${attempt}: Previous attempts may have quality issues. Focus on IMPACT framework and avoid repetition.\n\n` : '';
+
+    const basePrompt = `${warning}
+You are an expert resume parser with strict quality controls for ${role} roles. Analyze the following resume text and extract ALL information into structured JSON format.
+
+**ROLE-SPECIFIC OPTIMIZATION FOR ${role.toUpperCase()}:**
+- **Priority Action Verbs:** ${roleInfo.actionVerbs.slice(0, 8).join(', ')}
+- **Key Technologies:** ${roleInfo.skills.slice(0, 8).join(', ')}
+- **Industry Keywords:** ${roleInfo.keywords.slice(0, 6).join(', ')}
+${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 
 **QUALITY CONTROL CHECKLIST:**
-   Fix spacing issues carefully - preserve technology names and proper nouns  
-   Ensure proper word spacing without breaking compound words  
-   Validate email format (no spaces): user@domain.com  
-   Sort dates chronologically (most recent first)  
-   Avoid orphan words - complete phrases only  
-   No repeated content within same sections  
-   Convert periods used as line breaks to proper formatting  
-   CRITICAL FORMATTING: Keep "U.S." as "US", preserve numbers exactly "9.20" stays "9.20"   for all number percentiles and percentages make sure of it
-   Replace "Indian Institute of Technology Bombay" with "IIT Bombay"  
+✓ Fix spacing issues carefully - preserve technology names and proper nouns  
+✓ Ensure proper word spacing without breaking compound words  
+✓ Validate email format (no spaces): user@domain.com  
+✓ Sort dates chronologically (most recent first)  
+✓ Avoid orphan words - complete phrases only  
+✓ No repeated content within same sections  
+✓ Convert periods used as line breaks to proper formatting  
+✓ CRITICAL FORMATTING: Keep "U.S." as "US", preserve numbers exactly "9.20" stays "9.20"   
+✓ Replace "Indian Institute of Technology Bombay" with "IIT Bombay"  
+✓ Character limits: Experience/Projects (105-110 chars per bullet), Education (one line), Achievements (max 120 chars)
 
 **EDUCATION FORMAT STRICTLY ENFORCED:**
-- Format in ONE LINE ONLY: "GPA: X.XX | Location"
-- Example: "Mumbai, India"
-- description: STRICTLY SINGLE academic achievement or highlight (MAX 120 characters, no bullets)
--Example:
-  "University of California, Los Angeles, CA
-   Master of Science in Electrical Engineering| GPA: 3.82/4.0"
+- Format in ONE LINE ONLY: "Degree | Field | Institution | Duration | Grade | Location"
+- Example: "Bachelor of Engineering | Computer Engineering | IIT Bombay | 06/2021-Present | GPA: 9.20 | Mumbai, India"
+- No bullet points, single line format mandatory
 
 **ACHIEVEMENTS FORMAT:**
 - Awards, recognitions, competitions, certifications, honors
 - SINGLE LINE description only (no bullet points, max 120 characters)
 - Focus on the recognition/award itself and its significance
+- Use achievement-focused action verbs: Awarded, Recognized, Achieved, Won, Earned
 
 **PUBLICATIONS FORMAT:**
 - Research papers, journal articles, conference papers, patents
 - Include all authors, highlight if first/corresponding author
 - SINGLE LINE description focusing on research contribution (max 120 characters)
 - Sort by publication date (most recent first)
+- Use research-focused verbs: Published, Authored, Presented, Contributed
 
 **POSITION OF RESPONSIBILITY FORMAT:**
 - Leadership roles, committee positions, organizational responsibilities
-- EXACTLY 2 bullet points using "• " prefix
+- EXACTLY 2 bullet points using "• " prefix (105-110 characters each)
 - Each bullet follows WHAT-HOW-EFFECT structure
+- Use leadership verbs: Led, Managed, Coordinated, Facilitated, Mentored, Organized
 
 **SKILLS CATEGORIZATION RULES:**
 - Languages: Programming languages (JavaScript, Python, Java, C++), markup/query languages (HTML, CSS, SQL), scripting languages (PHP, TypeScript)
@@ -321,10 +538,13 @@ You are an expert resume parser with strict quality controls. Analyze the follow
 
 **CRITICAL IMPACT FRAMEWORK:**
 For Experience, Projects, and Position of Responsibility descriptions:
-- MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure
-- WHAT: Action/work performed  
-- HOW: Method/technology/approach used  
-- EFFECT: Result/impact/learning achieved  
+- MANDATORY: Each bullet point follows WHAT-HOW-EFFECT structure (105-110 characters)
+- WHAT: Action/work performed using role-specific action verbs
+- HOW: Method/technology/approach used (prioritize role-relevant tech)
+- EFFECT: Result/impact/learning achieved (quantify when possible)
+- NO numbering (1, 2, 3) or "Here are" preambles
+- Bold key technologies and methodologies
+- Professional, ATS-friendly language
 
 Resume Text:
 ${cleanedText}
@@ -337,7 +557,7 @@ ${cleanedText}
         "phone": "phone number", 
         "location": "current location (convert U.S. to US, preserve number formatting)"
     },
-    "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content)",
+    "areasOfInterest": "comma-separated professional interests (if missing, infer 3-4 from resume content based on ${role} focus)",
     "skillsData": {
         "languages": "programming languages and markup/query languages like JavaScript, Python, Java, C++, SQL, HTML/CSS, PHP, TypeScript, Go, Rust (comma-separated)",
         "frameworks": "frameworks, libraries, and platforms like React, Node.js, Django, Flask, Spring, Bootstrap, Angular, Vue, Express, Rails (comma-separated)", 
@@ -349,7 +569,7 @@ ${cleanedText}
             "company": "company name",
             "location": "work location", 
             "dates": "employment period (sorted chronologically)",
-            "description": "• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result\\n• WHAT action + HOW method + EFFECT result"
+            "description": "• WHAT action + HOW method + EFFECT result (105-110 chars)\\n• WHAT action + HOW method + EFFECT result (105-110 chars)\\n• WHAT action + HOW method + EFFECT result (105-110 chars)"
         }
     ],
     "achievements": [
@@ -376,26 +596,26 @@ ${cleanedText}
             "organization": "organization or course",
             "duration": "project timeline (sorted chronologically)",
             "technologies": "technologies/tools used",
-            "description": "• WHAT developed + HOW technology + EFFECT outcome\\n• WHAT implemented + HOW approach + EFFECT learning\\n• WHAT achieved + HOW method + EFFECT result"
+            "description": "• WHAT developed + HOW technology + EFFECT outcome (105-110 chars)\\n• WHAT implemented + HOW approach + EFFECT learning (105-110 chars)\\n• WHAT achieved + HOW method + EFFECT result (105-110 chars)"
         }
     ],
-     "education": [
+    "education": [
         {
             "degree": "Bachelor of Engineering",
             "field": "Computer Engineering", 
             "institution": "D. Y. Patil Institute of Engineering, Pune",
             "duration": "06/2021-Present",
             "grade": "GPA: 9",
-            "location": "Raisamand, Rajasthan",
+            "location": "Raisamand, Rajasthan"
         }
-    ]
+    ],
     "positionOfResponsibility": [
         {
             "position": "leadership position/role name",
             "organization": "organization name",
             "institution": "institution name", 
             "dates": "time period (sorted chronologically)",
-            "description": "• WHAT led/managed + HOW approach/method + EFFECT impact/outcome\\n• WHAT coordinated/organized + HOW strategy/technique + EFFECT result/learning"
+            "description": "• WHAT led/managed + HOW approach/method + EFFECT impact/outcome (105-110 chars)\\n• WHAT coordinated/organized + HOW strategy/technique + EFFECT result/learning (105-110 chars)"
         }
     ]
 }`;
@@ -404,14 +624,14 @@ ${cleanedText}
         return basePrompt + `
 
 **FIRST ATTEMPT REQUIREMENTS:**
-- Apply ALL quality controls from checklist  
+- Apply ALL quality controls from checklist with ${role}-specific focus
 - CRITICAL: Properly categorize ALL skills using SKILLS CATEGORIZATION RULES above
 - Extract skills from experience, projects, and explicit skills sections
 - Implement IMPACT framework (WHAT-HOW-EFFECT) for Experience/Projects/Position of Responsibility bullet points ONLY  
-- Format Experience/Projects as exactly 3 bullet points using "• " prefix  
-- Format Position of Responsibility as exactly 2 bullet points using "• " prefix  
+- Format Experience/Projects as exactly 3 bullet points using "• " prefix (105-110 chars each)
+- Format Position of Responsibility as exactly 2 bullet points using "• " prefix (105-110 chars each)
 - Education: STRICTLY ONE LINE format (see EDUCATION FORMAT above)  
-- Achievements: SINGLE LINE with recognition/award focus (NO bullet points)  
+- Achievements: SINGLE LINE with recognition/award focus (NO bullet points, max 120 chars)
 - Publications: SINGLE LINE with research contribution focus (NO bullet points), include all authors  
 - Sort all dates chronologically (most recent first)  
 - Validate email format strictly  
@@ -420,7 +640,8 @@ ${cleanedText}
 - Fix spacing issues without breaking compound words  
 - Return ONLY valid JSON, no markdown or explanations  
 - Ensure no content repetition within sections  
-- Include publications section only if publications are found in resume`;
+- Include publications section only if publications are found in resume
+- Prioritize ${role}-relevant technologies and action verbs`;
     }
 
     if (attempt === 2) {
@@ -429,9 +650,10 @@ ${cleanedText}
 **RETRY INSTRUCTIONS (Attempt ${attempt}):**
 - Previous attempt failed quality controls  
 - MANDATORY: Apply IMPACT framework to Experience/Projects/Position of Responsibility bullet points  
-- Achievements are awards/recognitions - NO bullet points, single line only  
+- Character limits STRICTLY enforced: 105-110 per bullet point
+- Achievements are awards/recognitions - NO bullet points, single line only (max 120 chars)
 - Publications are research papers - NO bullet points, single line with research focus  
-- Position of Responsibility gets EXACTLY 2 bullet points with WHAT-HOW-EFFECT  
+- Position of Responsibility gets EXACTLY 2 bullet points with WHAT-HOW-EFFECT (105-110 chars each)
 - Double-check date sorting (chronological order)  
 - Verify email format has no spaces  
 - Ensure no repeated sentences in same sections  
@@ -439,6 +661,7 @@ ${cleanedText}
 - Experience/Projects: 3 bullets, Position of Responsibility: 2 bullets, Achievements/Publications: single line  
 - Education must be in ONE LINE format exactly  
 - Include publications only if found in resume  
+- Use ${role}-specific action verbs and technologies
 - Return ONLY valid JSON format`;
     }
 
@@ -447,9 +670,10 @@ ${cleanedText}
 **FINAL ATTEMPT (${attempt}):**
 - Extract available information even if incomplete  
 - CRITICAL: Apply IMPACT framework to Experience/Projects/Position of Responsibility only  
+- Character limits: 105-110 per bullet, max 120 for achievements/publications
 - Achievements are single-line recognitions/awards (no bullets)  
 - Publications are single-line research contributions (no bullets)  
-- Position of Responsibility gets exactly 2 detailed bullet points  
+- Position of Responsibility gets exactly 2 detailed bullet points (105-110 chars each)
 - Ensure proper date sorting and email validation  
 - Fix all spacing and formatting issues  
 - Eliminate any content repetition  
@@ -457,9 +681,10 @@ ${cleanedText}
 - Preserve technical terms and proper nouns  
 - Enforce correct formatting: Experience/Projects (3 bullets), Position of Responsibility (2 bullets), Achievements/Publications (single line)  
 - Include publications section only if publications exist in resume  
+- Prioritize ${role}-relevant content and terminology
 - Return valid JSON with available information  
 - Apply quality controls to maximum extent possible`;
-    }
+}
 
     hasMeaningfulData(data) {
         // Check if the parsed data contains meaningful information

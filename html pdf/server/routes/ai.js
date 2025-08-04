@@ -230,398 +230,273 @@ router.post('/enhance-point',
 
             
 
-            function generatePrompt(section, content, context, jobDescription, jobRole, enhancementCount = 1) {
-    const role = roleData[jobRole];
+            function generatePrompt(section, content, context, jobDescription, role, enhancementCount = 1) {
+    const roleInfo = roleData[role];
+    
+    // Add safety check
+    if (!roleInfo) {
+        throw new Error(`Invalid role: ${role}. Must be one of: software, datascience, consulting`);
+    }
+    
     let prompt = '';
-   
-    // Enhancement tracking warning
-    const enhancementWarning = enhancementCount > 2 ?
-        `⚠️ ENHANCEMENT #${enhancementCount}: Previous attempts may have quality issues. Focus on IMPACT framework and avoid repetition.\n\n` : '';
-   
+
+    const warning = enhancementCount > 2
+        ? `ENHANCEMENT #${enhancementCount}: Previous attempts may have quality issues. Focus on IMPACT framework and avoid repetition and reduce 4-5 chars.\n\n`
+        : '';
+
     switch (section) {
         case 'experience':
-            if (jobRole === 'software') {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this software/IT experience using the WHAT-HOW-EFFECT framework.
+            if (role === 'software') {
+                prompt = `
+**Enhance this software/IT experience for maximum technical impact.**
 
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
-**Original point:** "${content}"
-${context ? `**Context/Role:** ${context}` : ''}
-${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 8).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 6).join(', ')}
+- **Tech stack:** ${roleInfo.skills.slice(0, 8).join(', ')}
+- **Structure:** Action + Tech + Implementation + Impact
+- STRICTLY MAINTAIN->**Characters:** 105-110 per bullet point (including all spaces/punctuation) if not posioble just double it nothing else so that entire meaing is preserved.
+- **Format:** 3 clean bullet points with • symbol only
 
+**Standards:**
+- No numbering (1, 2, 3) or "Here are" preambles
+- Bold key technologies, zero filler words
+- No fabricated metrics, eliminate orphan words
+- Professional, ATS-friendly language
 
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Action) + HOW (Method/Technology) + EFFECT (Result/Impact)**
+**Return Format:**
+• [Enhanced bullet point 1]
+• [Enhanced bullet point 2]
+• [Enhanced bullet point 3]
 
+**Return:** Only the 3 bullet points, nothing else.
+`.trim();
+            } else if (role === 'datascience') {
+                prompt = `
+**Enhance this data science experience for analytical impact.**
 
-**WHAT**: Clear action verb describing what you did
-**HOW**: Specific method, technology, or approach used (ONLY from original content)
-**EFFECT**: Measurable outcome, learning, or impact achieved
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 8).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 6).join(', ')}
+- **Tools:** ${roleInfo.skills.slice(0, 8).join(', ')}
+- **Structure:** Action + Data/Model + Method + **Measurable Impact**
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
+- **Format:** 3 clean bullet points with • symbol only
 
-**TECHNOLOGY GUARDRAILS:**
--   ONLY use technologies/frameworks EXPLICITLY mentioned in original content
--   NEVER fabricate or add technologies not present in original text
--   DO NOT assume programming languages, tools, or frameworks
--   NO invented metrics, user counts, or performance numbers
--   Focus on methodology and technical approach when specific tools aren't mentioned
+**Standards:**
+- No numbering (1, 2, 3) or "Here are" preambles
+- Bold analytical terms, no fluff
+- **Impact-driven:** Emphasize outcomes and insights delivered
+- No fabricated accuracy metrics
+- Eliminate unnecessary words
 
+**Return Format:**
+• [Enhanced bullet point 1]
+• [Enhanced bullet point 2]
+• [Enhanced bullet point 3]
 
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary target) OR 160-170 characters if needed for complete IMPACT
-- **Orphan words**: Ensure no single words hanging at line end (count spaces)
-- **No repetition**: Each bullet must be unique and non-overlapping
-- **Email/contact validation**: Preserve exact formatting without spaces
-- **Action verbs**: ${role.actionVerbs.slice(0, 8).join(', ')}
-- **Technical keywords**: ${role.keywords.slice(0, 6).join(', ')} (only if present in original)
+**Return:** Only the 3 bullet points, nothing else.
+`.trim();
+            } else {  // consulting
+                prompt = `
+**Enhance this consulting experience for strategic impact.**
 
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
-**STRUCTURE REQUIREMENTS:**
-- Bold key technical terms that appear in original content
-- Professional technical language appropriate for ${jobRole} role
-- Complete sentences with proper grammar
-- No sentence fragments or incomplete thoughts
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 8).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 6).join(', ')}
+- **Skills:** ${roleInfo.skills.slice(0, 6).join(', ')}
+- **Structure:** Action + Client/Business + Method + **Business Value**
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
 
+**Standards:**
+- No fabricated financial figures
+- Bold strategic terms, crisp professional tone
+- **Value-focused:** Highlight client outcomes and business impact
+- Eliminate filler words
 
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points, each following WHAT-HOW-EFFECT structure.
-NO explanations, character counts, or additional text.`;
+**Return Format:**
+• [Enhanced bullet point]
 
-
-            } else if (jobRole === 'datascience') {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this data science experience using the WHAT-HOW-EFFECT framework.
-
-
-**Original point:** "${content}"
-${context ? `**Context/Role:** ${context}` : ''}
-${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Analysis) + HOW (Method/Tools) + EFFECT (Insight/Learning)**
-
-
-**WHAT**: Analytical action describing the data work performed
-**HOW**: Specific analytical method, algorithm, or tool used (ONLY from original)
-**EFFECT**: Insights gained, patterns discovered, or analytical learning achieved
-
-
-**DATA SCIENCE GUARDRAILS:**
--   ONLY use DS tools/methods EXPLICITLY mentioned in original content
--   NEVER add ML models, algorithms, or libraries not present
--   DO NOT fabricate accuracy percentages, dataset sizes, or performance metrics
--   NO invented business impact or cost savings
--   Focus on analytical methodology and learning process
-
-
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Ensure complete phrases, no hanging words
-- **No repetition**: Each bullet showcases different analytical aspects
-- **Analytical verbs**: ${role.actionVerbs.slice(0, 8).join(', ')}
-- **DS keywords**: ${role.keywords.slice(0, 6).join(', ')} (only if in original)
-
-
-**STRUCTURE REQUIREMENTS:**
-- Bold analytical terms present in original content
-- Emphasize methodology over results when metrics aren't provided
-- Professional analytical language
-- Complete analytical narrative in each bullet
-
-
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for data science.
-NO explanations or additional text.`;
-
-
-            } else {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this consulting experience using the WHAT-HOW-EFFECT framework.
-
-
-**Original point:** "${content}"
-${context ? `**Context/Role:** ${context}` : ''}
-${jobDescription ? `**Target Position:** ${jobDescription}` : ''}
-
-
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Strategy) + HOW (Framework/Approach) + EFFECT (Value/Outcome)**
-
-
-**WHAT**: Strategic action or business initiative undertaken
-**HOW**: Methodology, framework, or approach used (ONLY from original)
-**EFFECT**: Business value, strategic outcome, or client benefit achieved
-
-
-**CONSULTING GUARDRAILS:**
--   ONLY use frameworks/methodologies EXPLICITLY mentioned in original
--   NEVER add consulting frameworks (McKinsey, BCG methods) not present
--   DO NOT fabricate revenue figures, cost savings, or business metrics
--   NO invented client outcomes or market impact
--   Focus on strategic thinking and problem-solving approach
-
-
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Ensure complete business phrases
-- **No repetition**: Each bullet addresses different strategic aspects
-- **Strategic verbs**: ${role.actionVerbs.slice(0, 8).join(', ')}
-- **Business keywords**: ${role.keywords.slice(0, 6).join(', ')} (only if in original)
-
-
-**STRUCTURE REQUIREMENTS:**
-- Bold strategic terms from original content
-- Professional business language with strategic focus
-- Client-focused perspective when applicable
-- Complete strategic narrative
-
-
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for consulting.
-NO explanations or additional text.`;
+**Return:** Only the single bullet point, nothing else.
+`.trim();
             }
             break;
-
 
         case 'projects':
-            if (jobRole === 'software') {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this software project using the WHAT-HOW-EFFECT framework.
+            if (role === 'software') {
+                prompt = `
+**Enhance this software project for technical showcase.**
 
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
-**Original point:** "${content}"
-${context ? `**Project Context:** ${context}` : ''}
-${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 6).join(', ')}
+- **Tech stack:** ${roleInfo.skills.slice(0, 8).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 4).join(', ')}
+- **Structure:** Action + Tech + Implementation + **Performance Outcome**
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
+- **Format:** 3 clean bullet points with • symbol only
 
+**Standards:**
+- No numbering (1, 2, 3) or "Here are" preambles
+- Bold technologies and implementations
+- **Results-oriented:** Focus on system performance and user impact
+- Zero unnecessary words or cryptic abbreviations
+- No fabricated performance metrics
 
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Development) + HOW (Technology/Method) + EFFECT (Learning/Outcome)**
+**Return Format:**
+• [Enhanced bullet point 1]
+• [Enhanced bullet point 2] 
+• [Enhanced bullet point 3]
 
+**Return:** Only the 3 bullet points, nothing else.
+`.trim();
+            } else if (role === 'datascience') {
+                prompt = `
+**Enhance this data science project for analytical showcase.**
 
-**WHAT**: Technical development action or feature implemented
-**HOW**: Specific technology stack or implementation approach (ONLY from original)
-**EFFECT**: Technical learning, functionality achieved, or development outcome
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 6).join(', ')}
+- **Tools:** ${roleInfo.skills.slice(0, 8).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 4).join(', ')}
+- **Structure:** Action + Data/Model + Method + **Research Insight**
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
+- **Format:** 3 clean bullet points with • symbol only
 
-**PROJECT GUARDRAILS:**
--   ONLY use technologies/frameworks EXPLICITLY mentioned in original
--   NEVER add programming languages, databases, or tools not specified
--   DO NOT fabricate user numbers, performance metrics, or deployment stats
--   NO invented technical achievements or system capabilities
--   Focus on technical learning and implementation process
+**Standards:**
+- No numbering (1, 2, 3) or "Here are" preambles
+- Bold analytical methods and tools
+- **Discovery-focused:** Emphasize insights and methodology breakthroughs
+- Crisp methodology focus, eliminate jargon
+- No fabricated accuracy metrics
 
+**Return Format:**
+• [Enhanced bullet point 1]
+• [Enhanced bullet point 2]
+• [Enhanced bullet point 3]
 
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Ensure complete technical phrases
-- **No repetition**: Each bullet covers different technical aspects
-- **Technical verbs**: ${role.actionVerbs.slice(0, 6).join(', ')}
-- **Tech keywords**: ${role.keywords.slice(0, 4).join(', ')} (only if relevant)
+**Return:** Only the 3 bullet points, nothing else.
+`.trim();
+            } else {  // consulting
+                prompt = `
+**Enhance this consulting project for strategic showcase.**
 
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+${jobDescription ? `**Target:** ${jobDescription}` : ''}
 
-**STRUCTURE REQUIREMENTS:**
-- Bold technology names from original content
-- Emphasize learning and technical growth
-- Show problem-solving approach
-- Complete technical narrative
+**Requirements:**
+- **Action verbs:** ${roleInfo.actionVerbs.slice(0, 6).join(', ')}
+- **Frameworks:** ${roleInfo.skills.slice(0, 6).join(', ')}
+- **Keywords:** ${roleInfo.keywords.slice(0, 4).join(', ')}
+- **Structure:** Action + Client/Business + Method + Value
+- **Lines:** 1-2 lines maximum, strategic focus
+- **Characters:** 130-280 total (accounting for 2 lines)
+- **Format:** Return 3 variants, each 1-2 lines
 
+**Standards:**
+- No fabricated impact figures
+- Bold strategic methodologies
+- Professional, direct tone
+- Zero filler content
 
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for software projects.
-NO explanations or additional text.`;
-
-
-            } else if (jobRole === 'datascience') {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this data science project using the WHAT-HOW-EFFECT framework.
-
-
-**Original point:** "${content}"
-${context ? `**Project Context:** ${context}` : ''}
-${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Analysis) + HOW (DS Method/Tool) + EFFECT (Insight/Learning)**
-
-
-**WHAT**: Data analysis or modeling work performed
-**HOW**: Specific DS methodology or tool used (ONLY from original)
-**EFFECT**: Analytical insights gained, patterns discovered, or learning achieved
-
-
-**PROJECT GUARDRAILS:**
--   ONLY use DS tools/methods EXPLICITLY mentioned in original
--   NEVER add ML algorithms, libraries, or datasets not specified
--   DO NOT fabricate accuracy scores, model performance, or data sizes
--   NO invented analytical outcomes or predictive results
--   Focus on analytical methodology and learning process
-
-
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Complete analytical phrases only
-- **No repetition**: Each bullet shows different analytical work
-- **Analytical verbs**: ${role.actionVerbs.slice(0, 6).join(', ')}
-- **DS keywords**: ${role.keywords.slice(0, 4).join(', ')} (only if relevant)
-
-
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for DS projects.
-NO explanations or additional text.`;
-
-
-            } else {
-                prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this consulting project using the WHAT-HOW-EFFECT framework.
-
-
-**Original point:** "${content}"
-${context ? `**Project Context:** ${context}` : ''}
-${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
-
-
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Strategy Work) + HOW (Method/Framework) + EFFECT (Value/Learning)**
-
-
-**WHAT**: Strategic analysis or business work conducted
-**HOW**: Specific methodology or approach used (ONLY from original)
-**EFFECT**: Strategic insights, business value, or learning achieved
-
-
-**PROJECT GUARDRAILS:**
--   ONLY use frameworks/methods EXPLICITLY mentioned in original
--   NEVER add consulting frameworks not specified in original
--   DO NOT fabricate business impact or financial results
--   NO invented strategic outcomes or client benefits
--   Focus on strategic learning and problem-solving approach
-
-
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Complete strategic phrases only
-- **No repetition**: Each bullet addresses different strategic work
-- **Strategic verbs**: ${role.actionVerbs.slice(0, 6).join(', ')}
-- **Business keywords**: ${role.keywords.slice(0, 4).join(', ')} (only if relevant)
-
-
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for consulting projects.
-NO explanations or additional text.`;
+**Return:** 1 strategic project description, 1-2 lines.
+`.trim();
             }
             break;
 
-
         case 'education':
-            prompt = `${enhancementWarning}**Create exactly 1 SINGLE-LINE description** from this education entry highlighting academic foundation.
+            prompt = `
+**Enhance this education point for academic impact.**
 
-
-**Original point:** "${content}"
-${context ? `**Academic Context:** ${context}` : ''}
-
-
-**CRITICAL SINGLE-LINE REQUIREMENT:**
-- MUST be exactly ONE continuous line of text
-- NO bullet points, NO line breaks, NO multiple sentences
-- Maximum 120 characters including spaces
-- Professional academic summary in single sentence
-
-
-**EDUCATION GUARDRAILS:**
--   ONLY mention coursework/activities EXPLICITLY stated in original
--   NEVER add subjects, courses, or achievements not present
--   DO NOT fabricate GPA, rankings, honors, or academic metrics
--   NO invented extracurricular activities or academic projects
--   Focus on academic foundation and learning mentioned
-
-
-**FORMATTING REQUIREMENTS:**
-- Keep numbers exactly as written: "9.20" stays "9.20", "8.90" stays "8.90"
-- NO line breaks or multiple sentences
-- Single continuous professional statement
-- Bold relevant academic terms from original content only
-
-
-**RETURN FORMAT:**
-Return EXACTLY 1 single-line description (no bullet points).
-NO explanations or additional text.`;
-            break;
-
-
-        case 'areasOfInterest':
-            prompt = `${enhancementWarning}**Transform this into 5 professional interest domains** separated by pipe (|) symbols.
-
-
-**Original content:** "${content}"
+**Original:** "${content}"
 ${context ? `**Context:** ${context}` : ''}
 
+**Requirements:**
+- **Action verbs:** Completed, Achieved, Specialized, Graduated, Earned
+- **Structure:** Degree + Institution + **Academic Achievement** (if mentioned)
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
 
-**QUALITY CONTROLS:**
-- Create **5 broad professional domains** relevant to ${jobRole} career
-- **No repetition**: Each domain must be distinct and non-overlapping
-- **Format**: Domain 1 | Domain 2 | Domain 3 | Domain 4 | Domain 5
-- **Bold key terms** within each domain using **term** format
-- Focus on: emerging technologies, methodologies, industry trends, research areas
-- Base on original content theme and career direction
-- Professional language appropriate for ${jobRole} field
+**Standards:**
+- No fabricated GPA or honors
+- Bold degree type, institution, achievements
+- **Achievement-focused:** Highlight honors, specializations, relevant coursework
+- Crisp academic tone
+- Eliminate unnecessary descriptors
 
-
-**DOMAIN REQUIREMENTS:**
-- Each domain should be 2-4 words maximum
-- Broad yet specific to show professional curiosity
-- Connected to current industry developments
-- Relevant to career growth in ${jobRole}
-- No generic terms like "Technology" or "Business"
-
-
-**RETURN FORMAT:**
-Return ONLY the 5 domains separated by pipe symbols.
-NO explanations or additional text.`;
+**Return:** 1 enhanced education point, 1-2 lines.
+`.trim();
             break;
 
+        case 'areasOfInterest':
+            prompt = `
+**Transform into 5 professional interest domains.**
+
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
+
+**Requirements:**
+- **Format:** Domain1 | Domain2 | Domain3 | Domain4 | Domain5
+- **Focus:** Emerging tech, methodologies, trends for ${role}
+- **Characters:**105-110  total per domain
+- **Style:** Bold key terms, specific yet broad domains
+
+**Standards:**
+- Zero filler words
+- **Future-focused:** Emphasize cutting-edge and emerging areas
+- Professional terminology
+- Relevant to career path
+- No cryptic abbreviations
+
+**Return:** 5 domains separated by pipes, 1-2 lines.
+`.trim();
+            break;
 
         case 'positionOfResponsibility':
-            prompt = `${enhancementWarning}**Create exactly 3 IMPACTFUL bullet points** from this leadership position using the WHAT-HOW-EFFECT framework.
+            prompt = `
+**Enhance this leadership position for management impact.**
 
+**Original:** "${content}"
+${context ? `**Context:** ${context}` : ''}
 
-**Original point:** "${content}"
-${context ? `**Leadership Context:** ${context}` : ''}
+**Requirements:**
+- **Action verbs:** Led, Managed, Coordinated, Facilitated, Mentored, Organized
+- **Structure:** Role + Scope + **Leadership Impact** (if mentioned)
+- **Characters:** 105-110  per bullet point (including all spaces/punctuation)
 
+**Standards:**
+- No fabricated team sizes or metrics
+- Bold leadership role and responsibilities
+- **Impact-driven:** Emphasize team development and organizational outcomes
+- Impactful, professional tone
+- Eliminate redundant words
 
-**CRITICAL IMPACT FRAMEWORK (MANDATORY):**
-Each bullet point MUST follow: **WHAT (Leadership Action) + HOW (Method/Approach) + EFFECT (Team/Organizational Impact)**
-
-
-**WHAT**: Leadership action or responsibility undertaken
-**HOW**: Specific leadership approach or method used (ONLY from original)
-**EFFECT**: Team development, organizational outcome, or leadership learning
-
-
-**LEADERSHIP GUARDRAILS:**
--   ONLY mention responsibilities EXPLICITLY stated in original
--   NEVER add team sizes, budget figures, or organizational metrics not present
--   DO NOT fabricate leadership achievements or impact numbers
--   NO invented organizational outcomes or team results
--   Focus on leadership approach and interpersonal skills demonstrated
-
-
-**QUALITY CONTROLS:**
-- **Character count**: 79-85 characters (primary) OR 160-170 characters for complete IMPACT
-- **Orphan words**: Complete leadership phrases
-- **No repetition**: Each bullet shows different leadership aspects
-- **Leadership verbs**: Led, Managed, Coordinated, Facilitated, Mentored, Organized, Guided
-
-
-**STRUCTURE REQUIREMENTS:**
-- Bold leadership terms from original content
-- Emphasize collaboration and responsibility
-- Show leadership development and growth
-- Professional leadership language
-
-
-**RETURN FORMAT:**
-Return EXACTLY 3 bullet points following WHAT-HOW-EFFECT for leadership.
-NO explanations or additional text.`;
+**Return:** 1 enhanced leadership statement, 1-2 lines.
+`.trim();
             break;
+
+        default:
+            throw new Error(`Unsupported section: ${section}`);
     }
-
-
+    
     return prompt;
 }
 
