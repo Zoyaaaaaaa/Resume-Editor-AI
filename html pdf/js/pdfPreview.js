@@ -736,9 +736,12 @@ class PDFPreview {
             .subheader .date {
                 font-style: italic;
                 font-size: 8.5pt;
-                margin-left: 5px;
+                margin-left: 6px;
+                margin-right: 4px;
+                padding-right: 3px;
                 white-space: nowrap;
                 font-weight: normal;
+                flex-shrink: 0;
             }
 
             ul {
@@ -769,6 +772,8 @@ class PDFPreview {
                 font-style: italic;
                 font-size: 8.5pt;
                 float: right;
+                margin-right: 4px;
+                padding-right: 3px;
             }
 
             p {
@@ -1014,7 +1019,7 @@ class PDFPreview {
                 return `
                     <div class="subheader">
                         <div class="title">${this.formatText(exp.position || '')}${exp.company ? ` | ${this.formatText(exp.company)}` : ''}</div>
-                        <div class="date">${this.formatText(exp.duration || '')}</div>
+                        <div class="date">${this.formatText(exp.dates || exp.duration || '')}</div>
                     </div>
                     ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -1202,7 +1207,7 @@ class PDFPreview {
                 return `
                     <div class="subheader">
                         <div class="title">${this.formatText(pos.position || '')}${pos.organization ? ` | ${this.formatText(pos.organization)}` : ''}</div>
-                        <div class="date">${this.formatText(pos.duration || '')}</div>
+                        <div class="date">${this.formatText(pos.dates || pos.duration || '')}</div>
                     </div>
                     ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;

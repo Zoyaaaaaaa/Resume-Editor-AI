@@ -645,6 +645,8 @@ class PDFGenerator {
         line-height: 1.1;
         color: #000;
         background-color: #fff;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .header {
@@ -684,23 +686,31 @@ class PDFGenerator {
     .subheader {
         display: flex;
         justify-content: space-between;
+        align-items: flex-start;
         font-weight: bold;
         font-size: 9.5pt;
         margin-top: 1px;
         margin-bottom: 0;
         background-color: #f0f0f0;
+        min-height: 18px;
     }
     
     .subheader .title {
         flex: 1;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 70%;
     }
     
     .subheader .date {
         font-style: italic;
         font-size: 8.5pt;
-        margin-left: 5px;
+        margin-left: 6px;
+        margin-right: 4px;
+        padding-right: 3px;
         white-space: nowrap;
         font-weight: normal;
+        flex-shrink: 0;
     }
     
     ul {
@@ -734,6 +744,8 @@ class PDFGenerator {
         font-style: italic;
         font-size: 8.5pt;
         float: right;
+        margin-right: 4px;
+        padding-right: 3px;
     }
     
     p {
@@ -866,7 +878,7 @@ class PDFGenerator {
                 return `
         <div class="subheader">
             <div class="title">${this.formatText(exp.position || '')}${exp.company ? ` | ${this.formatText(exp.company)}` : ''}</div>
-            <div class="date">${this.formatText(exp.duration || '')}</div>
+            <div class="date">${this.formatText(exp.dates || exp.duration || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;
@@ -968,7 +980,7 @@ class PDFGenerator {
                 return `
         <div class="subheader">
             <div class="title">${this.formatText(pos.position || '')}${pos.organization ? ` | ${this.formatText(pos.organization)}` : ''}</div>
-            <div class="date">${this.formatText(pos.duration || '')}</div>
+            <div class="date">${this.formatText(pos.dates || pos.duration || '')}</div>
         </div>
         ${bullets ? `<ul>${bullets}</ul>` : ''}
                 `;

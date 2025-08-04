@@ -1210,10 +1210,15 @@ class FormHandler {
     // Save section order using drag and drop
     saveSectionOrder() {
         const sectionOrderContainer = document.getElementById('sectionOrderContainer');
-        if (!sectionOrderContainer) return;
+        if (!sectionOrderContainer) {
+            console.error('sectionOrderContainer not found');
+            return;
+        }
         
         const sectionItems = sectionOrderContainer.querySelectorAll('.section-order-item');
         const sectionOrder = Array.from(sectionItems).map(item => item.dataset.section);
+        
+        console.log('Saving section order:', sectionOrder);
         
         // Update local form data
         this.formData.sectionOrder = sectionOrder;

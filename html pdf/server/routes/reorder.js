@@ -12,7 +12,9 @@ const validateReorderRequest = [
         'experience',
         'achievements',
         'projects',
-        'positionOfResponsibility'
+        'positionOfResponsibility',
+        'skills',
+        'publications'
     ]).withMessage('Invalid section name in sectionOrder')
 ];
 
@@ -32,24 +34,9 @@ router.post('/reorder-sections',
 
             const { sectionOrder } = req.body;
 
-            // Validate that all required sections are present
-            const requiredSections = [
-                'areasOfInterest',
-                'education', 
-                'experience',
-                'achievements',
-                'projects',
-                'positionOfResponsibility'
-            ];
-
-            const missingSection = requiredSections.find(section => !sectionOrder.includes(section));
-            if (missingSection) {
-                return res.status(400).json({
-                    error: 'Missing required section',
-                    details: `Section '${missingSection}' is required`,
-                    timestamp: new Date().toISOString()
-                });
-            }
+            // Validate that all sections in the order are valid
+            // (No longer requiring ALL sections to be present - allows for flexible section management)
+            console.log('Received section order:', sectionOrder);
 
             // Store the section order (in a real app, you'd save this to a database)
             // For now, we'll just return the validated order
@@ -75,7 +62,9 @@ router.get('/section-order', (req, res) => {
         'experience',
         'achievements',
         'projects',
-        'positionOfResponsibility'
+        'positionOfResponsibility',
+        'skills',
+        'publications'
     ];
 
     res.json({
@@ -87,7 +76,9 @@ router.get('/section-order', (req, res) => {
             experience: { title: 'Professional Experience', enabled: true },
             achievements: { title: 'Achievements', enabled: true },
             projects: { title: 'Key Projects', enabled: true },
-            positionOfResponsibility: { title: 'Position of Responsibility', enabled: true }
+            positionOfResponsibility: { title: 'Position of Responsibility', enabled: true },
+            skills: { title: 'Skills', enabled: true },
+            publications: { title: 'Publications', enabled: true }
         },
         timestamp: new Date().toISOString()
     });

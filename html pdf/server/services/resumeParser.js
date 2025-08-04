@@ -570,6 +570,10 @@ ${cleanedText}
         
         const bullets = [];
         
+        // Define action verbs at function scope
+        const actionVerbs = ['Developed', 'Created', 'Implemented', 'Designed', 'Led', 
+                           'Built', 'Managed', 'Achieved', 'Improved', 'Increased'];
+        
         // Enhanced bullet detection with number preservation
         const lines = description.split('\n')
             .map(line => line.trim())
@@ -599,8 +603,6 @@ ${cleanedText}
             }
             
             // Check for action verbs at start of line
-            const actionVerbs = ['Developed', 'Created', 'Implemented', 'Designed', 'Led', 
-                               'Built', 'Managed', 'Achieved', 'Improved', 'Increased'];
             if (actionVerbs.some(verb => line.startsWith(verb))) {
                 bullets.push(line);
                 continue;
@@ -818,7 +820,9 @@ ${cleanedText}
         result = result
             .replace(/\s+/g, ' ')
             .replace(/\s*,\s*/g, ', ')
-            .replace(/\s*\.\s*/g, '. ')
+            // Fix period spacing but preserve decimal numbers
+            .replace(/(\d)\s*\.\s*(\d)/g, '$1.$2') // Fix decimal numbers first
+            .replace(/([a-zA-Z])\s*\.\s*/g, '$1. ') // Then fix sentence periods
             .replace(/\s*;\s*/g, '; ')
             .replace(/\s*:\s*/g, ': ')
             .trim();
