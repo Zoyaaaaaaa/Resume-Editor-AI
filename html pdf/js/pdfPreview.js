@@ -991,14 +991,25 @@ class PDFPreview {
                  const degreeText = edu.degree && edu.field ? 
                     `${this.formatText(edu.degree)} | ${this.formatText(edu.field)}` :
                     this.formatText(edu.degree || '');
-                    
+                
+                // Build title parts conditionally
+                const titleParts = [];
+                if (degreeText) titleParts.push(degreeText);
+                if (edu.institution) titleParts.push(this.formatText(edu.institution));
+                
+                const fieldInfo = this.formatText(edu.field) || '';
+                const gradeInfo = this.formatText(edu.grade) || '';
+                const additionalInfo = [];
+                
+                if (fieldInfo) additionalInfo.push(fieldInfo);
+                if (gradeInfo) additionalInfo.push(gradeInfo);
+                
                 return `
                     <div class="subheader">
-                        <div class="title">${degreeText}${edu.institution ? ` | ${this.formatText(edu.institution)}` : ''}</div>
+                        <div class="title">${titleParts.join(' | ')}</div>
                         <div class="date">${this.formatText(edu.duration || '')}</div>
                     </div>
-                 ${this.formatText(edu.field) || ''} | ${this.formatText(edu.grade)}
-                    
+                    ${additionalInfo.length > 0 ? additionalInfo.join(' | ') : ''}
                 `;
             }).join('');
 
