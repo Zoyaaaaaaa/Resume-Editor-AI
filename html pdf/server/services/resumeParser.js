@@ -491,13 +491,13 @@ ${cleanedText}
                 location: ''
             },
             areasOfInterest: '',
+            skills: '',
             experience: [],
             achievements: [],
             projects: [],
             education: [],
             positionOfResponsibility: [],
-            publications:[],
-            skills:[],
+            publications: [],
         };
 
         // Merge with defaults to ensure all fields exist
@@ -514,9 +514,9 @@ ${cleanedText}
                 });
             }
             
-            // Handle areas of interest (convert null to empty string)
+            // Handle areas of interest and skills (convert null to empty string)
             result.areasOfInterest = data.areasOfInterest || '';
-            result.areasOfInterest = data.skills || '';
+            result.skills = data.skills || '';
             // Handle arrays - filter out entries with null/undefined values
             result.experience = Array.isArray(data.experience) ? 
                 data.experience.filter(item => item && typeof item === 'object') : [];
@@ -528,7 +528,7 @@ ${cleanedText}
                 data.education.filter(item => item && typeof item === 'object') : [];
             result.positionOfResponsibility = Array.isArray(data.positionOfResponsibility) ? 
                 data.positionOfResponsibility.filter(item => item && typeof item === 'object') : [];
-            result.publications = Array.isArray(data.skills) ? 
+            result.publications = Array.isArray(data.publications) ? 
                 data.publications.filter(item => item && typeof item === 'object') : [];
             
                 

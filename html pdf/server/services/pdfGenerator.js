@@ -582,7 +582,7 @@ class PDFGenerator {
     }
 
     generateHTML(data) {
-        const { personalInfo, areasOfInterest, experience, achievements, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+        const { personalInfo, areasOfInterest, skills, experience, achievements, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
 
         // Default section order if none provided
         const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility'];
@@ -591,6 +591,7 @@ class PDFGenerator {
         // Section generators map
         const sectionGenerators = {
             areasOfInterest: () => areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '',
+            skills: () => skills ? this.generateSkills(skills) : '',
             education: () => education?.length ? this.generateEducation(education) : '',
             experience: () => experience?.length ? this.generateExperience(experience) : '',
             achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
@@ -990,6 +991,22 @@ class PDFGenerator {
     <div class="section">
         <div class="section-header">POSITION OF RESPONSIBILITY</div>
         ${positionItems}
+    </div>
+        `;
+    }
+
+    generateSkills(skillsString) {
+        if (!skillsString?.trim()) return '';
+
+        // Split skills by comma or pipe and clean them up
+        const skillsArray = skillsString.split(/[,|]/).map(skill => skill.trim()).filter(skill => skill);
+        
+        if (!skillsArray.length) return '';
+
+        return `
+    <div class="section">
+        <div class="section-header">SKILLS</div>
+        <p>${skillsArray.join(' • ')}</p>
     </div>
         `;
     }
