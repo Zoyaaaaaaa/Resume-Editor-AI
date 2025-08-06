@@ -1,28 +1,31 @@
-// const puppeteer = require('puppeteer');
-// const path = require('path');
 
-// class PDFGenerator {
-//     constructor() {
-//         this.browser = null;
-//     }
 
-//     async initBrowser() {
-//         if (!this.browser) {
-//             this.browser = await puppeteer.launch({
-//                 headless: 'new',
-//                 args: [
-//                     '--no-sandbox',
-//                     '--disable-setuid-sandbox',
-//                     '--disable-dev-shm-usage',
-//                     '--disable-accelerated-2d-canvas',
-//                     '--disable-gpu'
-//                 ]
-//             });
-//         }
-//         return this.browser;
-//     }
+const puppeteer = require('puppeteer');
+const path = require('path');
 
-//     async generatePDF(resumeData) {
+class PDFGenerator {
+    constructor() {
+        this.browser = null;
+    }
+
+    async initBrowser() {
+        if (!this.browser) {
+            this.browser = await puppeteer.launch({
+                headless: 'new',
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--disable-gpu'
+                ]
+            });
+        }
+        return this.browser;
+    }
+
+    // async generatePDF(resumeData) {
+//         async generatePDF(resumeData,fontFamily) {
 //         let page = null;
         
 //         try {
@@ -32,7 +35,7 @@
 
 //             // Generate HTML content
 //             console.log('Generating HTML content...');
-//             const htmlContent = this.generateHTML(resumeData);
+//             const htmlContent = this.generateHTML(resumeData,fontFamily);
 //             console.log('HTML content length:', htmlContent.length);
 //             console.log('First 500 chars of HTML:', htmlContent.substring(0, 500));
 
@@ -47,10 +50,10 @@
 //             const pdfBuffer = await page.pdf({
 //                 format: 'A4',
 //                 margin: {
-//                     top: '15mm',
-//                     right: '15mm',
-//                     bottom: '15mm',
-//                     left: '15mm'
+//                     top: '10mm',
+//                     right: '10mm',
+//                     bottom: '10mm',
+//                     left: '10mm'
 //                 },
 //                 printBackground: true,
 //                 preferCSSPageSize: true
@@ -77,8 +80,26 @@
 //         }
 //     }
 
-//     generateHTML(data) {
-//         const { personalInfo, areasOfInterest, experience, positionOfResponsibility, projects, education, technicalSkills, extraCurricular } = data;
+//     generateHTML(data,fontFamily) {
+//         const { personalInfo, areasOfInterest, skills, skillsData, experience, achievements, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+
+//         // Default section order if none provided
+//         const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility'];
+//         const order = sectionOrder || defaultOrder;
+
+//         // Section generators map
+//         const sectionGenerators = {
+//             areasOfInterest: () => areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '',
+//             skills: () => (skillsData || skills) ? this.generateSkills(skills, skillsData) : '',
+//             education: () => education?.length ? this.generateEducation(education) : '',
+//             experience: () => experience?.length ? this.generateExperience(experience) : '',
+//             achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
+//             projects: () => projects?.length ? this.generateProjects(projects) : '',
+//             positionOfResponsibility: () => positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''
+//         };
+
+//         // Generate sections in the specified order
+//         const orderedSections = order.map(sectionName => sectionGenerators[sectionName] ? sectionGenerators[sectionName]() : '').join('');
 
 //         return `
 // <!DOCTYPE html>
@@ -88,7 +109,7 @@
 //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 //     <title>${personalInfo?.fullName || 'Professional'} – Resume</title>
 //     <style>
-//         ${this.getStyles()}
+//         ${this.getStyles(fontFamily)}
 //     </style>
 // </head>
 // <body>
@@ -96,11 +117,7 @@
 //         ${this.generateHeader(personalInfo)}
 //     </div>
 
-//     ${areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : ''}
-//     ${education?.length ? this.generateEducation(education) : ''}
-//     ${experience?.length ? this.generateExperience(experience) : ''}
-//     ${positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''}
-//     ${projects?.length ? this.generateProjects(projects) : ''}
+//     ${orderedSections}
 //     ${technicalSkills?.length ? this.generateTechnicalSkills(technicalSkills) : ''}
 //     ${extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : ''}
 // </body>
@@ -108,445 +125,216 @@
 //         `;
 //     }
 
-//     getStyles() {
-//         return `
-//         /* A4 page setup */
-//         @page {
-//             size: A4 portrait;
-//             margin: 15mm;
-//         }
-        
-//         html, body {
-//             width: 210mm;
-//             height: 297mm;
-//             margin: 0;
-//             padding: 0;
-//         }
-        
-//         body {
-//             font-family: "Calibri", sans-serif;
-//             font-size: 10pt;
-//             line-height: 1.2;
-//             margin: 15mm;
-//             color: #000;
-//             background-color: #fff;
-//         }
-        
-//         .header {
-//             text-align: center;
-//             margin-bottom: 10px;
-//             border-bottom: 2px solid #2c3e50;
-//             padding-bottom: 8px;
-//         }
-        
-//         .name {
-//             font-size: 24px;
-//             font-weight: bold;
-//             color: #2c3e50;
-//             margin-bottom: 2px;
-//         }
-        
-//         .contact-info {
-//             font-size: 10pt;
-//             color: #666;
-//         }
-        
-//         .section-header {
-//             background-color: #a3d5f7;
-//             padding: 2px 6px;
-//             font-size: 11pt;
-//             font-weight: bold;
-//             letter-spacing: 1px;
-//             margin-top: 8px;
-//             margin-bottom: 4px;
-//             text-transform: uppercase;
-//         }
-        
-//         .section {
-//             margin-bottom: 4px;
-//         }
-        
-//         .subheader {
-//             display: flex;
-//             justify-content: space-between;
-//             align-items: baseline;
-//             font-weight: bold;
-//             font-size: 10pt;
-//             margin-top: 4px;
-//             margin-bottom: 2px;
-//             background-color: #f0f0f0;
-//             padding: 2px 4px;
-//         }
-        
-//         .subheader .title {
-//             flex: 1;
-//         }
-        
-//         .subheader .date {
-//             font-style: italic;
-//             font-size: 9pt;
-//             margin-left: 8px;
-//             white-space: nowrap;
-//             font-weight: normal;
-//         }
-        
-//         ul {
-//             margin: 0 0 2px 24px;
-//             padding: 0;
-//             list-style-type: disc;
-//             list-style-position: outside;
-//         }
-        
-//         ul li {
-//             margin: 0 0 1px;
-//             text-indent: -6px;
-//             padding-left: 6px;
-//             font-size: 10pt;
-//         }
-        
-//         .project-title {
-//             font-size: 11pt;
-//             font-weight: bold;
-//             font-style: italic;
-//             margin: 4px 0 1px;
-//         }
-        
-//         .project-description {
-//             font-size: 10pt;
-//             margin: 0 0 2px 0;
-//         }
-        
-//         .project-description .date {
-//             font-style: italic;
-//             font-size: 9pt;
-//             float: right;
-//         }
-        
-//         p {
-//             margin: 0 0 2px 0;
-//             font-size: 10pt;
-//         }
-        
-//         .areas-text {
-//             font-size: 10pt;
-//             text-align: center;
-//             margin: 2px 0;
-//         }
-        
-//         .extra-category {
-//             font-weight: bold;
-//             margin-top: 4px;
-//             margin-bottom: 2px;
-//             background-color: #f0f0f0;
-//             padding: 1px 4px;
-//             display: inline-block;
-//             width: 140px;
-//             vertical-align: top;
-//         }
-        
-//         .extra-content {
-//             display: inline-block;
-//             width: calc(100% - 150px);
-//             vertical-align: top;
-//         }
-        
-//         .extra-item {
-//             margin-bottom: 4px;
-//             display: block;
-//         }
-        
-//         .extra-content ul {
-//             margin: 0 0 2px 0;
-//         }
-        
-//         .extra-content ul li {
-//             margin: 1px 0;
-//             list-style-position: outside;
-//         }
-//         `;
+//   getStyles(fontFamily) {
+//     return `
+//     /* A4 page setup */
+//     @page {
+//         size: A4 portrait;
+//         margin: 10mm;
 //     }
-
-//     generateHeader(personalInfo) {
-//         const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;
-        
-//         const contactParts = [];
-//         if (email) contactParts.push(this.formatText(email));
-//         if (phone) contactParts.push(this.formatText(phone));
-//         if (linkedIn) contactParts.push(this.formatText(linkedIn));
-//         if (location) contactParts.push(this.formatText(location));
-        
-//         const contactInfo = contactParts.length > 0 ? contactParts.join(' | ') : '[Email] | [Phone] | [LinkedIn] | [Location]';
-        
-//         return `
-//             <div class="name">${this.formatText(fullName)}</div>
-//             <div class="contact-info">${contactInfo}</div>
-//         `;
+    
+//     html, body {
+//         margin: 0;
+//         padding: 0;
+//         font-family: ${fontFamily};
+//         box-sizing: border-box;
 //     }
-
-//     generateAreasOfInterest(areasText) {
-//         if (!areasText.trim()) return '';
-        
-//         return `
-//     <div class="section">
-//         <div class="section-header">AREAS OF INTEREST</div>
-//         <p class="areas-text">${this.formatText(areasText)}</p>
-//     </div>
-//         `;
+    
+//     body {
+//         font-size: 10pt;
+//         line-height: 1.1;
+//         color: #000;
+//         background-color: #fff;
+//         word-wrap: break-word;
+//         overflow-wrap: break-word;
 //     }
-
-//     generateEducation(educationList) {
-//         if (!educationList?.length) return '';
-
-//         const educationItems = educationList
-//             .filter(edu => edu.degree || edu.institution || edu.bulletPoints?.length)
-//             .map(edu => {
-//                 const bullets = this.generateBulletPoints(edu.bulletPoints);
-//                 const degreeText = edu.degree && edu.field ? 
-//                     `${this.formatText(edu.degree)} | ${this.formatText(edu.field)}` :
-//                     this.formatText(edu.degree || '');
-                    
-//                 return `
-//         <div class="subheader">
-//             <div class="title">${degreeText}${edu.institution ? ` | ${this.formatText(edu.institution)}` : ''}</div>
-//             <div class="date">${this.formatText(edu.duration || '')}</div>
-//         </div>
-//         ${bullets ? `<ul>${bullets}</ul>` : ''}
-//                 `;
-//             }).join('');
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">EDUCATION</div>
-//         ${educationItems}
-//     </div>
-//         `;
+    
+//     .header {
+//         text-align: center;
+//         margin-bottom: 2px;
+//         border-bottom: 1.5px solid #2c3e50;
+//         padding-bottom: 2px;
 //     }
-
-//     generateExperience(experiences) {
-//         if (!experiences?.length) return '';
-
-//         const experienceItems = experiences
-//             .filter(exp => exp.position || exp.company || exp.bulletPoints?.length)
-//             .map(exp => {
-//                 const bullets = this.generateBulletPoints(exp.bulletPoints);
-//                 return `
-//         <div class="subheader">
-//             <div class="title">${this.formatText(exp.position || '')}${exp.company ? ` | ${this.formatText(exp.company)}` : ''}</div>
-//             <div class="date">${this.formatText(exp.duration || '')}</div>
-//         </div>
-//         ${bullets ? `<ul>${bullets}</ul>` : ''}
-//                 `;
-//             }).join('');
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">PROFESSIONAL EXPERIENCE</div>
-//         ${experienceItems}
-//     </div>
-//         `;
+    
+//     .name {
+//         font-size: 18pt;
+//         font-weight: bold;
+//         color: #2c3e50;
+//         margin-bottom: 1px;
 //     }
-
-//     generateProjects(projects) {
-//         if (!projects?.length) return '';
-
-//         const projectItems = projects
-//             .filter(proj => proj.title || proj.bulletPoints?.length)
-//             .map(proj => {
-//                 const bullets = this.generateBulletPoints(proj.bulletPoints);
-//                 const descriptionParts = [];
-//                 if (proj.technologies) descriptionParts.push(`<strong>${this.formatText(proj.technologies)}</strong>`);
-//                 if (proj.organization) descriptionParts.push(`${this.formatText(proj.organization)}`);
-//                 if (proj.type) descriptionParts.push(`${this.formatText(proj.type)}`);
-                
-//                 const description = descriptionParts.join(' | ');
-                
-//                 return `
-//         <div class="project">
-//             <div class="project-title">${this.formatText(proj.title || '')}</div>
-//             <p class="project-description">${description} <span class="date">${this.formatText(proj.duration || '')}</span></p>
-//             ${bullets ? `<ul>${bullets}</ul>` : ''}
-//         </div>
-//                 `;
-//             }).join('');
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">KEY PROJECTS</div>
-//         ${projectItems}
-//     </div>
-//         `;
+    
+//     .contact-info {
+//         font-size: 9pt;
+//         color: #666;
 //     }
-
-//     generateTechnicalSkills(skills) {
-//         if (!skills?.length) return '';
-
-//         const languages = [];
-//         const tools = [];
-        
-//         skills.forEach(skill => {
-//             if (skill.category === 'language') {
-//                 languages.push(this.formatText(skill.name));
-//             } else {
-//                 tools.push(this.formatText(skill.name));
-//             }
-//         });
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">TECHNICAL SKILLS</div>
-//         ${languages.length ? `<p><strong>Languages & Software:</strong> ${languages.join(' | ')}</p>` : ''}
-//         ${tools.length ? `<p><strong>Tools & Libraries:</strong> ${tools.join(' | ')}</p>` : ''}
-//     </div>
-//         `;
+    
+//     .section-header {
+//         background-color: #a3d5f7;
+//         padding: 1px 5px;
+//         font-size: 10.5pt;
+//         font-weight: bold;
+//         margin-top: 2px;
+//         margin-bottom: 1px;
+//         text-transform: uppercase;
+//         // border-left: 3px solid #2c3e50;
 //     }
-
-//     generatePositionOfResponsibility(positions) {
-//         if (!positions?.length) return '';
-
-//         const positionItems = positions
-//             .filter(pos => pos.position || pos.organization || pos.bulletPoints?.length)
-//             .map(pos => {
-//                 const bullets = this.generateBulletPoints(pos.bulletPoints);
-//                 return `
-//         <div class="subheader">
-//             <div class="title">${this.formatText(pos.position || '')}${pos.organization ? ` | ${this.formatText(pos.organization)}` : ''}</div>
-//             <div class="date">${this.formatText(pos.duration || '')}</div>
-//         </div>
-//         ${bullets ? `<ul>${bullets}</ul>` : ''}
-//                 `;
-//             }).join('');
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">POSITION OF RESPONSIBILITY</div>
-//         ${positionItems}
-//     </div>
-//         `;
+    
+//     .section {
+//         margin-bottom: 1px;
 //     }
-
-//     generateExtraCurricular(activities) {
-//         if (!activities?.length) return '';
-
-//         const groupedActivities = {};
-        
-//         activities.forEach(activity => {
-//             const category = activity.category || 'Other';
-//             if (!groupedActivities[category]) {
-//                 groupedActivities[category] = [];
-//             }
-//             groupedActivities[category].push(activity);
-//         });
-
-//         const activityItems = Object.entries(groupedActivities)
-//             .map(([category, items]) => {
-//                 const itemList = items
-//                     .map(item => {
-//                         const date = item.date ? `<span style="font-style: italic; float: right;">${this.formatText(item.date)}</span>` : '';
-//                         return `<li><strong>${this.formatText(item.action || '')}</strong> ${this.formatText(item.description || '')} ${date}</li>`;
-//                     })
-//                     .join('');
-                
-//                 return `
-//         <div class="extra-item">
-//             <div class="extra-category">${this.formatText(category)}</div>
-//             <div class="extra-content">
-//                 <ul>${itemList}</ul>
-//             </div>
-//         </div>
-//                 `;
-//             })
-//             .join('');
-
-//         return `
-//     <div class="section">
-//         <div class="section-header">EXTRA-CURRICULAR</div>
-//         ${activityItems}
-//     </div>
-//         `;
+    
+//     .subheader {
+//         display: flex;
+//         justify-content: space-between;
+//         align-items: flex-start;
+//         font-weight: bold;
+//         font-size: 9.5pt;
+//         margin-top: 1px;
+//         margin-bottom: 0;
+//         background-color: #f0f0f0;
+//         min-height: 18px;
 //     }
-
-//     generateBulletPoints(bulletPoints) {
-//         if (bulletPoints && bulletPoints.length > 0) {
-//             const validBullets = bulletPoints.filter(point => point && point.trim());
-//             if (validBullets.length > 0) {
-//                 return validBullets
-//                     .map(point => {
-//                         // Format bullet points with strong tags for action verbs
-//                         const formattedPoint = point.replace(/^(<strong>)?([A-Z][a-z]+[a-z]*)<\/strong>?\s*/i, 
-//                             (match, p1, p2) => `<strong>${p2}</strong>`);
-//                         return `<li>${formattedPoint}</li>`;
-//                     })
-//                     .join('');
-//             }
-//         }
-//         return '';
+    
+//     .subheader .title {
+//         flex: 1;
+//         word-wrap: break-word;
+//         overflow-wrap: break-word;
+//         max-width: 70%;
 //     }
-
-//     escapeHtml(text) {
-//         if (!text) return '';
-//         return text.toString()
-//             .replace(/&/g, '&amp;')
-//             .replace(/</g, '&lt;')
-//             .replace(/>/g, '&gt;')
-//             .replace(/"/g, '&quot;')
-//             .replace(/'/g, '&#39;');
+    
+//     .subheader .date {
+//         font-style: italic;
+//         font-size: 8.5pt;
+//         margin-left: 6px;
+//         margin-right: 4px;
+//         padding-right: 3px;
+//         white-space: nowrap;
+//         font-weight: normal;
+//         flex-shrink: 0;
 //     }
-
-//     async closeBrowser() {
-//         if (this.browser) {
-//             await this.browser.close();
-//             this.browser = null;
-//         }
+    
+//     ul {
+//         margin: 0 0 0 20px;
+//         padding: 0;
+//         list-style-type: disc;
 //     }
+    
+//     ul li {
+//         margin: 0;
+//         padding: 0;
+//         font-size: 9.5pt;
+//         line-height: 1.1;
+//     }
+    
+//     .project-title {
+//         font-size: 10pt;
+//         font-weight: bold;
+//         margin: 1px 0 0;
+//         background-color: #f0f0f0;
+//     }
+    
+//     .project-description {
+//         font-size: 9pt;
+//         margin: 0 0 0 0;
+//         font-weight: normal;
+//         font-style: italic;
+//     }
+    
+//     .project-description .date {
+//         font-style: italic;
+//         font-size: 8.5pt;
+//         float: right;
+//         margin-right: 4px;
+//         padding-right: 3px;
+//     }
+    
+//     p {
+//         margin: 0 0 1px 0;
+//         font-size: 9.5pt;
+//     }
+    
+//     .areas-text {
+//         font-size: 9.5pt;
+//         text-align: center;
+//         margin: 0 0;
+//     }
+    
+//     .extra-category {
+//         font-weight: bold;
+//         margin-top: 1px;
+//         margin-bottom: 0;
+//         display: inline-block;
+//         width: 120px;
+//         vertical-align: top;
+//         font-size: 9.5pt;
+//     }
+    
+//     .extra-content {
+//         display: inline-block;
+//         width: calc(100% - 125px);
+//         vertical-align: top;
+//         font-size: 9.5pt;
+//     }
+    
+//     .extra-item {
+//         margin-bottom: 1px;
+//         display: block;
+//     }
+    
+//     .extra-content ul {
+//         margin: 0;
+//         padding-left: 15px;
+//     }
+    
+//     .extra-content ul li {
+//         list-style-type: none;
+//         position: relative;
+//         padding-left: 10px;
+//     }
+    
+//     .extra-content ul li:before {
+//         content: "•";
+//         position: absolute;
+//         left: 0;
+//     }
+    
+//     table {
+//         width: 100%;
+//         border-collapse: collapse;
+//         margin: 1px 0;
+//     }
+    
+//     table td {
+//         padding: 0 0;
+//         vertical-align: top;
+//         font-size: 9.5pt;
+//     }
+//     `;
 // }
-
-// module.exports = PDFGenerator;
-
-const puppeteer = require('puppeteer');
-const path = require('path');
-
-class PDFGenerator {
-    constructor() {
-        this.browser = null;
-    }
-
-    async initBrowser() {
-        if (!this.browser) {
-            this.browser = await puppeteer.launch({
-                headless: 'new',
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--disable-gpu'
-                ]
-            });
-        }
-        return this.browser;
-    }
-
-    async generatePDF(resumeData) {
+    async generatePDF(resumeData, fontFamily = "'Calibri', sans-serif") {
         let page = null;
         
         try {
-            console.log('Initializing browser for PDF generation...');
+            console.log('🚀 Initializing browser for PDF generation...');
+            console.log('📝 Resume data keys:', Object.keys(resumeData));
+            console.log('🔤 Font family received:', fontFamily);
+            
             const browser = await this.initBrowser();
             page = await browser.newPage();
 
-            // Generate HTML content
-            console.log('Generating HTML content...');
-            const htmlContent = this.generateHTML(resumeData);
-            console.log('HTML content length:', htmlContent.length);
-            console.log('First 500 chars of HTML:', htmlContent.substring(0, 500));
+            // Generate HTML content with proper font family
+            console.log('🔧 Generating HTML content...');
+            const htmlContent = this.generateHTML(resumeData, fontFamily);
+            console.log('📊 HTML content length:', htmlContent.length);
+            console.log('👀 First 500 chars of HTML:', htmlContent.substring(0, 500));
 
             // Set page content
-            console.log('Setting page content...');
+            console.log('📄 Setting page content...');
             await page.setContent(htmlContent, {
                 waitUntil: 'networkidle0'
             });
 
-            console.log('Page content set, generating PDF...');
+            console.log('🎯 Page content set, generating PDF...');
             // Generate PDF
             const pdfBuffer = await page.pdf({
                 format: 'A4',
@@ -560,49 +348,124 @@ class PDFGenerator {
                 preferCSSPageSize: true
             });
 
-            console.log('PDF generated, buffer size:', pdfBuffer.length, 'bytes');
-            console.log('PDF buffer type:', typeof pdfBuffer);
-            console.log('PDF buffer is Buffer:', Buffer.isBuffer(pdfBuffer));
+            console.log('✅ PDF generated successfully!');
+            console.log('📦 Buffer size:', pdfBuffer.length, 'bytes');
+            console.log('🔍 Buffer type:', typeof pdfBuffer);
+            console.log('✔️ Is Buffer:', Buffer.isBuffer(pdfBuffer));
             
             // Ensure we return a proper Buffer
             const finalBuffer = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
-            console.log('Final buffer size:', finalBuffer.length, 'bytes');
-            console.log('Final buffer is Buffer:', Buffer.isBuffer(finalBuffer));
+            console.log('🎉 Final buffer size:', finalBuffer.length, 'bytes');
+            console.log('✅ Final buffer is Buffer:', Buffer.isBuffer(finalBuffer));
             
             return finalBuffer;
 
         } catch (error) {
-            console.error('PDF generation error:', error);
+            console.error('❌ PDF generation error:', error);
+            console.error('🔍 Error stack:', error.stack);
             throw new Error(`Failed to generate PDF: ${error.message}`);
         } finally {
             if (page) {
+                console.log('🔒 Closing page...');
                 await page.close();
             }
         }
     }
 
-    generateHTML(data) {
-        const { personalInfo, areasOfInterest, skills, skillsData, experience, achievements, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+    generateHTML(data, fontFamily = "'Calibri', sans-serif") {
+        console.log('🔧 Generating HTML with data:', Object.keys(data));
+        console.log('🔤 Using font family:', fontFamily);
+        
+        // Validate fontFamily parameter
+        if (!fontFamily || fontFamily === 'undefined' || fontFamily === undefined) {
+            console.warn('⚠️ Font family is undefined, using default');
+            fontFamily = "'Calibri', sans-serif";
+        }
+
+        const { 
+            personalInfo, 
+            areasOfInterest, 
+            skills, 
+            skillsData, 
+            experience, 
+            achievements, 
+            positionOfResponsibility, 
+            projects, 
+            education, 
+            technicalSkills, 
+            extraCurricular, 
+            sectionOrder,
+            publications
+        } = data;
 
         // Default section order if none provided
-        const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility'];
+        const defaultOrder = [
+            'areasOfInterest', 
+            'education', 
+            'experience', 
+            'achievements', 
+            'projects', 
+            'positionOfResponsibility',
+            'skills',
+            'publications'
+        ];
         const order = sectionOrder || defaultOrder;
+        console.log('📋 Section order:', order);
 
         // Section generators map
         const sectionGenerators = {
-            areasOfInterest: () => areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '',
-            skills: () => (skillsData || skills) ? this.generateSkills(skills, skillsData) : '',
-            education: () => education?.length ? this.generateEducation(education) : '',
-            experience: () => experience?.length ? this.generateExperience(experience) : '',
-            achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
-            projects: () => projects?.length ? this.generateProjects(projects) : '',
-            positionOfResponsibility: () => positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''
+            areasOfInterest: () => {
+                console.log('🎯 Generating areas of interest...');
+                return areasOfInterest ? this.generateAreasOfInterest(areasOfInterest) : '';
+            },
+            skills: () => {
+                console.log('💻 Generating skills...');
+                return (skillsData || skills) ? this.generateSkills(skills, skillsData) : '';
+            },
+            education: () => {
+                console.log('🎓 Generating education...');
+                return education?.length ? this.generateEducation(education) : '';
+            },
+            experience: () => {
+                console.log('💼 Generating experience...');
+                return experience?.length ? this.generateExperience(experience) : '';
+            },
+            achievements: () => {
+                console.log('🏆 Generating achievements...');
+                return achievements?.length ? this.generateAchievements(achievements) : '';
+            },
+            projects: () => {
+                console.log('🚀 Generating projects...');
+                return projects?.length ? this.generateProjects(projects) : '';
+            },
+            positionOfResponsibility: () => {
+                console.log('👔 Generating positions of responsibility...');
+                return positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : '';
+            },
+            publications: () => {
+                console.log('📚 Generating publications...');
+                return publications?.length ? this.generatePublications(publications) : '';
+            }
         };
 
         // Generate sections in the specified order
-        const orderedSections = order.map(sectionName => sectionGenerators[sectionName] ? sectionGenerators[sectionName]() : '').join('');
+        console.log('🔄 Processing sections in order...');
+        const orderedSections = order.map(sectionName => {
+            const generator = sectionGenerators[sectionName];
+            if (generator) {
+                const content = generator();
+                console.log(`✅ Section '${sectionName}' generated, length: ${content.length}`);
+                return content;
+            } else {
+                console.warn(`⚠️ No generator found for section: ${sectionName}`);
+                return '';
+            }
+        }).join('');
 
-        return `
+        console.log('🎨 Applying styles with font:', fontFamily);
+        const styles = this.getStyles(fontFamily);
+        
+        const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -610,7 +473,7 @@ class PDFGenerator {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${personalInfo?.fullName || 'Professional'} – Resume</title>
     <style>
-        ${this.getStyles()}
+        ${styles}
     </style>
 </head>
 <body>
@@ -624,194 +487,234 @@ class PDFGenerator {
 </body>
 </html>
         `;
+
+        console.log('📄 HTML generation complete');
+        return htmlContent;
     }
 
-  getStyles() {
-    return `
-    /* A4 page setup */
-    @page {
-        size: A4 portrait;
-        margin: 10mm;
+    getStyles(fontFamily = "'Calibri', sans-serif") {
+        console.log('🎨 Generating styles with font family:', fontFamily);
+        
+        // Validate and sanitize font family
+        let safeFontFamily = fontFamily;
+        if (!fontFamily || fontFamily === 'undefined' || fontFamily === undefined) {
+            console.warn('⚠️ Invalid font family, using Calibri as fallback');
+            safeFontFamily = "'Calibri', sans-serif";
+        }
+
+        return `
+        /* A4 page setup */
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: ${safeFontFamily};
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-size: 10pt;
+            line-height: 1.1;
+            color: #000;
+            background-color: #fff;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2px;
+            border-bottom: 1.5px solid #2c3e50;
+            padding-bottom: 2px;
+        }
+        
+        .name {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1px;
+        }
+        
+        .contact-info {
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        .section-header {
+            background-color: #a3d5f7;
+            padding: 1px 5px;
+            font-size: 10.5pt;
+            font-weight: bold;
+            margin-top: 2px;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+        }
+        
+        .section {
+            margin-bottom: 1px;
+        }
+        
+        .subheader {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-weight: bold;
+            font-size: 9.5pt;
+            margin-top: 1px;
+            margin-bottom: 0;
+            background-color: #f0f0f0;
+            min-height: 18px;
+        }
+        
+        .subheader .title {
+            flex: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 70%;
+        }
+        
+        .subheader .date {
+            font-style: italic;
+            font-size: 8.5pt;
+            margin-left: 6px;
+            margin-right: 4px;
+            padding-right: 3px;
+            white-space: nowrap;
+            font-weight: normal;
+            flex-shrink: 0;
+        }
+        
+        ul {
+            margin: 0 0 0 20px;
+            padding: 0;
+            list-style-type: disc;
+        }
+        
+        ul li {
+            margin: 0;
+            padding: 0;
+            font-size: 9.5pt;
+            line-height: 1.1;
+        }
+        
+        .project-title {
+            font-size: 10pt;
+            font-weight: bold;
+            margin: 1px 0 0;
+            background-color: #f0f0f0;
+        }
+        
+        .project-description {
+            font-size: 9pt;
+            margin: 0 0 0 0;
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        .project-description .date {
+            font-style: italic;
+            font-size: 8.5pt;
+            float: right;
+            margin-right: 4px;
+            padding-right: 3px;
+        }
+        
+        p {
+            margin: 0 0 1px 0;
+            font-size: 9.5pt;
+        }
+        
+        .areas-text {
+            font-size: 9.5pt;
+            text-align: center;
+            margin: 0 0;
+        }
+        
+        .extra-category {
+            font-weight: bold;
+            margin-top: 1px;
+            margin-bottom: 0;
+            display: inline-block;
+            width: 120px;
+            vertical-align: top;
+            font-size: 9.5pt;
+        }
+        
+        .extra-content {
+            display: inline-block;
+            width: calc(100% - 125px);
+            vertical-align: top;
+            font-size: 9.5pt;
+        }
+        
+        .extra-item {
+            margin-bottom: 1px;
+            display: block;
+        }
+        
+        .extra-content ul {
+            margin: 0;
+            padding-left: 15px;
+        }
+        
+        .extra-content ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 10px;
+        }
+        
+        .extra-content ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1px 0;
+        }
+        
+        table td {
+            padding: 0 0;
+            vertical-align: top;
+            font-size: 9.5pt;
+        }
+        `;
     }
-    
-    html, body {
-        margin: 0;
-        padding: 0;
-        font-family: "Calibri", Arial, sans-serif;
-        box-sizing: border-box;
+
+    // Additional utility method to validate data before PDF generation
+    validateResumeData(data) {
+        console.log('🔍 Validating resume data...');
+        const requiredFields = ['personalInfo'];
+        const missing = requiredFields.filter(field => !data[field]);
+        
+        if (missing.length > 0) {
+            console.error('❌ Missing required fields:', missing);
+            throw new Error(`Missing required resume data fields: ${missing.join(', ')}`);
+        }
+        
+        console.log('✅ Resume data validation passed');
+        return true;
     }
-    
-    body {
-        font-size: 10pt;
-        line-height: 1.1;
-        color: #000;
-        background-color: #fff;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
+
+    // Method to safely extract font family from form
+    extractFontFamily() {
+        const fontSelect = document.getElementById('fontSelect');
+        if (fontSelect && fontSelect.value) {
+            const fontFamily = fontSelect.value;
+            console.log('🔤 Extracted font family from form:', fontFamily);
+            return fontFamily;
+        } else {
+            console.warn('⚠️ Font select element not found or no value, using default');
+            return "'Calibri', sans-serif";
+        }
     }
-    
-    .header {
-        text-align: center;
-        margin-bottom: 2px;
-        border-bottom: 1.5px solid #2c3e50;
-        padding-bottom: 2px;
-    }
-    
-    .name {
-        font-size: 18pt;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 1px;
-    }
-    
-    .contact-info {
-        font-size: 9pt;
-        color: #666;
-    }
-    
-    .section-header {
-        background-color: #a3d5f7;
-        padding: 1px 5px;
-        font-size: 10.5pt;
-        font-weight: bold;
-        margin-top: 2px;
-        margin-bottom: 1px;
-        text-transform: uppercase;
-        // border-left: 3px solid #2c3e50;
-    }
-    
-    .section {
-        margin-bottom: 1px;
-    }
-    
-    .subheader {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        font-weight: bold;
-        font-size: 9.5pt;
-        margin-top: 1px;
-        margin-bottom: 0;
-        background-color: #f0f0f0;
-        min-height: 18px;
-    }
-    
-    .subheader .title {
-        flex: 1;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        max-width: 70%;
-    }
-    
-    .subheader .date {
-        font-style: italic;
-        font-size: 8.5pt;
-        margin-left: 6px;
-        margin-right: 4px;
-        padding-right: 3px;
-        white-space: nowrap;
-        font-weight: normal;
-        flex-shrink: 0;
-    }
-    
-    ul {
-        margin: 0 0 0 20px;
-        padding: 0;
-        list-style-type: disc;
-    }
-    
-    ul li {
-        margin: 0;
-        padding: 0;
-        font-size: 9.5pt;
-        line-height: 1.1;
-    }
-    
-    .project-title {
-        font-size: 10pt;
-        font-weight: bold;
-        margin: 1px 0 0;
-        background-color: #f0f0f0;
-    }
-    
-    .project-description {
-        font-size: 9pt;
-        margin: 0 0 0 0;
-        font-weight: normal;
-        font-style: italic;
-    }
-    
-    .project-description .date {
-        font-style: italic;
-        font-size: 8.5pt;
-        float: right;
-        margin-right: 4px;
-        padding-right: 3px;
-    }
-    
-    p {
-        margin: 0 0 1px 0;
-        font-size: 9.5pt;
-    }
-    
-    .areas-text {
-        font-size: 9.5pt;
-        text-align: center;
-        margin: 0 0;
-    }
-    
-    .extra-category {
-        font-weight: bold;
-        margin-top: 1px;
-        margin-bottom: 0;
-        display: inline-block;
-        width: 120px;
-        vertical-align: top;
-        font-size: 9.5pt;
-    }
-    
-    .extra-content {
-        display: inline-block;
-        width: calc(100% - 125px);
-        vertical-align: top;
-        font-size: 9.5pt;
-    }
-    
-    .extra-item {
-        margin-bottom: 1px;
-        display: block;
-    }
-    
-    .extra-content ul {
-        margin: 0;
-        padding-left: 15px;
-    }
-    
-    .extra-content ul li {
-        list-style-type: none;
-        position: relative;
-        padding-left: 10px;
-    }
-    
-    .extra-content ul li:before {
-        content: "•";
-        position: absolute;
-        left: 0;
-    }
-    
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1px 0;
-    }
-    
-    table td {
-        padding: 0 0;
-        vertical-align: top;
-        font-size: 9.5pt;
-    }
-    `;
-}
+
 
     generateHeader(personalInfo) {
         const { fullName = '[YOUR NAME]', email = '', phone = '', linkedIn = '', location = '' } = personalInfo;

@@ -84,9 +84,18 @@ class FormHandler {
         document.getElementById('addPublication').addEventListener('click', () => {
             this.addPublicationEntry();
         });
-
-        
-
+        // Font selector with proper logging
+        fontSelect.addEventListener('change', (e) => {
+            const selectedFont = e.target.value;
+            console.log('🔤 Font changed to:', selectedFont);
+            
+            // Apply to all relevant elements
+            document.querySelectorAll('.resume-preview, .resume-box, .resume-content')
+                .forEach(el => {
+                    el.style.fontFamily = selectedFont;
+                });
+            console.log('✅ Font applied to all elements');
+        });
         // Generate technical skills button
         document.getElementById('generateTechnicalSkills').addEventListener('click', () => {
             this.generateSkillsSuggestions();

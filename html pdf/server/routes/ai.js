@@ -259,7 +259,7 @@ ${jobDescription ? `**Target:** ${jobDescription}` : ''}
 - **Keywords:** ${roleInfo.keywords.slice(0, 6).join(', ')}
 - **Tech stack:** ${roleInfo.skills.slice(0, 8).join(', ')}
 - **Structure:** Action + Tech + Implementation + Impact
-- STRICTLY MAINTAIN->**Characters:** 105-110 per bullet point (including all spaces/punctuation) if not posioble just double it nothing else so that entire meaing is preserved.
+- STRICTLY MAINTAIN->**Characters:** 105-110 per bullet point (including all spaces/punctuation) if not possible just double it nothing else so that entire meaing is preserved.
 - **Format:** 3 clean bullet points with • symbol only
 
 **Standards:**

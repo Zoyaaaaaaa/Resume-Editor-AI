@@ -686,3 +686,23 @@ body {
 .publication-entry .remove-publication:hover {
     background-color: #ffcdd2;
 }
+
+/* styles.css */
+
+/* Apply a default font to the entire app */
+body, input, textarea, select, button {
+    font-family: 'Calibri', sans-serif;
+    font-size: 10pt;
+}
+
+/* Resume preview font */
+.resume-preview, .resume-box, .resume-content {
+    font-family: 'Calibri', sans-serif;
+    font-size: 10pt;
+}
+
+/* Optional: Font style dropdown */
+.font-style-selector {
+    margin: 10px;
+    font-size: 12px;
+}
