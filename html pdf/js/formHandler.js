@@ -10,8 +10,10 @@ class FormHandler {
             projects: [],
             education: [],
             publications:[],
+            extraCurricular: [],
+            certifications: [],
             skills: '',
-            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility','skills','publications']
+            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility','skills','publications','extraCurricular','certifications']
         };
         
         this.initializeEventListeners();
@@ -83,6 +85,14 @@ class FormHandler {
 
         document.getElementById('addPublication').addEventListener('click', () => {
             this.addPublicationEntry();
+        });
+
+        document.getElementById('addExtraCurricular').addEventListener('click', () => {
+            this.addExtraCurricularEntry();
+        });
+
+        document.getElementById('addCertification').addEventListener('click', () => {
+            this.addCertificationEntry();
         });
         // Font selector with proper logging
         fontSelect.addEventListener('change', (e) => {
@@ -321,6 +331,88 @@ class FormHandler {
     
     this.updateFormData();
 }
+
+    addExtraCurricularEntry(data = {}) {
+        const container = document.getElementById('extraCurricularContainer');
+        const entryId = 'extra_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
+        // Clean data for form fields
+        const cleanData = this.cleanEntryData(data);
+        
+        const entryHTML = `
+            <div class="entry-item" data-id="${entryId}">
+                <div class="entry-header">
+                    <span class="entry-title">Extra Curricular Activity</span>
+                    <div class="entry-actions">
+                        <button class="remove-entry" onclick="formHandler.removeEntry('${entryId}', 'extraCurricular')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="entry-grid">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" value="${this.escapeHtml(cleanData.title || '')}" placeholder="e.g., Basketball Team Captain">
+                    </div>
+                    <div class="form-group">
+                        <label>Organization/Event</label>
+                        <input type="text" name="organization" value="${this.escapeHtml(cleanData.organization || '')}" placeholder="e.g., University Sports Club">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" name="date" value="${this.escapeHtml(cleanData.date || '')}" placeholder="e.g., 2023-2024">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', entryHTML);
+        this.attachEntryListeners(entryId, 'extraCurricular');
+        this.updateFormData();
+    }
+
+    addCertificationEntry(data = {}) {
+        const container = document.getElementById('certificationsContainer');
+        const entryId = 'cert_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
+        // Clean data for form fields
+        const cleanData = this.cleanEntryData(data);
+        
+        const entryHTML = `
+            <div class="entry-item" data-id="${entryId}">
+                <div class="entry-header">
+                    <span class="entry-title">Certification</span>
+                    <div class="entry-actions">
+                        <button class="remove-entry" onclick="formHandler.removeEntry('${entryId}', 'certifications')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="entry-grid">
+                    <div class="form-group">
+                        <label>Certification Name</label>
+                        <input type="text" name="name" value="${this.escapeHtml(cleanData.name || '')}" placeholder="e.g., AWS Certified Solutions Architect">
+                    </div>
+                    <div class="form-group">
+                        <label>Organization</label>
+                        <input type="text" name="organization" value="${this.escapeHtml(cleanData.organization || '')}" placeholder="e.g., Amazon Web Services">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" name="date" value="${this.escapeHtml(cleanData.date || '')}" placeholder="e.g., March 2024">
+                    </div>
+                    <div class="form-group">
+                        <label>Link</label>
+                        <input type="url" name="link" value="${this.escapeHtml(cleanData.link || '')}" placeholder="https://certification-link.com">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', entryHTML);
+        this.attachEntryListeners(entryId, 'certifications');
+        this.updateFormData();
+    }
 
     addAchievementEntry(data = {}) {
         const container = document.getElementById('achievementsContainer');
@@ -826,6 +918,15 @@ class FormHandler {
             'title', 'journal', 'authors', 'date', 'doi', 'status'
         ]);
 
+        // Update extra curricular data
+        this.formData.extraCurricular = this.getEntriesData('extraCurricularContainer', [
+            'title', 'organization', 'date'
+        ]);
+
+        // Update certifications data
+        this.formData.certifications = this.getEntriesData('certificationsContainer', [
+            'name', 'organization', 'date', 'link'
+        ]);
 
         this.updatePreview();
     }
@@ -948,6 +1049,9 @@ class FormHandler {
         this.addPositionEntry();
         this.addProjectEntry();
         this.addEducationEntry();
+        this.addPublicationEntry();
+        this.addExtraCurricularEntry();
+        this.addCertificationEntry();
     }
 
     showMessage(text, type = 'info') {
@@ -1005,7 +1109,7 @@ class FormHandler {
             }
 
             // Clear existing entries
-            const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
+            const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer', 'publicationsContainer', 'extraCurricularContainer', 'certificationsContainer'];
             containers.forEach(containerId => {
                 const container = document.getElementById(containerId);
                 if (container) {
@@ -1100,6 +1204,28 @@ class FormHandler {
                 });
             } else {
                 this.addPublicationEntry();
+            }
+
+            // Add extra curricular entries
+            if (resumeData.extraCurricular && resumeData.extraCurricular.length > 0) {
+                resumeData.extraCurricular.forEach(extra => {
+                    if (extra && (extra.title || extra.organization)) {
+                        this.addExtraCurricularEntry(extra);
+                    }
+                });
+            } else {
+                this.addExtraCurricularEntry();
+            }
+
+            // Add certification entries
+            if (resumeData.certifications && resumeData.certifications.length > 0) {
+                resumeData.certifications.forEach(cert => {
+                    if (cert && (cert.name || cert.organization)) {
+                        this.addCertificationEntry(cert);
+                    }
+                });
+            } else {
+                this.addCertificationEntry();
             }
             
             // Update form data and preview
@@ -1210,7 +1336,10 @@ class FormHandler {
             positionOfResponsibility: [],
             projects: [],
             education: [],
-            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility']
+            publications: [],
+            extraCurricular: [],
+            certifications: [],
+            sectionOrder: ['areasOfInterest', 'education', 'experience', 'achievements', 'projects', 'positionOfResponsibility', 'publications', 'extraCurricular', 'certifications']
         };
         
         // Clear all inputs
@@ -1219,7 +1348,7 @@ class FormHandler {
         });
         
         // Clear all containers
-        const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer'];
+        const containers = ['experienceContainer', 'achievementsContainer', 'positionContainer', 'projectsContainer', 'educationContainer', 'publicationsContainer', 'extraCurricularContainer', 'certificationsContainer'];
         containers.forEach(containerId => {
             const container = document.getElementById(containerId);
             if (container) {
@@ -1339,6 +1468,7 @@ class FormHandler {
         
         // Update local form data
         this.formData.sectionOrder = sectionOrder;
+        console.log('Updated formData.sectionOrder:', this.formData.sectionOrder);
         
         // Send to backend
         fetch('/api/reorder-sections', {

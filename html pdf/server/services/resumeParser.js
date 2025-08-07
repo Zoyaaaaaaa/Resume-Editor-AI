@@ -203,10 +203,38 @@ ${jobDescription ? `**Target Role:** ${jobDescription}` : ''}
 - Each bullet follows WHAT-HOW-EFFECT structure
 - Use leadership verbs: Led, Managed, Coordinated, Facilitated, Mentored, Organized
 
+**EXTRA CURRICULAR IDENTIFICATION:**
+- Sports achievements (medals, competitions, team selections): "Cricket Ranji Player", "Dance Gold Medalist", "National Swimming Championship"
+- Cultural activities (competitions, performances): "Inter-college Drama Festival Winner", "State Music Competition Finalist"
+- Non-academic competitions: "Debate Championship", "Quiz Competition Winner", "Photography Contest"
+- Hobby-based recognition: "Chess Tournament Champion", "Marathon Finisher", "Art Exhibition Participant"
+- KEY DISTINCTION from Position of Responsibility: These are achievements/recognitions, not leadership roles
+
+**CERTIFICATIONS IDENTIFICATION:**
+- Professional certifications: "AWS Certified", "Google Cloud Professional", "Microsoft Azure", "PMP Certified"
+- Technical certifications: "Oracle Certified", "Cisco CCNA", "Red Hat Certified", "Salesforce Certified"
+- Industry certifications: "Six Sigma", "ITIL Foundation", "Scrum Master", "Digital Marketing"
+- Course completion certificates: "Deep Learning Specialization", "Full Stack Web Development"
+- Look for phrases: "Certified", "Certificate", "Diploma" (when non-academic), verification codes, expiry dates
+
 **SKILLS CATEGORIZATION RULES:**
 - Languages: Programming languages (JavaScript, Python, Java, C++), markup/query languages (HTML, CSS, SQL), scripting languages (PHP, TypeScript)
 - Frameworks: Web frameworks (React, Angular, Vue), backend frameworks (Node.js, Django, Spring), CSS frameworks (Bootstrap, Tailwind)
 - Developer Tools: Version control (Git), IDEs (VS Code, PyCharm, IntelliJ), deployment (Docker, AWS, Azure), databases (MongoDB, PostgreSQL), testing tools (Jest, Postman)
+
+**CATEGORIZATION LOGIC - POSITION OF RESPONSIBILITY vs EXTRA CURRICULAR:**
+Position of Responsibility (Leadership/Management roles):
+- Class Representative, Student Council Member, Club President/Secretary
+- Team Leader, Project Coordinator, Event Organizer
+- Mentoring roles, Training coordinator, Committee member
+- Focus on leadership, coordination, management responsibilities
+
+Extra Curricular (Achievements/Recognition in activities):
+- "Gold Medalist", "Winner", "Champion", "Finalist", "Selected for", "Represented"
+- Sports: Cricket player, Football team member, Swimming champion
+- Arts: Dance competition winner, Music festival participant, Drama performer
+- Competitions: Quiz winner, Debate finalist, Photography contest participant
+- Focus on personal achievement/recognition, not leadership role
 
 **CRITICAL IMPACT FRAMEWORK:**
 For Experience, Projects, and Position of Responsibility descriptions:
@@ -288,6 +316,21 @@ ${cleanedText}
             "institution": "institution name", 
             "dates": "time period (sorted chronologically)",
             "description": "• WHAT led/managed + HOW approach/method + EFFECT impact/outcome (105-110 chars)\\n• WHAT coordinated/organized + HOW strategy/technique + EFFECT result/learning (105-110 chars)"
+        }
+    ],
+    "extraCurricular": [
+        {
+            "title": "activity/achievement title (e.g., 'Dance Gold Medalist', 'Cricket Ranji Player', 'National Swimming Championship')",
+            "organization": "organizing body/event name (e.g., 'State Dance Competition', 'Ranji Trophy', 'National Swimming Federation')",
+            "date": "achievement/participation date (sorted chronologically)"
+        }
+    ],
+    "certifications": [
+        {
+            "name": "certification title (e.g., 'AWS Certified Solutions Architect', 'Google Cloud Professional')",
+            "organization": "issuing organization (e.g., 'Amazon Web Services', 'Google Cloud', 'Microsoft')",
+            "date": "certification date (sorted chronologically)",
+            "link": "certification verification URL (if available)"
         }
     ]
 }`;
@@ -411,6 +454,8 @@ ${cleanedText}
             education: [],
             positionOfResponsibility: [],
             publications: [],
+            extraCurricular: [],
+            certifications: [],
         };
 
         // Merge with defaults to ensure all fields exist
@@ -460,6 +505,10 @@ ${cleanedText}
                 data.positionOfResponsibility.filter(item => item && typeof item === 'object') : [];
             result.publications = Array.isArray(data.publications) ? 
                 data.publications.filter(item => item && typeof item === 'object') : [];
+            result.extraCurricular = Array.isArray(data.extraCurricular) ? 
+                data.extraCurricular.filter(item => item && typeof item === 'object') : [];
+            result.certifications = Array.isArray(data.certifications) ? 
+                data.certifications.filter(item => item && typeof item === 'object') : [];
             
                 
             // Clean up null values and fix text in array items
@@ -469,6 +518,8 @@ ${cleanedText}
             result.education = result.education.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.publications = result.publications.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
             result.positionOfResponsibility = result.positionOfResponsibility.map(item => this.processEntryWithBulletPoints(this.cleanAndFixText(this.cleanNullValues(item))));
+            result.extraCurricular = result.extraCurricular.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
+            result.certifications = result.certifications.map(item => this.cleanAndFixText(this.cleanNullValues(item)));
         }
 
         console.log('Validated structured data:', JSON.stringify(result, null, 2));

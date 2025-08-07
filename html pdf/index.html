@@ -105,7 +105,7 @@
                                 </div>
                                 <div class="section-order-item" data-section="skills">
                                     <i class="fas fa-grip-vertical"></i>
-                                    <span>Skills</span>
+                                    <span>Technical Skills</span>
                                     <small id="skills-suggestion" style="margin-left: 10px; color: #155724;">🟢 Highly Recommended</small>
                                 </div>
                                 <div class="section-order-item" data-section="projects">
@@ -138,6 +138,16 @@
                                     <span>Publications</span>
                                     <small id="publications-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
                                 </div>
+                                <div class="section-order-item" data-section="extraCurricular">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Extra Curricular</span>
+                                    <small id="extraCurricular-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
+                                </div>
+                                <div class="section-order-item" data-section="certifications">
+                                    <i class="fas fa-grip-vertical"></i>
+                                    <span>Certifications</span>
+                                    <small id="certifications-suggestion" style="margin-left: 10px; color: #721c24;">🔴 Optional</small>
+                                </div>
                             </div>
                             <button class="btn btn-primary" id="applySuggestedOrder">
                                 <i class="fas fa-magic"></i> Apply Suggested Order
@@ -167,7 +177,7 @@
                     <!--SKILLS-->
                     <section class="form-section box">
                         <div class="section-header">
-                            <h2>Skills</h2>
+                            <h2>Technical Skills</h2>
                             <div class="section-actions">
                                 <button class="btn btn-secondary" id="generateTechnicalSkills">
                                     <i class="fas fa-magic"></i> Auto Generate
@@ -398,6 +408,70 @@
                         </div>
                     </section>
 
+                    <!-- Extra Curricular Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Extra Curricular</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addExtraCurricular">
+                                    <i class="fas fa-plus"></i> Add Activity
+                                </button>
+                            </div>
+                        </div>
+                        <div id="extraCurricularContainer">
+                            <div class="extra-curricular-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" name="title" placeholder="Activity Title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Organization/Event</label>
+                                        <input type="text" name="organization" placeholder="Organization or Event Name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="text" name="date" placeholder="Activity Date">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Certifications Section -->
+                    <section class="form-section box">
+                        <div class="section-header">
+                            <h2>Certifications</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-add" id="addCertification">
+                                    <i class="fas fa-plus"></i> Add Certification
+                                </button>
+                            </div>
+                        </div>
+                        <div id="certificationsContainer">
+                            <div class="certification-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Certification Name</label>
+                                        <input type="text" name="name" placeholder="Certification Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Organization</label>
+                                        <input type="text" name="organization" placeholder="Issuing Organization">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="text" name="date" placeholder="Certification Date">
+                                </div>
+                                <div class="form-group">
+                                    <label>Link (URL)</label>
+                                    <input type="url" name="link" placeholder="https://certification-link.com" title="This will make the certification title clickable">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Education Section -->
                     <section class="form-section box">
                         <div class="section-header">
@@ -467,22 +541,24 @@
             software: {
                 title: "Software/IT Resume",
                 description: "For software and IT roles, emphasize technical skills, relevant projects, and professional experience.",
-                order: ["experience", "skills", "projects", "education", "achievements", "areasOfInterest", "positionOfResponsibility", "publications"],
+                order: ["experience", "skills", "projects", "education", "achievements", "certifications", "areasOfInterest", "positionOfResponsibility", "publications", "extraCurricular"],
                 priorities: {
                     experience: "highly-recommended",
                     skills: "highly-recommended", 
                     projects: "highly-recommended",
                     education: "recommended",
                     achievements: "recommended",
+                    certifications: "recommended",
                     areasOfInterest: "optional",
                     positionOfResponsibility: "optional",
-                    publications: "optional"
+                    publications: "optional",
+                    extraCurricular: "optional"
                 }
             },
             datascience: {
                 title: "Data Science Resume",
                 description: "For data science roles, highlight technical skills, relevant projects, publications, and analytical experience.",
-                order: ["experience", "skills", "projects", "education", "publications", "achievements", "areasOfInterest", "positionOfResponsibility"],
+                order: ["experience", "skills", "projects", "education", "publications", "achievements", "certifications", "areasOfInterest", "positionOfResponsibility", "extraCurricular"],
                 priorities: {
                     experience: "highly-recommended",
                     skills: "highly-recommended",
@@ -490,20 +566,24 @@
                     education: "highly-recommended",
                     publications: "highly-recommended",
                     achievements: "recommended",
+                    certifications: "recommended",
                     areasOfInterest: "optional",
-                    positionOfResponsibility: "optional"
+                    positionOfResponsibility: "optional",
+                    extraCurricular: "optional"
                 }
             },
             consulting: {
                 title: "Consulting Resume",
                 description: "For consulting roles, emphasize leadership experience, achievements, and positions of responsibility.",
-                order: ["experience", "positionOfResponsibility", "achievements", "education", "skills", "areasOfInterest", "projects", "publications"],
+                order: ["experience", "positionOfResponsibility", "achievements", "education", "skills", "certifications", "extraCurricular", "areasOfInterest", "projects", "publications"],
                 priorities: {
                     experience: "highly-recommended",
                     positionOfResponsibility: "highly-recommended",
                     achievements: "highly-recommended",
                     education: "highly-recommended",
                     skills: "recommended",
+                    certifications: "recommended",
+                    extraCurricular: "recommended",
                     areasOfInterest: "recommended",
                     projects: "optional",
                     publications: "optional"

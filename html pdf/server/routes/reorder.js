@@ -14,7 +14,9 @@ const validateReorderRequest = [
         'projects',
         'positionOfResponsibility',
         'skills',
-        'publications'
+        'publications',
+        'extraCurricular',
+        'certifications'
     ]).withMessage('Invalid section name in sectionOrder')
 ];
 
@@ -64,7 +66,9 @@ router.get('/section-order', (req, res) => {
         'projects',
         'positionOfResponsibility',
         'skills',
-        'publications'
+        'publications',
+        'extraCurricular',
+        'certifications'
     ];
 
     res.json({
@@ -77,8 +81,10 @@ router.get('/section-order', (req, res) => {
             achievements: { title: 'Achievements', enabled: true },
             projects: { title: 'Key Projects', enabled: true },
             positionOfResponsibility: { title: 'Position of Responsibility', enabled: true },
-            skills: { title: 'Skills', enabled: true },
-            publications: { title: 'Publications', enabled: true }
+            skills: { title: 'Technical Skills', enabled: true },
+            publications: { title: 'Publications', enabled: true },
+            extraCurricular: { title: 'Extra Curricular', enabled: true },
+            certifications: { title: 'Certifications', enabled: true }
         },
         timestamp: new Date().toISOString()
     });

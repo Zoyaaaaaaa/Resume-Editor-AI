@@ -287,11 +287,14 @@ class PDFPreview {
     }
 
     generateResumeHTML(data) {
-        const { personalInfo, areasOfInterest, skills, skillsData, experience, achievements, publications, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, sectionOrder } = data;
+        const { personalInfo, areasOfInterest, skills, skillsData, experience, achievements, publications, positionOfResponsibility, projects, education, technicalSkills, extraCurricular, certifications, sectionOrder } = data;
 
         // Default section order if none provided
-        const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'publications', 'projects', 'positionOfResponsibility'];
+        const defaultOrder = ['areasOfInterest', 'education', 'experience', 'achievements', 'publications', 'projects', 'positionOfResponsibility', 'extraCurricular', 'certifications'];
         const order = sectionOrder || defaultOrder;
+        
+        console.log('PDF Preview - sectionOrder received:', sectionOrder);
+        console.log('PDF Preview - order being used:', order);
 
         // Section generators map
         const sectionGenerators = {
@@ -302,7 +305,9 @@ class PDFPreview {
             achievements: () => achievements?.length ? this.generateAchievements(achievements) : '',
             publications: () => publications?.length ? this.generatePublications(publications) : '',
             projects: () => projects?.length ? this.generateProjects(projects) : '',
-            positionOfResponsibility: () => positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : ''
+            positionOfResponsibility: () => positionOfResponsibility?.length ? this.generatePositionOfResponsibility(positionOfResponsibility) : '',
+            extraCurricular: () => extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : '',
+            certifications: () => certifications?.length ? this.generateCertifications(certifications) : ''
         };
 
         // Generate sections in the specified order
@@ -316,7 +321,6 @@ class PDFPreview {
 
                 ${orderedSections}
                 ${technicalSkills?.length ? this.generateTechnicalSkills(technicalSkills) : ''}
-                ${extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : ''}
             </div>
         `;
     }
@@ -585,7 +589,7 @@ class PDFPreview {
 
         return `
             <div class="section">
-                <div class="section-header">SKILLS</div>
+                <div class="section-header">TECHNICAL SKILLS</div>
                 ${html}
             </div>
         `;
@@ -666,31 +670,13 @@ class PDFPreview {
     generateExtraCurricular(activities) {
         if (!activities?.length) return '';
 
-        const groupedActivities = {};
-        
-        activities.forEach(activity => {
-            const category = activity.category || 'Other';
-            if (!groupedActivities[category]) {
-                groupedActivities[category] = [];
-            }
-            groupedActivities[category].push(activity);
-        });
-
-        const activityItems = Object.entries(groupedActivities)
-            .map(([category, items]) => {
-                const itemList = items
-                    .map(item => {
-                        const date = item.date ? `<span style="font-style: italic; float: right;">${this.formatText(item.date)}</span>` : '';
-                        return `<li>${this.formatText(item.description || '')} ${date}</li>`;
-                    })
-                    .join('');
-                
+        const activityItems = activities
+            .filter(activity => activity.title || activity.organization)
+            .map(activity => {
                 return `
-                    <div class="extra-item">
-                        <div class="extra-category">${this.formatText(category)}</div>
-                        <div class="extra-content">
-                            <ul>${itemList}</ul>
-                        </div>
+                    <div class="subheader">
+                        <div class="title">${this.formatText(activity.title || '')}${activity.organization ? ` | ${this.formatText(activity.organization)}` : ''}</div>
+                        <div class="date">${this.formatText(activity.date || '')}</div>
                     </div>
                 `;
             })
@@ -698,8 +684,39 @@ class PDFPreview {
 
         return `
             <div class="section">
-                <div class="section-header">EXTRA-CURRICULAR</div>
+                <div class="section-header">EXTRA CURRICULAR</div>
                 ${activityItems}
+            </div>
+        `;
+    }
+
+    generateCertifications(certifications) {
+        if (!certifications?.length) return '';
+
+        const certificationItems = certifications
+            .filter(cert => cert.name || cert.organization)
+            .map(cert => {
+                const certName = cert.name || '';
+                const certOrg = cert.organization ? ` | ${this.formatText(cert.organization)}` : '';
+                
+                // Make the title clickable if there's a link
+                const titleContent = cert.link && cert.link.trim() ? 
+                    `<a href="${this.formatText(cert.link)}" target="_blank" class="cert-title-link" title="View Certification">${this.formatText(certName)}</a>${certOrg}` :
+                    `${this.formatText(certName)}${certOrg}`;
+                
+                return `
+                    <div class="subheader">
+                        <div class="title">${titleContent}</div>
+                        <div class="date">${this.formatText(cert.date || '')}</div>
+                    </div>
+                `;
+            })
+            .join('');
+
+        return `
+            <div class="section">
+                <div class="section-header">CERTIFICATIONS</div>
+                ${certificationItems}
             </div>
         `;
     }

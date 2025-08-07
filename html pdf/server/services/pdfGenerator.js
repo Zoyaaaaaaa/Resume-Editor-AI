@@ -394,6 +394,7 @@ class PDFGenerator {
             education, 
             technicalSkills, 
             extraCurricular, 
+            certifications,
             sectionOrder,
             publications
         } = data;
@@ -407,7 +408,9 @@ class PDFGenerator {
             'projects', 
             'positionOfResponsibility',
             'skills',
-            'publications'
+            'publications',
+            'extraCurricular',
+            'certifications'
         ];
         const order = sectionOrder || defaultOrder;
         console.log('📋 Section order:', order);
@@ -445,6 +448,14 @@ class PDFGenerator {
             publications: () => {
                 console.log('📚 Generating publications...');
                 return publications?.length ? this.generatePublications(publications) : '';
+            },
+            extraCurricular: () => {
+                console.log('🎭 Generating extra curricular...');
+                return extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : '';
+            },
+            certifications: () => {
+                console.log('📜 Generating certifications...');
+                return certifications?.length ? this.generateCertifications(certifications) : '';
             }
         };
 
@@ -483,7 +494,6 @@ class PDFGenerator {
 
     ${orderedSections}
     ${technicalSkills?.length ? this.generateTechnicalSkills(technicalSkills) : ''}
-    ${extraCurricular?.length ? this.generateExtraCurricular(extraCurricular) : ''}
 </body>
 </html>
         `;
@@ -976,40 +986,23 @@ class PDFGenerator {
 
         return `
     <div class="section">
-        <div class="section-header">SKILLS</div>
+        <div class="section-header">TECHNICAL SKILLS</div>
         ${html}
     </div>
         `;
     }
 
+
     generateExtraCurricular(activities) {
         if (!activities?.length) return '';
 
-        const groupedActivities = {};
-        
-        activities.forEach(activity => {
-            const category = activity.category || 'Other';
-            if (!groupedActivities[category]) {
-                groupedActivities[category] = [];
-            }
-            groupedActivities[category].push(activity);
-        });
-
-        const activityItems = Object.entries(groupedActivities)
-            .map(([category, items]) => {
-                const itemList = items
-                    .map(item => {
-                        const date = item.date ? `<span style="font-style: italic; float: right;">${this.formatText(item.date)}</span>` : '';
-                        return `<li>${this.formatText(item.description || '')} ${date}</li>`;
-                    })
-                    .join('');
-                
+        const activityItems = activities
+            .filter(activity => activity.title || activity.organization)
+            .map(activity => {
                 return `
-        <div class="extra-item">
-            <div class="extra-category">${this.formatText(category)}</div>
-            <div class="extra-content">
-                <ul>${itemList}</ul>
-            </div>
+        <div class="subheader">
+            <div class="title">${this.formatText(activity.title || '')}${activity.organization ? ` | ${this.formatText(activity.organization)}` : ''}</div>
+            <div class="date">${this.formatText(activity.date || '')}</div>
         </div>
                 `;
             })
@@ -1017,8 +1010,84 @@ class PDFGenerator {
 
         return `
     <div class="section">
-        <div class="section-header">EXTRA-CURRICULAR</div>
+        <div class="section-header">EXTRA CURRICULAR</div>
         ${activityItems}
+    </div>
+        `;
+    }
+
+    generateCertifications(certifications) {
+        if (!certifications?.length) return '';
+
+        const certificationItems = certifications
+            .filter(cert => cert.name || cert.organization)
+            .map(cert => {
+                const certName = cert.name || '';
+                const certOrg = cert.organization ? ` | ${this.formatText(cert.organization)}` : '';
+                
+                // Make the title clickable if there's a link
+                const titleContent = cert.link && cert.link.trim() ? 
+                    `<a href="${this.formatText(cert.link)}" target="_blank" style="color: #2c3e50; text-decoration: underline;" title="View Certification">${this.formatText(certName)}</a>${certOrg}` :
+                    `${this.formatText(certName)}${certOrg}`;
+                
+                return `
+        <div class="subheader">
+            <div class="title">${titleContent}</div>
+            <div class="date">${this.formatText(cert.date || '')}</div>
+        </div>
+                `;
+            })
+            .join('');
+
+        return `
+    <div class="section">
+        <div class="section-header">CERTIFICATIONS</div>
+        ${certificationItems}
+    </div>
+        `;
+    }
+
+    generatePublications(publications) {
+        if (!publications?.length) return '';
+
+        const publicationItems = publications
+            .filter(pub => pub.title || pub.journal || pub.authors)
+            .map(pub => {
+                // Format authors - highlight if first author
+                let authorsText = '';
+                if (pub.authors) {
+                    authorsText = this.formatText(pub.authors);
+                }
+                
+                // Build title line with journal
+                const titleParts = [];
+                if (pub.title) titleParts.push(this.formatText(pub.title));
+                if (pub.journal) titleParts.push(this.formatText(pub.journal));
+                
+                const titleLine = titleParts.join(' | ');
+                
+                // Build description line
+                const descriptionParts = [];
+                if (authorsText) descriptionParts.push(authorsText);
+                if (pub.doi) descriptionParts.push(`DOI: ${this.formatText(pub.doi)}`);
+                if (pub.description) descriptionParts.push(this.formatText(pub.description));
+                
+                const descriptionLine = descriptionParts.join(' | ');
+                
+                return `
+        <div class="subheader">
+            <div class="title">${titleLine}</div>
+            <div class="date">${this.formatText(pub.date || '')}</div>
+        </div>
+        ${descriptionLine ? `<p>${descriptionLine}</p>` : ''}
+                `;
+            })
+            .join('');
+
+        return `
+    <div class="section">
+        <div class="section-header">PUBLICATIONS</div>
+        ${publicationItems}
     </div>
         `;
     }

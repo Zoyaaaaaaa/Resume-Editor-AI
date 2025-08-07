@@ -205,7 +205,19 @@ body {
     min-height: 120px;
 }
 
-/* Experience/Project/Education Entry */
+/* Certification Title Link Styling */
+.cert-title-link {
+    color: #007bff;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.cert-title-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Experience/Project/Education/Extra-Curricular/Certifications Entry */
 .entry-item {
     background: #f8f9fa;
     border-radius: 8px;
